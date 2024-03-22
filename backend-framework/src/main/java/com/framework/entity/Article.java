@@ -1,13 +1,12 @@
 package com.framework.entity;
 
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.io.Serializable;
 /**
  * (Article)表实体类
  *
@@ -21,6 +20,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Article {
     //文章id
+    @TableId
     private Integer id;
     //作者id
     private Integer userId;
