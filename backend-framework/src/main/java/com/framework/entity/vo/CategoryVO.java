@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HotArticleVO {
-    //文章id
+public class CategoryVO {
+    //分类id
     private Integer id;
-    //文章标题
-    private String articleTitle;
-    //是否推荐 (0否 1是)
-    private Integer isRecommend;
+    //分类名
+    private String categoryName;
+    //分类文章数
+    private Integer articleCount;
 }
