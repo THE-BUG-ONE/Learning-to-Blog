@@ -9,8 +9,8 @@ public enum AppHttpCodeEnum {
 
     ;
 
-    int code;
-    String msg;
+    final int code;
+    final String msg;
     AppHttpCodeEnum(int code, String msg) {
         this.code = code;
         this.msg = msg;

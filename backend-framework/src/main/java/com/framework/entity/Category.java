@@ -10,26 +10,22 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * (Album)表实体类
+ * (Category)表实体类
  *
  * @author makejava
- * @since 2024-03-24 14:12:57
+ * @since 2024-03-24 14:19:50
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_album")
-public class Album {
+@TableName("t_category")
+public class Category {
     @TableId
-    //相册id    
+    //分类id    
     private Integer id;
-    //相册名
-    private String albumName;
-    //相册封面
-    private String albumCover;
-    //相册描述
-    private String albumDesc;
-    //状态 (1公开 2私密)
+    //分类名
+    private String categoryName;
+    //状态(0 正常, 1 禁用)
     private Integer status;
     //创建时间
     private Date createTime;
