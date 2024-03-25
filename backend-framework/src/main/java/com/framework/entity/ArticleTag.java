@@ -9,24 +9,22 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * (Category)表实体类
+ * (ArticleTag)表实体类
  *
  * @author makejava
- * @since 2024-03-24 14:19:50
+ * @since 2024-03-25 15:32:36
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_category")
-public class Category {
+@TableName("t_article_tag")
+public class ArticleTag {
     @TableId
-    //分类id    
+    //主键    
     private Integer id;
-    //分类名
-    private String categoryName;
-    //创建时间
-    private Date createTime;
-    //更新时间
-    private Date updateTime;
+    //文章id
+    private Integer articleId;
+    //标签id
+    private Integer tagId;
 }
 

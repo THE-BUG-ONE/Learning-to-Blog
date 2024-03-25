@@ -3,7 +3,7 @@ package com.framework.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.RestBean;
 import com.framework.entity.Category;
-import com.framework.entity.vo.CategoryVO;
+import com.framework.entity.vo.response.CategoryVO;
 
 import java.util.List;
 

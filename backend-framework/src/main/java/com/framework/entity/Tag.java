@@ -1,5 +1,6 @@
 package com.framework.entity;
 
+import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -9,21 +10,21 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * (Category)表实体类
+ * (Tag)表实体类
  *
  * @author makejava
- * @since 2024-03-24 14:19:50
+ * @since 2024-03-25 13:44:50
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_category")
-public class Category {
+@TableName("t_tag")
+public class Tag {
     @TableId
-    //分类id    
+    //标签id    
     private Integer id;
-    //分类名
-    private String categoryName;
+    //标签名
+    private String tagName;
     //创建时间
     private Date createTime;
     //更新时间

@@ -1,7 +1,7 @@
 package com.blog.controller;
 
 import com.framework.RestBean;
-import com.framework.entity.vo.CategoryVO;
+import com.framework.entity.vo.response.CategoryVO;
 import com.framework.service.CategoryService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;

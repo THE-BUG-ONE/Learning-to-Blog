@@ -2,6 +2,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.BackendBlogApplication;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.Article;
+import com.framework.entity.Category;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.CategoryService;
@@ -28,7 +29,6 @@ public class SpringTest {
 
     @Test
     public void test() {
-        QueryWrapper<Article> wrapper = new QueryWrapper<>();
-        System.out.println(articleService.getBaseMapper().selectCount(articleService.query().getWrapper()));
+        System.out.println(categoryService.lambdaQuery().eq(Category::getId, 50).one());
     }
 }

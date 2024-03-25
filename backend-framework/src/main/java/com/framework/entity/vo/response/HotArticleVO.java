@@ -1,4 +1,4 @@
-package com.framework.entity.vo;
+package com.framework.entity.vo.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
