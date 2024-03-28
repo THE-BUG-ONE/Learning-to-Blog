@@ -3,6 +3,7 @@ package com.framework.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.RestBean;
 import com.framework.entity.Article;
+import com.framework.entity.vo.response.ArticleDetailVO;
 import com.framework.entity.vo.response.ArticleRecommendVO;
 import com.framework.entity.vo.response.ArticleRespVO;
 
@@ -15,8 +16,10 @@ import java.util.List;
  * @since 2024-03-25 13:22:23
  */
 public interface ArticleService extends IService<Article> {
-    RestBean<ArticleRespVO> getArticleList(int current, int size);
+    RestBean<ArticleRespVO> getArticleList(Integer current, Integer size);
 
     RestBean<List<ArticleRecommendVO>> getArticleRecommendList();
+
+    RestBean<ArticleDetailVO> getArticleDetail(Integer articleId);
 }
 

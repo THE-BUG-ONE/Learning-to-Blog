@@ -20,12 +20,13 @@ public record RestBean<T>(boolean flag, int code, String msg, T data) {
                 null);
     }
 
-//    public static <T> RestBean<T> failure() {
-//        return new RestBean<>(
-//                false,
-//                AppHttpCodeEnum.Fa
-//        )
-//    }
+    public static <T> RestBean<T> failure() {
+        return new RestBean<>(
+                false,
+                AppHttpCodeEnum.FORBIDDEN.getCode(),
+                AppHttpCodeEnum.FORBIDDEN.getMsg(),
+                null);
+    }
 
     public String asJsonString() {
         return JSONObject.toJSONString(this, JSONWriter.Feature.WriteNulls);

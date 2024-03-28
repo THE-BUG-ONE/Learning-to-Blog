@@ -51,3 +51,8 @@
   @Lazy
   @Resource
   private ArticleService articleService;
+- 多表查询时将其他表先进行存储，可以减少数据库访问次数，优化查询消耗
+> 当多表查询时当前表每个数据查询其他表都要访问一次数据库，这时可以将其他表的数据先进行存储，
+  使用时可以访问存储的数据而不用请求数据库，从而减少请求数据库的次数
+- 全局日期格式配置
+> 在Application.yml文件中配置spring.jackson.date-format
