@@ -28,6 +28,16 @@
     是用别人的数据库并自己添加了字段
   - 解决：
     删除自己添加的字段
+- mybatisPlus分页查询是会返回所有列，即分页不生效
+  - 原因：
+    未进行分页配置
+  - 解决：
+  > @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+      MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+      mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+      return mybatisPlusInterceptor;
+    }
 ---  
 ### 项目技巧
 - 项目中不应该使用常量，要进行字面值处理，即把所有需要用到的常量放在一个类里

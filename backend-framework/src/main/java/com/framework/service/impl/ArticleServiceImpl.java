@@ -18,7 +18,9 @@ import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Article)表服务实现类
@@ -69,22 +71,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                 .orderByDesc(Article::getIsTop)
                 .getWrapper());
+        //优化：减少调用数据库
+        Map<Integer, ArticleCategoryVO> articleCategoryVOMap = getArticleCategoryVOMap();
+
         List<ArticleVO> articleVOList =
-                BeanCopyUtils.copyBeanList(p.getRecords(), ArticleVO.class)
-                .stream()
-                .peek(articleVO -> {
-                    articleVO.setArticleCategoryVO(getArticleCategoryVO(articleVO.getId()));
-                    articleVO.setArticleTagVOList(getArticleTagVOList(articleVO.getId()));
-                })
-                .toList();
+                p.getRecords()
+                        .stream()
+                        .map(article -> BeanCopyUtils.copyBean(article,ArticleVO.class)
+                                .setArticleCategoryVO(articleCategoryVOMap.get(article.getCategoryId()))
+                                .setArticleTagVOList(getArticleTagVOList(article.getId()))
+                        )
+                        .toList();
         ArticleRespVO articleRespVO = new ArticleRespVO(articleVOList.size(), articleVOList);
         return RestBean.success(articleRespVO);
     }
-    //获取文章分类（分类id，分类名）
-    private ArticleCategoryVO getArticleCategoryVO(int id) {
-        Category category = categoryService.getBaseMapper().selectById(
-                this.getBaseMapper().selectById(id).getCategoryId());
-        return BeanCopyUtils.copyBean(category, ArticleCategoryVO.class);
+    //获取文章分类列表（分类id，分类名）
+    private Map<Integer, ArticleCategoryVO> getArticleCategoryVOMap() {
+        Map<Integer, ArticleCategoryVO> articleCategoryVOMap = new HashMap<>();
+        BeanCopyUtils.copyBeanList(categoryService.list(), ArticleCategoryVO.class)
+                .forEach(articleCategoryVO ->
+                        articleCategoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
+        return articleCategoryVOMap;
     }
     //获取文章标签列表（标签id，标签名）
     private List<ArticleTagVO> getArticleTagVOList(int id) {
