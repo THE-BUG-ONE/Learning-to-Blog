@@ -1,7 +1,4 @@
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.BackendBlogApplication;
-import com.framework.constants.SystemConstants;
-import com.framework.entity.Article;
 import com.framework.entity.Category;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.ArticleService;
@@ -11,8 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.stream.Collectors;
 
 @SpringBootTest(classes = BackendBlogApplication.class)
 @RunWith(SpringJUnit4ClassRunner.class)

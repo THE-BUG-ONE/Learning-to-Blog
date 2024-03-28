@@ -5,14 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.RestBean;
 import com.framework.constants.SystemConstants;
+import com.framework.entity.Article;
 import com.framework.entity.ArticleTag;
 import com.framework.entity.Category;
-import com.framework.entity.vo.response.ArticleCategoryVO;
-import com.framework.entity.vo.response.ArticleRespVO;
-import com.framework.entity.vo.response.ArticleTagVO;
-import com.framework.entity.vo.response.ArticleVO;
+import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
-import com.framework.entity.Article;
 import com.framework.service.ArticleService;
 import com.framework.service.ArticleTagService;
 import com.framework.service.CategoryService;
@@ -21,9 +18,7 @@ import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * (Article)表服务实现类
@@ -96,6 +91,26 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<ArticleTag> articleTagList = articleTagService.lambdaQuery()
                 .eq(ArticleTag::getArticleId, id).list();
         return BeanCopyUtils.copyBeanList(articleTagList, ArticleTagVO.class);
+    }
+
+    @Override
+    public RestBean<List<ArticleRecommendVO>> getArticleRecommendList() {
+        /*[
+            {
+                "articleCover": "string",
+                "articleTitle": "string",
+                "createTime": "2024-03-28T04:04:43.419Z",
+                "id": 0
+            }
+        ]*/
+        List<Article> articleList = this.lambdaQuery()
+                .eq(Article::getIsRecommend, SystemConstants.ARTICLE_IS_RECOMMEND)
+                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                .list();
+        List<ArticleRecommendVO> articleRecommendVOList =
+                BeanCopyUtils.copyBeanList(articleList, ArticleRecommendVO.class);
+        return RestBean.success(articleRecommendVOList);
     }
 }
 

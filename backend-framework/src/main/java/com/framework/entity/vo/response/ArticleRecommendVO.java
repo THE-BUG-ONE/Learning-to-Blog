@@ -4,14 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HotArticleVO {
+public class ArticleRecommendVO {
     //文章id
     private Integer id;
     //文章标题
     private String articleTitle;
-    //是否推荐 (0否 1是)
-    private Integer isRecommend;
+    //缩略图
+    private String articleCover;
+    //发表时间
+    private Date createTime;
 }
