@@ -38,6 +38,11 @@
       mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
       return mybatisPlusInterceptor;
     }
+- 类的属性中有类，未进行查找
+ - 原因：
+   对类中的属性类，忘记处理
+ - 解决：
+ > 文章数据需要标签，查找标签需要查询文章标签表，再查询标签表
 ---  
 ### 项目技巧
 - 项目中不应该使用常量，要进行字面值处理，即把所有需要用到的常量放在一个类里

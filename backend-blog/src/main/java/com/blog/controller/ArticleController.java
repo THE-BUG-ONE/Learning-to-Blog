@@ -4,6 +4,7 @@ import com.framework.RestBean;
 import com.framework.entity.vo.response.ArticleDetailVO;
 import com.framework.entity.vo.response.ArticleRecommendVO;
 import com.framework.entity.vo.response.ArticleRespVO;
+import com.framework.entity.vo.response.ArticleSearchVO;
 import com.framework.service.ArticleService;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +21,7 @@ public class ArticleController {
 
     //接口：推荐文章
     @GetMapping("/recommend")
-    public RestBean<List<ArticleRecommendVO>> getArticleRecommendList() {
+    public RestBean<List<ArticleRecommendVO>> getRecommendArticleList() {
         return articleService.getArticleRecommendList();
     }
 
@@ -35,5 +36,12 @@ public class ArticleController {
     @GetMapping("/{articleId}")
     public RestBean<ArticleDetailVO> getArticle(@PathVariable("articleId") Integer articleId) {
         return articleService.getArticleDetail(articleId);
+    }
+
+    //接口：搜索文章
+    @GetMapping("/search")
+    public RestBean<List<ArticleSearchVO>> getSearchArticle(
+            @RequestParam("keyword") @Validated String keyword) {
+        return articleService.getArticleSearchList(keyword);
     }
 }

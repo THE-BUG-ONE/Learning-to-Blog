@@ -3,6 +3,7 @@ package com.framework.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.RestBean;
 import com.framework.entity.Category;
+import com.framework.entity.vo.response.CategoryArticleVO;
 import com.framework.entity.vo.response.CategoryVO;
 
 import java.util.List;
@@ -15,5 +16,8 @@ import java.util.List;
  */
 public interface CategoryService extends IService<Category> {
     RestBean<List<CategoryVO>> getCategoryList();
+
+    RestBean<CategoryArticleVO> getCategoryArticleList(Integer categoryId, Integer current,
+                                                       Integer size, Integer tagId);
 }
 

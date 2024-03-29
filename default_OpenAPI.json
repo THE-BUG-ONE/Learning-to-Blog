@@ -11,7 +11,7 @@
       "email": "1632167813@qq.com"
     }
   },
-  "host": "https://www.ttkwsd.top",
+  "host": "https://localhost:8080",
   "basePath": "/",
   "tags": [
     {

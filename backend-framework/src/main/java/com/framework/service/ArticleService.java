@@ -6,6 +6,7 @@ import com.framework.entity.Article;
 import com.framework.entity.vo.response.ArticleDetailVO;
 import com.framework.entity.vo.response.ArticleRecommendVO;
 import com.framework.entity.vo.response.ArticleRespVO;
+import com.framework.entity.vo.response.ArticleSearchVO;
 
 import java.util.List;
 
@@ -21,5 +22,7 @@ public interface ArticleService extends IService<Article> {
     RestBean<List<ArticleRecommendVO>> getArticleRecommendList();
 
     RestBean<ArticleDetailVO> getArticleDetail(Integer articleId);
+
+    RestBean<List<ArticleSearchVO>> getArticleSearchList(String keyword);
 }
 

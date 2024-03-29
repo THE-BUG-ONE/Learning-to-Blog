@@ -1,6 +1,7 @@
 package com.framework.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.RestBean;
@@ -48,6 +49,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Resource
     private TagService tagService;
 
+    private final LambdaQueryChainWrapper<Article> articleWrapper = this.lambdaQuery();
+
     @Override
     public RestBean<ArticleRespVO> getArticleList(Integer current, Integer size) {
         /*{
@@ -76,15 +79,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         */
         IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
                 this.lambdaQuery()
-                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                .orderByDesc(Article::getIsTop)
-                .getWrapper());
+                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                        .orderByDesc(Article::getIsTop)
+                        .getWrapper());
+
         //优化：减少调用数据库
         Map<Integer, ArticleCategoryVO> articleCategoryVOMap = getArticleCategoryVOMap();
 
-        List<ArticleVO> articleVOList =
-                p.getRecords()
+        List<ArticleVO> articleVOList = p.getRecords()
                         .stream()
                         .map(article -> BeanCopyUtils.copyBean(article,ArticleVO.class)
                                 .setArticleCategoryVO(articleCategoryVOMap.get(article.getCategoryId()))
@@ -104,16 +107,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 "id": 0
             }
         ]*/
-        List<Article> articleList = this.lambdaQuery()
+        List<Article> articleList = articleWrapper
                 .eq(Article::getIsRecommend, SystemConstants.ARTICLE_IS_RECOMMEND)
                 .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                 .list();
         List<ArticleRecommendVO> articleRecommendVOList =
                 BeanCopyUtils.copyBeanList(articleList, ArticleRecommendVO.class);
-        if (articleRecommendVOList != null)
-            return RestBean.success(articleRecommendVOList);
-        return RestBean.failure();
+        return articleRecommendVOList != null ?
+                RestBean.success(articleRecommendVOList) :
+                RestBean.failure();
     }
 
     @Override
@@ -159,14 +162,35 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return RestBean.success(articleDetailVO);
     }
 
+    @Override
+    public RestBean<List<ArticleSearchVO>> getArticleSearchList(String keyword) {
+        /*[
+        {
+            "articleContent": "string",
+            "articleTitle": "string",
+            "id": 0,
+            "isDelete": 0,
+            "status": 0
+        }
+        ]*/
+        List<ArticleSearchVO> articleSearchVOList =
+                BeanCopyUtils.copyBeanList(articleWrapper.list().stream()
+                                .filter(article -> article.getArticleTitle().contains(keyword))
+                                .toList(),
+                ArticleSearchVO.class);
+
+        return articleSearchVOList != null ?
+                RestBean.success(articleSearchVOList) :
+                RestBean.failure();
+    }
+
     //获取当前文章的下一个或上一个
     private ArticleShortVO selectOtherArticle(int id, Boolean flag) {
         Article article;
         //flag(true:下一个,false:上一个)
-        if ((article = articleMapper.selectById(flag ? id+1 : id-1)) != null)
-            return BeanCopyUtils.copyBean(article, ArticleShortVO.class);
-        else
-            return null;
+        return (article = articleMapper.selectById(flag ? id+1 : id-1)) != null ?
+                BeanCopyUtils.copyBean(article, ArticleShortVO.class) :
+                null;
     }
 
     //获取文章分类列表（分类id，分类名）
