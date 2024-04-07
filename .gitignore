@@ -40,3 +40,4 @@ build/
 
 /shoka-admin/
 /shoka-blog/
+default_OpenAPI.json

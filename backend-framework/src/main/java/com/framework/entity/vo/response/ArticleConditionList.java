@@ -5,12 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArticleRespVO {
-    //文章数
-    Integer count;
+public class ArticleConditionList {
+    //条件名
+    private String name;
     //文章列表
-    List<ArticleVO> articleVOList;
+    private List<ArticleConditionResp> articleConditionVOList;
 }

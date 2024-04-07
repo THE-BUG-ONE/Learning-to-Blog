@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class ArticleVO {
+public class ArticleHomeResp {
     //文章id
     private Integer id;
     //缩略图
@@ -22,11 +22,11 @@ public class ArticleVO {
     //文章内容
     private String articleContent;
     //文章分类
-    private ArticleCategoryVO articleCategoryVO;
+    private CategoryOptionResp category;
     //是否置顶 (0否 1是）
     private Integer isTop;
     //发表时间
     private Date createTime;
     //文章标签
-    private List<ArticleTagVO> articleTagVOList;
+    private List<TagOptionResp> tagVOList;
 }

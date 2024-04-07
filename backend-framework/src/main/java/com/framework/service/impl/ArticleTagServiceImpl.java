@@ -2,7 +2,7 @@ package com.framework.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.mapper.ArticleTagMapper;
-import com.framework.entity.ArticleTag;
+import com.framework.entity.dao.ArticleTag;
 import com.framework.service.ArticleTagService;
 import org.springframework.stereotype.Service;
 

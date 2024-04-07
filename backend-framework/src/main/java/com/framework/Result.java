@@ -4,24 +4,24 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.framework.utils.enums.AppHttpCodeEnum;
 
-public record RestBean<T>(boolean flag, int code, String msg, T data) {
-    public static <T> RestBean<T> success(T data) {
-        return new RestBean<>(
+public record Result<T>(boolean flag, int code, String msg, T data) {
+    public static <T> Result<T> success(T data) {
+        return new Result<>(
                 true,
                 AppHttpCodeEnum.SUCCESS.getCode(),
                 AppHttpCodeEnum.SUCCESS.getMsg(),
                 data);
     }
-    public static <T> RestBean<T> success() {
-        return new RestBean<>(
+    public static <T> Result<T> success() {
+        return new Result<>(
                 true,
                 AppHttpCodeEnum.SUCCESS.getCode(),
                 AppHttpCodeEnum.SUCCESS.getMsg(),
                 null);
     }
 
-    public static <T> RestBean<T> failure() {
-        return new RestBean<>(
+    public static <T> Result<T> failure() {
+        return new Result<>(
                 false,
                 AppHttpCodeEnum.FORBIDDEN.getCode(),
                 AppHttpCodeEnum.FORBIDDEN.getMsg(),

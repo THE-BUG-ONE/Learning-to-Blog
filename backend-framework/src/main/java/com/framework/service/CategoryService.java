@@ -1,10 +1,10 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.framework.RestBean;
-import com.framework.entity.Category;
-import com.framework.entity.vo.response.CategoryArticleVO;
-import com.framework.entity.vo.response.CategoryVO;
+import com.framework.Result;
+import com.framework.entity.dao.Category;
+import com.framework.entity.vo.response.ArticleConditionList;
+import com.framework.entity.vo.response.CategoryResp;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import java.util.List;
  * @since 2024-03-24 14:19:50
  */
 public interface CategoryService extends IService<Category> {
-    RestBean<List<CategoryVO>> getCategoryList();
+    Result<List<CategoryResp>> getCategoryList();
 
-    RestBean<CategoryArticleVO> getCategoryArticleList(Integer categoryId, Integer current,
-                                                       Integer size, Integer tagId);
+    Result<ArticleConditionList> getCategoryArticleList(Integer categoryId, Integer current,
+                                                        Integer size, Integer tagId);
 }
 

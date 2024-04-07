@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.RestBean;
+import com.framework.Result;
 import com.framework.constants.SystemConstants;
-import com.framework.entity.Article;
-import com.framework.entity.ArticleTag;
-import com.framework.entity.Tag;
+import com.framework.entity.dao.Article;
+import com.framework.entity.dao.ArticleTag;
+import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.ArticleService;
@@ -17,12 +17,13 @@ import com.framework.service.CategoryService;
 import com.framework.service.TagService;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     @Resource
-    ArticleMapper articleMapper;
+    private ArticleMapper articleMapper;
 
     @Lazy
     @Resource
@@ -49,10 +50,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Resource
     private TagService tagService;
 
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final LambdaQueryChainWrapper<Article> articleWrapper = this.lambdaQuery();
 
+    @Resource
+    List<Article> allArticleList;
+
     @Override
-    public RestBean<ArticleRespVO> getArticleList(Integer current, Integer size) {
+    public Result<PageResult<ArticleHomeResp>> getArticleList(Integer current, Integer size) {
         /*{
             "count": 0, 文章数
             "recordList": [ 文章列表
@@ -78,27 +85,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
           }
         */
         IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
-                this.lambdaQuery()
+                articleWrapper
                         .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .orderByDesc(Article::getIsTop)
                         .getWrapper());
 
-        //优化：减少调用数据库
-        Map<Integer, ArticleCategoryVO> articleCategoryVOMap = getArticleCategoryVOMap();
+        //存储文章分类列表
+        Map<Integer, CategoryOptionResp> articleCategoryVOMap = getArticleCategoryVOMap();
 
-        List<ArticleVO> articleVOList = p.getRecords()
+        List<ArticleHomeResp> articleHomeRespList = p.getRecords()
                         .stream()
-                        .map(article -> BeanCopyUtils.copyBean(article,ArticleVO.class)
-                                .setArticleCategoryVO(articleCategoryVOMap.get(article.getCategoryId()))
-                                .setArticleTagVOList(getArticleTagVOList(article.getId())))
+                        .map(article -> BeanCopyUtils.copyBean(article, ArticleHomeResp.class)
+                                .setCategory(articleCategoryVOMap.get(article.getCategoryId()))
+                                .setTagVOList(getArticleTagVOList(article.getId())))
                         .toList();
-        ArticleRespVO articleRespVO = new ArticleRespVO(articleVOList.size(), articleVOList);
-        return RestBean.success(articleRespVO);
+        PageResult<ArticleHomeResp> articleRespVO = new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
+        return Result.success(articleRespVO);
     }
 
     @Override
-    public RestBean<List<ArticleRecommendVO>> getArticleRecommendList() {
+    public Result<List<ArticleRecommendResp>> getArticleRecommendList() {
         /*[
             {
                 "articleCover": "string",
@@ -107,20 +114,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 "id": 0
             }
         ]*/
-        List<Article> articleList = articleWrapper
-                .eq(Article::getIsRecommend, SystemConstants.ARTICLE_IS_RECOMMEND)
-                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                .list();
-        List<ArticleRecommendVO> articleRecommendVOList =
-                BeanCopyUtils.copyBeanList(articleList, ArticleRecommendVO.class);
-        return articleRecommendVOList != null ?
-                RestBean.success(articleRecommendVOList) :
-                RestBean.failure();
+        List<Article> articleList = allArticleList.stream()
+                .filter(article -> article.getIsRecommend() == 1).toList();
+        List<ArticleRecommendResp> articleRecommendRespList =
+                BeanCopyUtils.copyBeanList(articleList, ArticleRecommendResp.class);
+        return articleRecommendRespList != null ?
+                Result.success(articleRecommendRespList) :
+                Result.failure();
     }
 
     @Override
-    public RestBean<ArticleDetailVO> getArticleDetail(Integer articleId) {
+    public Result<ArticleResp> getArticleDetail(Integer articleId) {
         /*{
         "articleContent": "string",
         "articleCover": "string",
@@ -152,18 +156,30 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         "updateTime": "2024-03-28T07:00:47.751Z",
             "viewCount": 0
         }*/
+        //浏览量+1
+        redisTemplate.opsForZSet().incrementScore(
+                SystemConstants.ARTICLE_VIEW_COUNT, articleId, 1D);
+        //获取article
         Article article = articleMapper.selectById(articleId);
-        ArticleDetailVO articleDetailVO =
-                BeanCopyUtils.copyBean(article, ArticleDetailVO.class);
-        articleDetailVO.setArticleCategoryVO(getArticleCategoryVOMap().get(article.getCategoryId()));
-        articleDetailVO.setArticleTagVOList(getArticleTagVOList(articleId));
-        articleDetailVO.setNext(selectOtherArticle(articleId, true));
-        articleDetailVO.setLast(selectOtherArticle(articleId, false));
-        return RestBean.success(articleDetailVO);
+        //填充article属性
+        ArticleResp articleResp = BeanCopyUtils.copyBean(article, ArticleResp.class)
+                .setCategory(getArticleCategoryVOMap().get(article.getCategoryId()))
+                .setTagVOList(getArticleTagVOList(articleId))
+                .setNextArticle(selectOtherArticle(articleId, true))
+                .setLastArticle(selectOtherArticle(articleId, false))
+                .setLikeCount(Optional.ofNullable(
+                        redisTemplate.opsForZSet().score(
+                                SystemConstants.ARTICLE_LIKE_COUNT, articleId))
+                        .orElse(0D).intValue())
+                .setViewCount(Optional.ofNullable(
+                        redisTemplate.opsForZSet().score(
+                                SystemConstants.ARTICLE_VIEW_COUNT, articleId))
+                        .orElse(0D).intValue());
+        return Result.success(articleResp);
     }
 
     @Override
-    public RestBean<List<ArticleSearchVO>> getArticleSearchList(String keyword) {
+    public Result<List<ArticleSearchResp>> getArticleSearchList(String keyword) {
         /*[
         {
             "articleContent": "string",
@@ -173,37 +189,51 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             "status": 0
         }
         ]*/
-        List<ArticleSearchVO> articleSearchVOList =
-                BeanCopyUtils.copyBeanList(articleWrapper.list().stream()
+        List<ArticleSearchResp> articleSearchRespList =
+                BeanCopyUtils.copyBeanList(
+                        allArticleList.stream()
                                 .filter(article -> article.getArticleTitle().contains(keyword))
                                 .toList(),
-                ArticleSearchVO.class);
+                        ArticleSearchResp.class);
 
-        return articleSearchVOList != null ?
-                RestBean.success(articleSearchVOList) :
-                RestBean.failure();
+        return articleSearchRespList != null ?
+                Result.success(articleSearchRespList) :
+                Result.failure();
+    }
+
+    @Override
+    public Result<?> likeArticle(Integer articleId) {
+        redisTemplate.opsForZSet().incrementScore(
+                SystemConstants.ARTICLE_LIKE_COUNT, articleId, 1D);
+        return Result.success();
     }
 
     //获取当前文章的下一个或上一个
-    private ArticleShortVO selectOtherArticle(int id, Boolean flag) {
-        Article article;
+    private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
+        Integer maxId = articleWrapper.orderBy(true, true, Article::getId)
+                .last(SystemConstants.LAST_LIMIT_1).getEntity().getId();
+        Integer minId = articleWrapper.orderBy(true, false, Article::getId)
+                .last(SystemConstants.LAST_LIMIT_1).getEntity().getId();
         //flag(true:下一个,false:上一个)
-        return (article = articleMapper.selectById(flag ? id+1 : id-1)) != null ?
-                BeanCopyUtils.copyBean(article, ArticleShortVO.class) :
-                null;
+        if (flag)
+            while (id <= maxId && articleMapper.selectById(id) == null) id++;
+        else
+            while (id >= maxId && articleMapper.selectById(id) == null) id--;
+        return BeanCopyUtils.copyBean(
+                articleMapper.selectById(id), ArticlePaginationResp.class);
     }
 
     //获取文章分类列表（分类id，分类名）
-    private Map<Integer, ArticleCategoryVO> getArticleCategoryVOMap() {
-        Map<Integer, ArticleCategoryVO> articleCategoryVOMap = new HashMap<>();
-        BeanCopyUtils.copyBeanList(categoryService.list(), ArticleCategoryVO.class)
+    private Map<Integer, CategoryOptionResp> getArticleCategoryVOMap() {
+        Map<Integer, CategoryOptionResp> articleCategoryVOMap = new HashMap<>();
+        BeanCopyUtils.copyBeanList(categoryService.list(), CategoryOptionResp.class)
                 .forEach(articleCategoryVO ->
                         articleCategoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
         return articleCategoryVOMap;
     }
 
     //获取文章标签列表（标签id，标签名）
-    private List<ArticleTagVO> getArticleTagVOList(int id) {
+    private List<TagOptionResp> getArticleTagVOList(int id) {
         return BeanCopyUtils.copyBeanList(tagService.lambdaQuery()
                 .in(Tag::getId,articleTagService.lambdaQuery()
                         .eq(ArticleTag::getArticleId, id)
@@ -211,7 +241,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                         .stream()
                         .map(ArticleTag::getTagId)
                         .collect(Collectors.toSet()))
-                .list(), ArticleTagVO.class);
+                .list(), TagOptionResp.class);
+    }
+
+    @Bean
+    public List<Article> getArticleList() {
+        return articleWrapper
+                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                .list();
     }
 
 }

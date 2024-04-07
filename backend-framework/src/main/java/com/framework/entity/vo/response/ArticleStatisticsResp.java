@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryArticleVO {
-    //条件名
-    private String name;
-    //文章列表
-    private List<ArticleConditionVO> articleConditionVOList;
+public class ArticleStatisticsResp {
+    //数量
+    private Integer count;
+    //日期
+    private Date date;
 }

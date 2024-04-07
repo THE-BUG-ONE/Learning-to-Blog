@@ -1,7 +1,7 @@
 package com.framework.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.framework.entity.ArticleTag;
+import com.framework.entity.dao.ArticleTag;
 
 /**
  * (ArticleTag)表数据库访问层

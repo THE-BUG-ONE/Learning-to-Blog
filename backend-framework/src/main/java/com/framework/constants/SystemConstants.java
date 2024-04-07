@@ -40,10 +40,18 @@ public class SystemConstants {
 
 
 
-
-
     //分类当前正常
     public static final int CATEGORY_STATUS_NORMAL = 0;
     //分类当前禁用
     public static final int CATEGORY_STATUS_DISABLE = 1;
+
+
+    //博客访问量
+    public static final String BLOG_VIEW_COUNT = "blog_view_count";
+    //文章点赞量
+    public static final String ARTICLE_LIKE_COUNT = "article_like_count";
+    //文章访问量
+    public static final String ARTICLE_VIEW_COUNT = "article_view_count";
+    //查询一条
+    public static final String LAST_LIMIT_1 = "limit 1";
 }

@@ -5,13 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ArticleShortVO {
-    //文章id
+@AllArgsConstructor
+public class TagOptionResp {
+    //标签id
     private Integer id;
-    //文章标题
-    private String articleTitle;
-    //缩略图
-    private String articleCover;
+    //标签名
+    private String tagName;
 }

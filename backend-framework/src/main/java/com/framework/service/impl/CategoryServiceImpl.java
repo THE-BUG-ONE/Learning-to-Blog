@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.RestBean;
+import com.framework.Result;
 import com.framework.constants.SystemConstants;
-import com.framework.entity.Article;
-import com.framework.entity.ArticleTag;
-import com.framework.entity.Category;
-import com.framework.entity.Tag;
+import com.framework.entity.dao.Article;
+import com.framework.entity.dao.ArticleTag;
+import com.framework.entity.dao.Category;
+import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
 import com.framework.mapper.CategoryMapper;
@@ -19,12 +19,14 @@ import com.framework.service.CategoryService;
 import com.framework.service.TagService;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
+import lombok.val;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +57,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     private final LambdaQueryChainWrapper<Category> categoryWrapper = this.lambdaQuery();
 
     @Override
-    public RestBean<List<CategoryVO>> getCategoryList() {
+    public Result<List<CategoryResp>> getCategoryList() {
         /*[
         {
             "articleCount": 0,
@@ -63,28 +65,30 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             "id": 0
         }
         ]*/
-        List<CategoryVO> categoryVOList =
-                BeanCopyUtils.copyBeanList(categoryWrapper.list(), CategoryVO.class)
+        List<Article> articleList = articleService.lambdaQuery()
+                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE).list();
+        //封装
+        List<CategoryResp> categoryRespList =
+                BeanCopyUtils.copyBeanList(categoryWrapper.list(), CategoryResp.class)
                         .stream()
-                        .filter(categoryVO -> {
-                            Long count = articleService.lambdaQuery()
-                                    .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                                    .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                                    .eq(Article::getCategoryId, categoryVO.getId())
+                        .filter(categoryResp -> {
+                            long count = articleList.stream()
+                                    .filter(article -> Objects.equals(article.getCategoryId(), categoryResp.getId()))
                                     .count();
-                            categoryVO.setArticleCount(Math.toIntExact(count));
+                            categoryResp.setArticleCount(Math.toIntExact(count));
                             return count > 0;
                         })
                         .toList();
 
-        return RestBean.success(categoryVOList);
+        return Result.success(categoryRespList);
     }
 
     @Override
-    public RestBean<CategoryArticleVO> getCategoryArticleList(Integer categoryId,
-                                                              Integer current,
-                                                              Integer size,
-                                                              Integer tagId) {
+    public Result<ArticleConditionList> getCategoryArticleList(Integer categoryId,
+                                                               Integer current,
+                                                               Integer size,
+                                                               Integer tagId) {
         /*{
         "articleConditionVOList": [{
             "articleCover": "string",
@@ -110,39 +114,45 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .eq(Article::getCategoryId, categoryId)
                         .getWrapper());
-
+        //获取当前Tag的所有ArticleId
+        List<Integer> articleIdList = articleTagService.lambdaQuery()
+                .eq(ArticleTag::getTagId, tagId).list().stream()
+                .map(ArticleTag::getArticleId)
+                .toList();
+        //筛选包含当前Tag的所有Article
         List<Article> articleList = p.getRecords()
                 .stream()
-                .filter(article -> articleTagService.lambdaQuery()
-                        .eq(ArticleTag::getTagId, tagId)
-                        .exists())
+                .filter(article -> articleIdList.contains(article.getId()))
                 .toList();
-        List<ArticleConditionVO> articleConditionVOList =
-                BeanCopyUtils.copyBeanList(articleList, ArticleConditionVO.class)
+        //存储文章分类列表
+        Map<Integer, CategoryOptionResp> articleCategoryVOMap = getArticleCategoryVOMap();
+        //封装
+        List<ArticleConditionResp> articleConditionRespList =
+                BeanCopyUtils.copyBeanList(articleList, ArticleConditionResp.class)
                         .stream()
-                        .peek(articleConditionVO -> {
-                            articleConditionVO.setArticleCategoryVO(getArticleCategoryVOMap().get(articleMapper.selectById(articleConditionVO.getId()).getCategoryId()));
-                            articleConditionVO.setArticleTagVOList(getArticleTagVOList(articleConditionVO.getId()));
+                        .peek(articleConditionResp -> {
+                            articleConditionResp.setCategory(articleCategoryVOMap.get(articleMapper.selectById(articleConditionResp.getId()).getCategoryId()));
+                            articleConditionResp.setTagVOList(getArticleTagVOList(articleConditionResp.getId()));
                         })
                         .toList();
-        CategoryArticleVO categoryArticleVO = new CategoryArticleVO(
+        ArticleConditionList articleConditionList = new ArticleConditionList(
                 tagService.getById(tagId).getTagName(),
-                articleConditionVOList);
+                articleConditionRespList);
 
-        return RestBean.success(categoryArticleVO);
+        return Result.success(articleConditionList);
     }
 
     //获取文章分类列表（分类id，分类名）
-    private Map<Integer, ArticleCategoryVO> getArticleCategoryVOMap() {
-        Map<Integer, ArticleCategoryVO> articleCategoryVOMap = new HashMap<>();
-        BeanCopyUtils.copyBeanList(this.list(), ArticleCategoryVO.class)
+    private Map<Integer, CategoryOptionResp> getArticleCategoryVOMap() {
+        Map<Integer, CategoryOptionResp> articleCategoryVOMap = new HashMap<>();
+        BeanCopyUtils.copyBeanList(this.list(), CategoryOptionResp.class)
                 .forEach(articleCategoryVO ->
                         articleCategoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
         return articleCategoryVOMap;
     }
 
     //获取文章标签列表（标签id，标签名）
-    private List<ArticleTagVO> getArticleTagVOList(int id) {
+    private List<TagOptionResp> getArticleTagVOList(int id) {
         return BeanCopyUtils.copyBeanList(tagService.lambdaQuery()
                 .in(Tag::getId,articleTagService.lambdaQuery()
                         .eq(ArticleTag::getArticleId, id)
@@ -150,7 +160,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                         .stream()
                         .map(ArticleTag::getTagId)
                         .collect(Collectors.toSet()))
-                .list(), ArticleTagVO.class);
+                .list(), TagOptionResp.class);
     }
 }
 

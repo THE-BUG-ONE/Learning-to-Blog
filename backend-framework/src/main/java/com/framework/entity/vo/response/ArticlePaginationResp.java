@@ -5,13 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class CategoryVO {
-    //分类id
+@NoArgsConstructor
+public class ArticlePaginationResp {
+    //文章id
     private Integer id;
-    //分类名
-    private String categoryName;
-    //分类文章数
-    private Integer articleCount;
+    //文章标题
+    private String articleTitle;
+    //缩略图
+    private String articleCover;
 }

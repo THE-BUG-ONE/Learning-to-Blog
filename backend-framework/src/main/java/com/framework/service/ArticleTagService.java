@@ -1,7 +1,7 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.framework.entity.ArticleTag;
+import com.framework.entity.dao.ArticleTag;
 
 /**
  * (ArticleTag)表服务接口

@@ -25,10 +25,10 @@
     .getWrapper()));//用这个方法获取queryWrapper
 - MybatisPlus查询Category表出现字段找不到的错误
   - 原因：  
-    是用别人的数据库并自己添加了字段
+    使用别人的数据库后自己添加了字段
   - 解决：
     删除自己添加的字段
-- mybatisPlus分页查询是会返回所有列，即分页不生效
+- MybatisPlus分页查询时会返回所有列，即分页不生效
   - 原因：
     未进行分页配置
   - 解决：
@@ -39,10 +39,20 @@
       return mybatisPlusInterceptor;
     }
 - 类的属性中有类，未进行查找
- - 原因：
-   对类中的属性类，忘记处理
- - 解决：
- > 文章数据需要标签，查找标签需要查询文章标签表，再查询标签表
+  - 原因：
+    对类中的属性类，忘记处理
+  - 解决：
+  > 文章数据需要标签，查找标签需要查询文章标签表，再查询标签表
+- redisBean未找到，类型错误
+  - 原因：
+    @Resource注入时检测变量名，StringRedisTemplate无法注入变量redisTemplate
+  - 解决：
+  > 将redisTemplate改为stringRedisTemplate 
+- 使用redisHash存储时出现类型转换错误
+  - 原因：
+    不明
+  - 解决：
+  > 改为使用有序集合sortedset
 ---  
 ### 项目技巧
 - 项目中不应该使用常量，要进行字面值处理，即把所有需要用到的常量放在一个类里

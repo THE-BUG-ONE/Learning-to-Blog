@@ -1,5 +1,5 @@
 import com.blog.BackendBlogApplication;
-import com.framework.entity.Category;
+import com.framework.entity.dao.Category;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.CategoryService;

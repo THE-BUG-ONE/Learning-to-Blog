@@ -11,7 +11,7 @@
       "email": "1632167813@qq.com"
     }
   },
-  "host": "https://localhost:8080",
+  "host": "localhost:8888",
   "basePath": "/",
   "tags": [
     {

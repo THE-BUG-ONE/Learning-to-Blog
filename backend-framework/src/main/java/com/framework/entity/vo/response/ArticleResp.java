@@ -3,6 +3,7 @@ package com.framework.entity.vo.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.List;
@@ -10,15 +11,16 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArticleDetailVO {
+@Accessors(chain = true)
+public class ArticleResp {
     //文章id
     private Integer id;
     //文章分类
-    private ArticleCategoryVO articleCategoryVO;
+    private CategoryOptionResp category;
     //下一个文章
-    private ArticleShortVO next;
+    private ArticlePaginationResp nextArticle;
     //上一个文章
-    private ArticleShortVO last;
+    private ArticlePaginationResp lastArticle	;
     //缩略图
     private String articleCover;
     //文章标题
@@ -27,8 +29,12 @@ public class ArticleDetailVO {
     private String articleContent;
     //类型 (1原创 2转载 3翻译)
     private Integer articleType;
+    //点赞量
+    private Integer likeCount;
+    //浏览量
+    private Integer viewCount;
     //文章标签
-    private List<ArticleTagVO> articleTagVOList;
+    private List<TagOptionResp> tagVOList;
     //发表时间
     private Date createTime;
     //更新时间
