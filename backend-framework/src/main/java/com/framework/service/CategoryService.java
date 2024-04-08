@@ -15,9 +15,9 @@ import java.util.List;
  * @since 2024-03-24 14:19:50
  */
 public interface CategoryService extends IService<Category> {
-    Result<List<CategoryResp>> getCategoryList();
+    List<CategoryResp> getCategoryList();
 
-    Result<ArticleConditionList> getCategoryArticleList(Integer categoryId, Integer current,
+    ArticleConditionList getCategoryArticleList(Integer categoryId, Integer current,
                                                         Integer size, Integer tagId);
 }
 

@@ -24,10 +24,10 @@ public class ArticleController {
 
     //接口：首页文章列表
     @GetMapping("/list")
-    public Result<PageResult<ArticleHomeResp>> getArticleList(
+    public Result<PageResult<ArticleHomeResp>> getArticleHomeList(
             @RequestParam("current") @Validated Integer current,
             @RequestParam("size") @Validated Integer size) {
-        return articleService.getArticleList(current, size);
+        return articleService.getArticleHomeList(current, size);
     }
 
     //接口：查看文章详情

@@ -53,6 +53,37 @@
     不明
   - 解决：
   > 改为使用有序集合sortedset
+- 直接调用使用 @Bean 注解的方法。请改用依赖项注入。
+  - 原因：
+    使用类中的Bean方法
+  - 解决：
+  > 取消@Bean注解
+- can not use this method for “getEntity“
+  - 原因：
+    链式调用wrapper时报错
+  - 解决：
+  > 不使用链式调用的wrapper或直接使用one()方法
+- 无法获取当前文章的下一个或上一个文章
+  - 原因：
+    文章表主键不连续，无法定义查询边界
+  - 解决：
+  > 存储所有文章为列表以主键排序，再获取当前文章在列表中的索引，以此获得上下文章索引
+- 爆红：此处不允许使用声明变量
+  - 原因：
+    使用do-while时无法声明变量
+  - 解决：
+  > 在循环体前后加花括号
+- redis报错java.io.EOFException: null
+  - 原因：
+    使用错误的redisTemplate
+  - 解决：
+  > 当键值对为简单的字符串时应使用StringRedisTemplate
+- 无法获取redis中的文章与文章浏览量:WRONGTYPE Operation against a key holding the wrong kind of value
+  - 原因：
+    低级错误：key写错成了BLOG_VIEW_COUNT
+  - 解决：
+  > key改为ARTICLE_VIEW_COUNT
+- 
 ---  
 ### 项目技巧
 - 项目中不应该使用常量，要进行字面值处理，即把所有需要用到的常量放在一个类里
@@ -71,3 +102,12 @@
   使用时可以访问存储的数据而不用请求数据库，从而减少请求数据库的次数
 - 全局日期格式配置
 > 在Application.yml文件中配置spring.jackson.date-format
+- 列表类型转换
+> articleList.stream()
+  //map加目标类Builder组合完成
+  .map(article -> ArticleRankResp.builder()
+    .articleTitle(article.getArticleTitle())
+    .viewCount(articleMap.get(article.getId()).intValue())
+    .build())
+  .sorted(Comparator.comparingInt(ArticleRankResp::getViewCount)
+  .reversed()).collect(Collectors.toList());

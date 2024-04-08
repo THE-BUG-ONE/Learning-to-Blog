@@ -17,10 +17,8 @@ import com.framework.service.CategoryService;
 import com.framework.service.TagService;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,11 +53,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     private final LambdaQueryChainWrapper<Article> articleWrapper = this.lambdaQuery();
 
-    @Resource
-    List<Article> allArticleList;
-
     @Override
-    public Result<PageResult<ArticleHomeResp>> getArticleList(Integer current, Integer size) {
+    public Result<PageResult<ArticleHomeResp>> getArticleHomeList(Integer current, Integer size) {
         /*{
             "count": 0, 文章数
             "recordList": [ 文章列表
@@ -114,7 +109,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 "id": 0
             }
         ]*/
-        List<Article> articleList = allArticleList.stream()
+        List<Article> articleList = this.getArticleList().stream()
                 .filter(article -> article.getIsRecommend() == 1).toList();
         List<ArticleRecommendResp> articleRecommendRespList =
                 BeanCopyUtils.copyBeanList(articleList, ArticleRecommendResp.class);
@@ -191,7 +186,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         ]*/
         List<ArticleSearchResp> articleSearchRespList =
                 BeanCopyUtils.copyBeanList(
-                        allArticleList.stream()
+                        this.getArticleList().stream()
                                 .filter(article -> article.getArticleTitle().contains(keyword))
                                 .toList(),
                         ArticleSearchResp.class);
@@ -209,18 +204,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     //获取当前文章的下一个或上一个
+    //flag(true:下一个,false:上一个)
     private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
-        Integer maxId = articleWrapper.orderBy(true, true, Article::getId)
-                .last(SystemConstants.LAST_LIMIT_1).getEntity().getId();
-        Integer minId = articleWrapper.orderBy(true, false, Article::getId)
-                .last(SystemConstants.LAST_LIMIT_1).getEntity().getId();
-        //flag(true:下一个,false:上一个)
-        if (flag)
-            while (id <= maxId && articleMapper.selectById(id) == null) id++;
-        else
-            while (id >= maxId && articleMapper.selectById(id) == null) id--;
-        return BeanCopyUtils.copyBean(
-                articleMapper.selectById(id), ArticlePaginationResp.class);
+        //将所有有效文章以主键排序
+        List<Article> articleList = this.getArticleList().stream().sorted(Comparator.comparing(Article::getId)).toList();
+        //获取当前文章索引
+        int index = articleList.indexOf(articleMapper.selectById(id));
+        //判断列表边界
+        if (flag && index + 1 > articleList.size() - 1) return null;
+        if (!flag && index - 1 < 0) return null;
+        //获取目标文章
+        Article article = articleList.get(flag ? index + 1 : index - 1);
+        return article == null ? null :
+                BeanCopyUtils.copyBean(article, ArticlePaginationResp.class);
     }
 
     //获取文章分类列表（分类id，分类名）
@@ -244,8 +240,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .list(), TagOptionResp.class);
     }
 
-    @Bean
-    public List<Article> getArticleList() {
+    private List<Article> getArticleList() {
         return articleWrapper
                 .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)

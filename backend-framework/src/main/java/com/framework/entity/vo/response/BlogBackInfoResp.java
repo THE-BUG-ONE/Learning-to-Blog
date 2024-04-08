@@ -1,6 +1,5 @@
 package com.framework.entity.vo.response;
 
-import com.framework.entity.dao.SiteConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,11 +19,11 @@ public class BlogBackInfoResp {
     //分类统计
     private List<CategoryResp> categoryVOList;
     //留言量
-    private Integer messageCount;
+    private Long messageCount;
     //标签列表
     private List<TagOptionResp> tagVOList;
     //用户量
-    private Integer userCount;
+    private Long userCount;
     //一周访问量
     private List<UserViewResp> userViewVOList;
     //网站访问量

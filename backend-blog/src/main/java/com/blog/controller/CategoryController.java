@@ -21,7 +21,10 @@ public class CategoryController {
     //接口：查看分类列表
     @GetMapping("/list")
     public Result<List<CategoryResp>> getCategoryList() {
-        return categoryService.getCategoryList();
+        List<CategoryResp> categoryRespList = categoryService.getCategoryList();
+        return categoryRespList == null ?
+                Result.failure() :
+                Result.success(categoryService.getCategoryList());
     }
 
     //接口：查看分类下的文章
@@ -32,7 +35,11 @@ public class CategoryController {
             @RequestParam("size") @Validated Integer size,
             @RequestParam("tagId") @Validated Integer tagId
     ) {
-        return categoryService.getCategoryArticleList(categoryId, current, size, tagId);
+        ArticleConditionList articleConditionList =
+                categoryService.getCategoryArticleList(categoryId, current, size, tagId);
+        return articleConditionList == null ?
+                Result.failure() :
+                Result.success(articleConditionList);
     }
 
 }

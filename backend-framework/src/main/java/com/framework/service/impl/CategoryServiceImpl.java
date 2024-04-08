@@ -19,7 +19,6 @@ import com.framework.service.CategoryService;
 import com.framework.service.TagService;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
-import lombok.val;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +56,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     private final LambdaQueryChainWrapper<Category> categoryWrapper = this.lambdaQuery();
 
     @Override
-    public Result<List<CategoryResp>> getCategoryList() {
+    public List<CategoryResp> getCategoryList() {
         /*[
         {
             "articleCount": 0,
@@ -69,23 +68,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE).list();
         //封装
-        List<CategoryResp> categoryRespList =
-                BeanCopyUtils.copyBeanList(categoryWrapper.list(), CategoryResp.class)
-                        .stream()
-                        .filter(categoryResp -> {
-                            long count = articleList.stream()
-                                    .filter(article -> Objects.equals(article.getCategoryId(), categoryResp.getId()))
-                                    .count();
-                            categoryResp.setArticleCount(Math.toIntExact(count));
-                            return count > 0;
-                        })
-                        .toList();
-
-        return Result.success(categoryRespList);
+        return BeanCopyUtils.copyBeanList(categoryWrapper.list(), CategoryResp.class)
+                .stream()
+                .filter(categoryResp -> {
+                    long count = articleList.stream()
+                            .filter(article -> Objects.equals(article.getCategoryId(), categoryResp.getId()))
+                            .count();
+                    categoryResp.setArticleCount(Math.toIntExact(count));
+                    return count > 0;
+                })
+                .toList();
     }
 
     @Override
-    public Result<ArticleConditionList> getCategoryArticleList(Integer categoryId,
+    public ArticleConditionList getCategoryArticleList(Integer categoryId,
                                                                Integer current,
                                                                Integer size,
                                                                Integer tagId) {
@@ -135,11 +131,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                             articleConditionResp.setTagVOList(getArticleTagVOList(articleConditionResp.getId()));
                         })
                         .toList();
-        ArticleConditionList articleConditionList = new ArticleConditionList(
+
+        return new ArticleConditionList(
                 tagService.getById(tagId).getTagName(),
                 articleConditionRespList);
-
-        return Result.success(articleConditionList);
     }
 
     //获取文章分类列表（分类id，分类名）

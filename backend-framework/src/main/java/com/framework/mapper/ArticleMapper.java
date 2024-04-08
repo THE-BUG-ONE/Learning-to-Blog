@@ -11,7 +11,5 @@ import com.framework.entity.vo.response.ArticlePaginationResp;
  * @since 2024-03-25 13:22:19
  */
 public interface ArticleMapper extends BaseMapper<Article> {
-    ArticlePaginationResp selectLastArticle(Integer articleId);
-    ArticlePaginationResp selectNextArticle(Integer articleId);
 }
 

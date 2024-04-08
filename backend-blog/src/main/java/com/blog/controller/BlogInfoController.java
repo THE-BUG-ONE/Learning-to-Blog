@@ -18,27 +18,34 @@ public class BlogInfoController {
     //接口：查看博客信息
     @GetMapping("/")
     public Result<BlogInfoResp> getBlogInfo() {
-        return blogInfoService.getBlogInfo();
+        BlogInfoResp blogInfoResp = blogInfoService.getBlogInfo();
+        return blogInfoResp == null ?
+                Result.failure() :
+                Result.success(blogInfoResp);
     }
 
     //接口：查看关于我信息
     @GetMapping("/about")
     public Result<String> about() {
-        return blogInfoService.about();
+        String about = blogInfoService.about();
+        return about == null ?
+                Result.failure() :
+                Result.success(about);
     }
 
     //接口：上传访客信息
     @PostMapping("/report")
     public Result<?> report() {
-        return blogInfoService.report();
+        blogInfoService.report();
+        return Result.success();
     }
 
     //接口：查看后台信息
     @GetMapping("/admin")
     public Result<BlogBackInfoResp> admin() {
         BlogBackInfoResp blogBackInfoResp = blogInfoService.getBlogBackInfo();
-        return blogBackInfoResp != null ?
-                Result.success(blogBackInfoResp) :
-                Result.failure();
+        return blogBackInfoResp == null ?
+                Result.failure() :
+                Result.success(blogBackInfoResp);
     }
 }
