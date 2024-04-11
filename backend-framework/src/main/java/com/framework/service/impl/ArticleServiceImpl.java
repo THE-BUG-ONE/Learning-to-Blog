@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.framework.Result;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
@@ -230,6 +231,37 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         this.removeByIds(articleIdList);
     }
 
+    @Override
+    public ArticleInfoResp editArticle(Integer articleId) {
+        /*{
+            "articleContent": "string",
+            "articleCover": "string",
+            "articleTitle": "string",
+            "articleType": 0,
+            "categoryName": "string",
+            "id": 0,
+            "isRecommend": 0,
+            "isTop": 0,
+            "status": 0,
+            "tagNameList": [
+                "string"
+            ]
+        },*/
+        Article article = this.getById(articleId);
+        if (article == null) return null;
+        //获取tag名列表
+        List<Integer> tagIdList = articleTagService.lambdaQuery()
+                .eq(ArticleTag::getArticleId, articleId).list()
+                .stream().map(ArticleTag::getTagId).toList();
+        List<String> tagNameList = tagService.listByIds(tagIdList)
+                .stream().map(Tag::getTagName).toList();
+        //封装
+        return BeanCopyUtils.copyBean(article, ArticleInfoResp.class)
+                .setCategoryName(
+                        categoryService.getById(article.getCategoryId()).getCategoryName())
+                .setTagNameList(tagNameList);
+    }
+
     //获取当前文章的下一个或上一个
     //flag(true:下一个,false:上一个)
     private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
@@ -286,7 +318,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         //保存标签
         tagService.addTag(tagNameList);
         //添加文章标签外键
-        articleTagService.addArticleTag(article.getId(), tagNameList);
+        articleTagService.addArticleTag(article.getId(), article.getTagNameList());
     }
 
 }

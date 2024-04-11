@@ -1,6 +1,7 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.framework.Result;
 import com.framework.entity.dao.Article;
 import com.framework.entity.vo.request.ArticleReq;
 import com.framework.entity.vo.response.*;
@@ -27,5 +28,7 @@ public interface ArticleService extends IService<Article> {
     void addArticle(ArticleReq article);
 
     void deleteArticle(List<Integer> articleIdList);
+
+    ArticleInfoResp editArticle(Integer articleId);
 }
 
