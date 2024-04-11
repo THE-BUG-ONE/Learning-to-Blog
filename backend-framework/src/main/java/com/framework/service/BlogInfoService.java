@@ -44,10 +44,6 @@ public class BlogInfoService {
     @Resource
     private MessageService messageService;
 
-    @Lazy
-    @Resource
-    private VisitLogService visitLogService;
-
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 

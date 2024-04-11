@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.Result;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
@@ -219,6 +218,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .getId());
         //添加文章标签
         this.addArticleTag(article);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteArticle(List<Integer> articleIdList) {
+        articleTagService.removeByIds(articleTagService.lambdaQuery()
+                .select(ArticleTag::getId)
+                .in(ArticleTag::getArticleId, articleIdList)
+                .list().stream().map(ArticleTag::getId).toList());
+        this.removeByIds(articleIdList);
     }
 
     //获取当前文章的下一个或上一个

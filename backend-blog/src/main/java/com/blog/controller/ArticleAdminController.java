@@ -7,6 +7,8 @@ import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/article")
 public class ArticleAdminController {
@@ -18,6 +20,13 @@ public class ArticleAdminController {
     @PostMapping("/add")
     public Result<?> addArticle(@RequestBody @Validated ArticleReq article) {
         articleService.addArticle(article);
+        return Result.success();
+    }
+
+    //接口：删除文章
+    @DeleteMapping("/delete")
+    public Result<?> deleteArticle(@RequestBody @Validated List<Integer> articleIdList) {
+        articleService.deleteArticle(articleIdList);
         return Result.success();
     }
 }
