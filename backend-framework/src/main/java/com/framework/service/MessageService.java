@@ -1,7 +1,7 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.framework.entity.Message;
+import com.framework.entity.dao.Message;
 
 /**
  * (Message)表服务接口

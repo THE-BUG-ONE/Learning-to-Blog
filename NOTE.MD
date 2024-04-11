@@ -83,7 +83,21 @@
     低级错误：key写错成了BLOG_VIEW_COUNT
   - 解决：
   > key改为ARTICLE_VIEW_COUNT
-- 
+- 传入参数map固定非空，导致判断程序失效
+  - 原因：
+    判断语句为判断map是否为null
+  - 解决：
+  > 应使用isEmpty()判断
+- 构建时无法找到实体类
+  - 原因：
+    使用EasyCode自动创建entity、service、serviceImpl时路径配置错误
+  - 解决：
+  > 修改各个模板的包路径
+- 无法获取一周内访问量
+  - 原因：
+    看不懂接口文档，不知道到底需要什么
+  - 解决：
+  > 无法解决
 ---  
 ### 项目技巧
 - 项目中不应该使用常量，要进行字面值处理，即把所有需要用到的常量放在一个类里
@@ -111,3 +125,5 @@
     .build())
   .sorted(Comparator.comparingInt(ArticleRankResp::getViewCount)
   .reversed()).collect(Collectors.toList());
+- 添加标签时应注意不要重复添加
+> 新添加的数据在数据库中可能存在并且不能重复，这时需要判断，数据库中已有的数据应跳过，不进行存储

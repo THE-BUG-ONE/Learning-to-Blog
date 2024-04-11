@@ -24,5 +24,10 @@ public class ArticleTag {
     private Integer articleId;
     //标签id
     private Integer tagId;
+
+    public ArticleTag(Integer articleId, Integer tagId) {
+        this.articleId = articleId;
+        this.tagId = tagId;
+    }
 }
 

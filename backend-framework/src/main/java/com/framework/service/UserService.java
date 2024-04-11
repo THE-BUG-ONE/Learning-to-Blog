@@ -1,7 +1,7 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.framework.entity.User;
+import com.framework.entity.dao.User;
 
 /**
  * (User)表服务接口

@@ -14,7 +14,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +44,10 @@ public class BlogInfoService {
     @Resource
     private MessageService messageService;
 
+    @Lazy
+    @Resource
+    private VisitLogService visitLogService;
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -72,6 +75,7 @@ public class BlogInfoService {
     }
 
     public BlogBackInfoResp getBlogBackInfo() {
+        //获取文章浏览量前5
         Map<Object, Double> articleMap = Objects.requireNonNull(redisTemplate.opsForZSet()
                 .reverseRangeWithScores(SystemConstants.ARTICLE_VIEW_COUNT, 0, 4))
                 .stream().collect(Collectors.toMap(

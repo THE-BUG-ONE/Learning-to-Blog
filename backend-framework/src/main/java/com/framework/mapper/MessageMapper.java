@@ -1,7 +1,7 @@
 package com.framework.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.framework.entity.Message;
+import com.framework.entity.dao.Message;
 
 /**
  * (Message)表数据库访问层

@@ -19,7 +19,10 @@ public class ArticleController {
     //接口：推荐文章
     @GetMapping("/recommend")
     public Result<List<ArticleRecommendResp>> getRecommendArticleList() {
-        return articleService.getArticleRecommendList();
+        List<ArticleRecommendResp> res =  articleService.getArticleRecommendList();
+        return res != null ?
+                Result.success(res) :
+                Result.failure();
     }
 
     //接口：首页文章列表
@@ -27,25 +30,35 @@ public class ArticleController {
     public Result<PageResult<ArticleHomeResp>> getArticleHomeList(
             @RequestParam("current") @Validated Integer current,
             @RequestParam("size") @Validated Integer size) {
-        return articleService.getArticleHomeList(current, size);
+        PageResult<ArticleHomeResp> res = articleService.getArticleHomeList(current, size);
+        return res != null ?
+                Result.success(res) :
+                Result.failure();
     }
 
     //接口：查看文章详情
     @GetMapping("/{articleId}")
     public Result<ArticleResp> getArticle(@PathVariable("articleId") Integer articleId) {
-        return articleService.getArticleDetail(articleId);
+        ArticleResp res = articleService.getArticleDetail(articleId);
+        return res != null ?
+                Result.success(res) :
+                Result.failure();
     }
 
     //接口：搜索文章
     @GetMapping("/search")
     public Result<List<ArticleSearchResp>> getSearchArticle(
             @RequestParam("keyword") @Validated String keyword) {
-        return articleService.getArticleSearchList(keyword);
+        List<ArticleSearchResp> res = articleService.getArticleSearchList(keyword);
+        return res != null ?
+                Result.success(res) :
+                Result.failure();
     }
 
     //接口：点赞文章
     @PostMapping("/{articleId}/like")
     public Result<?> like(@PathVariable("articleId") Integer articleId) {
-        return articleService.likeArticle(articleId);
+        articleService.likeArticle(articleId);
+        return Result.success();
     }
 }

@@ -1,7 +1,6 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.framework.Result;
 import com.framework.entity.dao.Category;
 import com.framework.entity.vo.response.ArticleConditionList;
 import com.framework.entity.vo.response.CategoryResp;

@@ -2,7 +2,6 @@ package com.framework.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.framework.entity.dao.Article;
-import com.framework.entity.vo.response.ArticlePaginationResp;
 
 /**
  * (Article)表数据库访问层

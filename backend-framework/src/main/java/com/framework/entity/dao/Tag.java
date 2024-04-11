@@ -1,5 +1,6 @@
 package com.framework.entity.dao;
 
+import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,10 @@ public class Tag {
     private Date createTime;
     //更新时间
     private Date updateTime;
+
+    public Tag(String tagName, DateTime date) {
+        this.tagName = tagName;
+        this.createTime = date;
+    }
 }
 

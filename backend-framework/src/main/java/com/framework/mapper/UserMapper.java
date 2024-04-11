@@ -1,7 +1,7 @@
 package com.framework.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.framework.entity.User;
+import com.framework.entity.dao.User;
 
 /**
  * (User)表数据库访问层

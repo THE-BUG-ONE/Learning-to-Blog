@@ -1,5 +1,6 @@
 package com.framework.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,18 +9,18 @@ import com.framework.Result;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
+import com.framework.entity.dao.Category;
 import com.framework.entity.dao.Tag;
+import com.framework.entity.vo.request.ArticleReq;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
-import com.framework.service.ArticleService;
-import com.framework.service.ArticleTagService;
-import com.framework.service.CategoryService;
-import com.framework.service.TagService;
+import com.framework.service.*;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,13 +49,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Resource
     private TagService tagService;
 
+    @Lazy
+    @Resource
+    private SiteConfigService siteConfigService;
+
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
     private final LambdaQueryChainWrapper<Article> articleWrapper = this.lambdaQuery();
 
     @Override
-    public Result<PageResult<ArticleHomeResp>> getArticleHomeList(Integer current, Integer size) {
+    public PageResult<ArticleHomeResp> getArticleHomeList(Integer current, Integer size) {
         /*{
             "count": 0, 文章数
             "recordList": [ 文章列表
@@ -95,12 +100,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                 .setCategory(articleCategoryVOMap.get(article.getCategoryId()))
                                 .setTagVOList(getArticleTagVOList(article.getId())))
                         .toList();
-        PageResult<ArticleHomeResp> articleRespVO = new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
-        return Result.success(articleRespVO);
+        return new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
     }
 
     @Override
-    public Result<List<ArticleRecommendResp>> getArticleRecommendList() {
+    public List<ArticleRecommendResp> getArticleRecommendList() {
         /*[
             {
                 "articleCover": "string",
@@ -111,15 +115,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         ]*/
         List<Article> articleList = this.getArticleList().stream()
                 .filter(article -> article.getIsRecommend() == 1).toList();
-        List<ArticleRecommendResp> articleRecommendRespList =
-                BeanCopyUtils.copyBeanList(articleList, ArticleRecommendResp.class);
-        return articleRecommendRespList != null ?
-                Result.success(articleRecommendRespList) :
-                Result.failure();
+        return BeanCopyUtils.copyBeanList(articleList, ArticleRecommendResp.class);
     }
 
     @Override
-    public Result<ArticleResp> getArticleDetail(Integer articleId) {
+    public ArticleResp getArticleDetail(Integer articleId) {
         /*{
         "articleContent": "string",
         "articleCover": "string",
@@ -157,7 +157,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         //获取article
         Article article = articleMapper.selectById(articleId);
         //填充article属性
-        ArticleResp articleResp = BeanCopyUtils.copyBean(article, ArticleResp.class)
+        return BeanCopyUtils.copyBean(article, ArticleResp.class)
                 .setCategory(getArticleCategoryVOMap().get(article.getCategoryId()))
                 .setTagVOList(getArticleTagVOList(articleId))
                 .setNextArticle(selectOtherArticle(articleId, true))
@@ -170,11 +170,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                         redisTemplate.opsForZSet().score(
                                 SystemConstants.ARTICLE_VIEW_COUNT, articleId))
                         .orElse(0D).intValue());
-        return Result.success(articleResp);
     }
 
     @Override
-    public Result<List<ArticleSearchResp>> getArticleSearchList(String keyword) {
+    public List<ArticleSearchResp> getArticleSearchList(String keyword) {
         /*[
         {
             "articleContent": "string",
@@ -184,23 +183,42 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             "status": 0
         }
         ]*/
-        List<ArticleSearchResp> articleSearchRespList =
-                BeanCopyUtils.copyBeanList(
-                        this.getArticleList().stream()
-                                .filter(article -> article.getArticleTitle().contains(keyword))
-                                .toList(),
-                        ArticleSearchResp.class);
 
-        return articleSearchRespList != null ?
-                Result.success(articleSearchRespList) :
-                Result.failure();
+        return BeanCopyUtils.copyBeanList(
+                this.getArticleList().stream()
+                        .filter(article -> article.getArticleTitle().contains(keyword))
+                        .toList(),
+                ArticleSearchResp.class);
     }
 
     @Override
-    public Result<?> likeArticle(Integer articleId) {
+    public void likeArticle(Integer articleId) {
         redisTemplate.opsForZSet().incrementScore(
                 SystemConstants.ARTICLE_LIKE_COUNT, articleId, 1D);
-        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 发生异常就回滚
+    public void addArticle(ArticleReq article) {
+        Article newArticle = BeanCopyUtils.copyBean(article, Article.class);
+        newArticle.setCreateTime(DateUtil.date());
+        newArticle.setCategoryId(
+                categoryService.lambdaQuery()
+                        .eq(Category::getCategoryName, article.getCategoryName())
+                        .one().getId());
+        if (article.getArticleCover() == null)
+            newArticle.setArticleCover(
+                    siteConfigService.getSiteConfig().getArticleCover());
+        //TODO 需要完成获取用户id,暂时固定为1
+        newArticle.setUserId(1);
+        //添加文章
+        this.save(newArticle);
+        article.setId(this.lambdaQuery()
+                .orderByDesc(Article::getCreateTime)
+                .last(SystemConstants.LAST_LIMIT_1).one()
+                .getId());
+        //添加文章标签
+        this.addArticleTag(article);
     }
 
     //获取当前文章的下一个或上一个
@@ -240,11 +258,26 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .list(), TagOptionResp.class);
     }
 
+    //获取有效文章列表
     private List<Article> getArticleList() {
         return articleWrapper
                 .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                 .list();
+    }
+
+    //添加文章标签列表
+    private void addArticleTag(ArticleReq article) {
+        //获取已有标签名列表
+        List<String> savedTagNameList = tagService.lambdaQuery().select(Tag::getTagName).list()
+                .stream().map(Tag::getTagName).toList();
+        //获取未添加标签名列表
+        List<String> tagNameList = article.getTagNameList()
+                .stream().filter(tagName -> !savedTagNameList.contains(tagName)).toList();
+        //保存标签
+        tagService.addTag(tagNameList);
+        //添加文章标签外键
+        articleTagService.addArticleTag(article.getId(), tagNameList);
     }
 
 }
