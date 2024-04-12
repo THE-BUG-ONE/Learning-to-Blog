@@ -10,8 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResult<T> {
-
+    //总数
     private Integer count;
-
+    //分页结果
     private List<T> recordList;
 }

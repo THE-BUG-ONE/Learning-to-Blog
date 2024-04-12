@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.Result;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
@@ -260,6 +259,68 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .setCategoryName(
                         categoryService.getById(article.getCategoryId()).getCategoryName())
                 .setTagNameList(tagNameList);
+    }
+
+    @Override
+    public PageResult<ArticleBackResp> getBackArticle(
+            Integer articleType, Integer categoryId, Integer current, Integer isDelete,
+            String keyword, Integer size, Integer status, Integer tagId) {
+        /*{
+        "count": 0,
+        "recordList": [
+          {
+            "articleCover": "string",
+            "articleTitle": "string",
+            "articleType": 0,
+            "categoryName": "string",
+            "createTime": "2024-04-12T05:35:09.556Z",
+            "id": 0,
+            "isDelete": 0,
+            "isRecommend": 0,
+            "isTop": 0,
+            "likeCount": 0,
+            "status": 0,
+            "tagVOList": [
+              {
+                "id": 0,
+                "tagName": "string"
+              }
+            ],
+            "viewCount": 0
+          }
+        ]}*/
+        //获取符合条件的的文章
+        IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
+                        articleWrapper
+                                .eq(status != null, Article::getStatus, status)
+                                .eq(isDelete != null, Article::getIsDelete, isDelete)
+                                .eq(categoryId != null, Article::getCategoryId, categoryId)
+                                .eq(articleType != null, Article::getArticleType, articleType)
+                                .like(keyword != null, Article::getArticleContent, keyword)
+                                .in(tagId != null, Article::getId,
+                                        articleTagService.lambdaQuery().select(ArticleTag::getArticleId)
+                                                .eq(ArticleTag::getTagId, tagId).list().stream()
+                                                .map(ArticleTag::getArticleId).toList())
+                                .getWrapper());
+        //填充未定义字段
+        List<ArticleBackResp> articleBackRespList =
+                BeanCopyUtils.copyBeanList(p.getRecords(), ArticleBackResp.class)
+                        .stream().peek(articleBackResp -> articleBackResp
+                                .setCategoryName(categoryService.getById(
+                                        this.getById(articleBackResp.getId()).getCategoryId()).getCategoryName())
+//                                .setTagVOList(this.getArticleTagVOList(articleBackResp.getId()).stream()
+//                                        .filter(tag -> tagId == null || articleTagService.lambdaQuery()
+//                                                .eq(ArticleTag::getTagId, tagId).exists()).toList())
+                                .setTagVOList(this.getArticleTagVOList(articleBackResp.getId()))
+                                .setLikeCount(Optional.ofNullable(
+                                        redisTemplate.opsForZSet().score(
+                                                SystemConstants.ARTICLE_LIKE_COUNT, articleBackResp.getId()))
+                                        .orElse(0D).intValue())
+                                .setViewCount(Optional.ofNullable(
+                                        redisTemplate.opsForZSet().score(
+                                                SystemConstants.ARTICLE_VIEW_COUNT, articleBackResp.getId()))
+                                        .orElse(0D).intValue())).toList();
+        return new PageResult<>(articleBackRespList.size(), articleBackRespList);
     }
 
     //获取当前文章的下一个或上一个
