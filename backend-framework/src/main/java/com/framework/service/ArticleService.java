@@ -3,6 +3,7 @@ package com.framework.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Article;
 import com.framework.entity.vo.request.ArticleReq;
+import com.framework.entity.vo.request.DeleteReq;
 import com.framework.entity.vo.request.RecommendReq;
 import com.framework.entity.vo.response.*;
 
@@ -34,5 +35,7 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleBackResp> getBackArticle(Integer articleType, Integer categoryId, Integer current, Integer isDelete, String keyword, Integer size, Integer status, Integer tagId);
 
     void recommendArticle(RecommendReq recommendReq);
+
+    void recycleArticle(DeleteReq deleteReq);
 }
 

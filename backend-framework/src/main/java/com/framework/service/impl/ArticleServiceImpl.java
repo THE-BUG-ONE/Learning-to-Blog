@@ -11,6 +11,7 @@ import com.framework.entity.dao.ArticleTag;
 import com.framework.entity.dao.Category;
 import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.request.ArticleReq;
+import com.framework.entity.vo.request.DeleteReq;
 import com.framework.entity.vo.request.RecommendReq;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
@@ -328,12 +329,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Transactional(rollbackFor = Exception.class)
     public void recommendArticle(RecommendReq recommendReq) {
         try {
-            this.lambdaUpdate()
+            if (!this.lambdaUpdate()
                     .eq(Article::getId, recommendReq.getId())
                     .set(Article::getIsRecommend, recommendReq.getIsRecommend())
-                    .update();
+                    .update())
+                throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("文章推荐修改异常");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void recycleArticle(DeleteReq deleteReq) {
+        try {
+            if (!this.lambdaUpdate()
+                    .in(Article::getId, deleteReq.getIdList())
+                    .set(Article::getIsDelete, deleteReq.getIsDelete())
+                    .update())
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("文章删除状态修改异常");
         }
     }
 
