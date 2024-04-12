@@ -11,6 +11,7 @@ import com.framework.entity.dao.ArticleTag;
 import com.framework.entity.dao.Category;
 import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.request.ArticleReq;
+import com.framework.entity.vo.request.RecommendReq;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.*;
@@ -321,6 +322,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                                 SystemConstants.ARTICLE_VIEW_COUNT, articleBackResp.getId()))
                                         .orElse(0D).intValue())).toList();
         return new PageResult<>(articleBackRespList.size(), articleBackRespList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void recommendArticle(RecommendReq recommendReq) {
+        try {
+            this.lambdaUpdate()
+                    .eq(Article::getId, recommendReq.getId())
+                    .set(Article::getIsRecommend, recommendReq.getIsRecommend())
+                    .update();
+        } catch (Exception e) {
+            throw new RuntimeException("文章推荐修改异常");
+        }
     }
 
     //获取当前文章的下一个或上一个

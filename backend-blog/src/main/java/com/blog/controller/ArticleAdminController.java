@@ -2,6 +2,7 @@ package com.blog.controller;
 
 import com.framework.Result;
 import com.framework.entity.vo.request.ArticleReq;
+import com.framework.entity.vo.request.RecommendReq;
 import com.framework.entity.vo.response.ArticleBackResp;
 import com.framework.entity.vo.response.ArticleInfoResp;
 import com.framework.entity.vo.response.PageResult;
@@ -48,10 +49,10 @@ public class ArticleAdminController {
     public Result<PageResult<ArticleBackResp>> getBackArticle(
             @Nullable @RequestParam("articleType") @Validated Integer articleType,
             @Nullable @RequestParam("categoryId") @Validated Integer categoryId,
-            @RequestParam("current") @Validated Integer current ,
+            @RequestParam("current") @Validated Integer current,
             @Nullable @RequestParam("isDelete") @Validated Integer isDelete,
             @Nullable @RequestParam("keyword") @Validated String keyword,
-            @RequestParam("size") @Validated Integer size ,
+            @RequestParam("size") @Validated Integer size,
             @Nullable @RequestParam("status") @Validated Integer status,
             @Nullable @RequestParam("tagId") @Validated Integer tagId) {
         PageResult<ArticleBackResp> res = articleService.getBackArticle(
@@ -59,5 +60,12 @@ public class ArticleAdminController {
         return res != null ?
                 Result.success(res) :
                 Result.failure();
+    }
+
+    //接口：推荐文章
+    @PutMapping("/recommend")
+    public Result<?> recommendArticle(@RequestBody @Validated RecommendReq recommendReq) {
+        articleService.recommendArticle(recommendReq);
+        return Result.success();
     }
 }
