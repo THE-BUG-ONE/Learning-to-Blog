@@ -400,12 +400,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //flag(true:下一个,false:上一个)
     private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
         //将所有有效文章以主键排序
-        List<Article> articleList = this.getArticleList().stream().sorted(Comparator.comparing(Article::getId)).toList();
+        List<Article> articleList = this.getArticleList()
+                .stream()
+                .sorted(Comparator.comparing(Article::getId))
+                .toList();
         //获取当前文章索引
         int index = articleList.indexOf(articleMapper.selectById(id));
         //判断列表边界
-        if (flag && index + 1 > articleList.size() - 1) return null;
-        if (!flag && index - 1 < 0) return null;
+        if ((index == -1) || (flag && index + 1 > articleList.size() - 1) || (!flag && index - 1 < 0)) return null;
         //获取目标文章
         Article article = articleList.get(flag ? index + 1 : index - 1);
         return article == null ? null :
