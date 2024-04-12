@@ -28,5 +28,10 @@ public class Category {
     private Date createTime;
     //更新时间
     private Date updateTime;
+
+    public Category(String categoryName, Date createTime) {
+        this.categoryName = categoryName;
+        this.createTime = createTime;
+    }
 }
 

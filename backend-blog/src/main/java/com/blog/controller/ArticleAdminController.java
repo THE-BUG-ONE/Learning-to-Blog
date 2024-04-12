@@ -25,8 +25,8 @@ public class ArticleAdminController {
 
     //接口：添加文章
     @PostMapping("/add")
-    public Result<?> addArticle(@RequestBody @Validated ArticleReq article) {
-        articleService.addArticle(article);
+    public Result<?> addArticle(@RequestBody @Validated ArticleReq articleReq) {
+        articleService.addArticle(articleReq);
         return Result.success();
     }
 
@@ -82,6 +82,13 @@ public class ArticleAdminController {
     @PutMapping("/top")
     public Result<?> topArticle(@RequestBody @Validated TopReq topReq) {
         articleService.topArticle(topReq);
+        return Result.success();
+    }
+
+    //接口：修改文章
+    @PutMapping("/update")
+    public Result<?> updateArticle(@RequestBody @Validated ArticleReq articleReq) {
+        articleService.updateArticle(articleReq);
         return Result.success();
     }
 }

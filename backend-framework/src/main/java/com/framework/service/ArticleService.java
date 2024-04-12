@@ -27,7 +27,7 @@ public interface ArticleService extends IService<Article> {
 
     void likeArticle(Integer articleId);
 
-    void addArticle(ArticleReq article);
+    void addArticle(ArticleReq articleReq);
 
     void deleteArticle(List<Integer> articleIdList);
 
@@ -40,5 +40,7 @@ public interface ArticleService extends IService<Article> {
     void recycleArticle(DeleteReq deleteReq);
 
     void topArticle(TopReq topReq);
+
+    void updateArticle(ArticleReq articleReq);
 }
 

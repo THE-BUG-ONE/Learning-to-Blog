@@ -18,5 +18,7 @@ public interface CategoryService extends IService<Category> {
 
     ArticleConditionList getCategoryArticleList(Integer categoryId, Integer current,
                                                         Integer size, Integer tagId);
+
+    void addCategory(String categoryName);
 }
 

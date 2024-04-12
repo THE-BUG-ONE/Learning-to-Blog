@@ -201,26 +201,34 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class) // 发生异常就回滚
-    public void addArticle(ArticleReq article) {
-        Article newArticle = BeanCopyUtils.copyBean(article, Article.class);
-        newArticle.setCreateTime(DateUtil.date());
-        newArticle.setCategoryId(
-                categoryService.lambdaQuery()
-                        .eq(Category::getCategoryName, article.getCategoryName())
-                        .one().getId());
-        if (article.getArticleCover() == null)
-            newArticle.setArticleCover(
-                    siteConfigService.getSiteConfig().getArticleCover());
-        //TODO 需要完成获取用户id,暂时固定为1
-        newArticle.setUserId(1);
-        //添加文章
-        this.save(newArticle);
-        article.setId(this.lambdaQuery()
-                .orderByDesc(Article::getCreateTime)
-                .last(SystemConstants.LAST_LIMIT_1).one()
-                .getId());
-        //添加文章标签
-        this.addArticleTag(article);
+    public void addArticle(ArticleReq articleReq) {
+        try {
+            //如果分类不存在添加分类
+            this.addArticleCategory(articleReq);
+            //封装
+            Article newArticle = BeanCopyUtils.copyBean(articleReq, Article.class)
+                    .setCreateTime(DateUtil.date())
+                    .setCategoryId(
+                            categoryService.lambdaQuery()
+                                    .select(Category::getId)
+                                    .eq(Category::getCategoryName, articleReq.getCategoryName())
+                                    .one().getId());
+            if (articleReq.getArticleCover() == null)
+                newArticle.setArticleCover(
+                        siteConfigService.getSiteConfig().getArticleCover());
+            //TODO 需要完成获取用户id,暂时固定为1
+            newArticle.setUserId(1);
+            //添加文章
+            if (!this.save(newArticle)) throw new RuntimeException();
+            articleReq.setId(this.lambdaQuery()
+                    .orderByDesc(Article::getCreateTime)
+                    .last(SystemConstants.LAST_LIMIT_1).one()
+                    .getId());
+            //添加文章标签
+            this.addArticleTag(articleReq);
+        } catch (Exception e) {
+            throw new RuntimeException("添加文章异常");
+        }
     }
 
     @Override
@@ -364,7 +372,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                     .update())
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("文章指定修改异常");
+            throw new RuntimeException("文章置顶修改异常");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateArticle(ArticleReq articleReq) {
+        try {
+            //添加文章标签
+            this.addArticleTag(articleReq);
+            //若分类不存在添加文章分类
+            this.addArticleCategory(articleReq);
+            Article article = BeanCopyUtils.copyBean(articleReq, Article.class)
+                    .setCategoryId(categoryService.lambdaQuery()
+                            .eq(Category::getCategoryName, articleReq.getCategoryName())
+                            .one().getId())
+                    .setUpdateTime(DateUtil.date());
+            if (!this.saveOrUpdate(article))
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("文章修改异常");
         }
     }
 
@@ -416,7 +444,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //添加文章标签列表
     private void addArticleTag(ArticleReq article) {
         //获取已有标签名列表
-        List<String> savedTagNameList = tagService.lambdaQuery().select(Tag::getTagName).list()
+        List<String> savedTagNameList = tagService.lambdaQuery()
+                .select(Tag::getTagName).list()
                 .stream().map(Tag::getTagName).toList();
         //获取未添加标签名列表
         List<String> tagNameList = article.getTagNameList()
@@ -427,5 +456,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articleTagService.addArticleTag(article.getId(), article.getTagNameList());
     }
 
+    //添加文章分类
+    private void addArticleCategory(ArticleReq articleReq) {
+        Category category = categoryService.lambdaQuery()
+                .select(Category::getId)
+                .eq(Category::getCategoryName, articleReq.getCategoryName())
+                .one();
+        if (category == null)
+            categoryService.addCategory(articleReq.getCategoryName());
+
+    }
 }
 

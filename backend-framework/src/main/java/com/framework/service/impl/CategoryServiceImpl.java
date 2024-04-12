@@ -1,5 +1,6 @@
 package com.framework.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,6 +21,7 @@ import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -134,6 +136,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return new ArticleConditionList(
                 tagService.getById(tagId).getTagName(),
                 articleConditionRespList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addCategory(String categoryName) {
+        try {
+            if (!this.save(new Category(
+                    categoryName, DateUtil.date()
+            ))) throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("添加分类异常");
+        }
     }
 
     //获取文章分类列表（分类id，分类名）
