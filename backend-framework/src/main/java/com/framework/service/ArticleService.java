@@ -5,6 +5,7 @@ import com.framework.entity.dao.Article;
 import com.framework.entity.vo.request.ArticleReq;
 import com.framework.entity.vo.request.DeleteReq;
 import com.framework.entity.vo.request.RecommendReq;
+import com.framework.entity.vo.request.TopReq;
 import com.framework.entity.vo.response.*;
 
 import java.util.List;
@@ -37,5 +38,7 @@ public interface ArticleService extends IService<Article> {
     void recommendArticle(RecommendReq recommendReq);
 
     void recycleArticle(DeleteReq deleteReq);
+
+    void topArticle(TopReq topReq);
 }
 

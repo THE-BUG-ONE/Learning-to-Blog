@@ -4,6 +4,7 @@ import com.framework.Result;
 import com.framework.entity.vo.request.ArticleReq;
 import com.framework.entity.vo.request.DeleteReq;
 import com.framework.entity.vo.request.RecommendReq;
+import com.framework.entity.vo.request.TopReq;
 import com.framework.entity.vo.response.ArticleBackResp;
 import com.framework.entity.vo.response.ArticleInfoResp;
 import com.framework.entity.vo.response.PageResult;
@@ -74,6 +75,13 @@ public class ArticleAdminController {
     @PutMapping("/recycle")
     public Result<?> recycleArticle(@RequestBody @Validated DeleteReq deleteReq) {
         articleService.recycleArticle(deleteReq);
+        return Result.success();
+    }
+
+    //接口：置顶文章
+    @PutMapping("/top")
+    public Result<?> topArticle(@RequestBody @Validated TopReq topReq) {
+        articleService.topArticle(topReq);
         return Result.success();
     }
 }

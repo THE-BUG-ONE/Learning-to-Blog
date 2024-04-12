@@ -13,6 +13,7 @@ import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.request.ArticleReq;
 import com.framework.entity.vo.request.DeleteReq;
 import com.framework.entity.vo.request.RecommendReq;
+import com.framework.entity.vo.request.TopReq;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.*;
@@ -350,6 +351,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("文章删除状态修改异常");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void topArticle(TopReq topReq) {
+        try {
+            if (!this.lambdaUpdate()
+                    .eq(Article::getId, topReq.getId())
+                    .set(Article::getIsTop, topReq.getIsTop())
+                    .update())
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("文章指定修改异常");
         }
     }
 
