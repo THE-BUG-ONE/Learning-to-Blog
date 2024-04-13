@@ -2,7 +2,6 @@ package com.framework.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
@@ -58,8 +57,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
-    private final LambdaQueryChainWrapper<Article> articleWrapper = this.lambdaQuery();
-
     @Override
     public PageResult<ArticleHomeResp> getArticleHomeList(Integer current, Integer size) {
         /*{
@@ -86,8 +83,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             ]
           }
         */
-        IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
-                articleWrapper
+        IPage<Article> p = this.page(new Page<>(current, size),
+                this.lambdaQuery()
                         .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .orderByDesc(Article::getIsTop)
@@ -200,7 +197,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class) // 发生异常就回滚
+    @Transactional // 发生异常就回滚
     public void addArticle(ArticleReq articleReq) {
         try {
             //如果分类不存在添加分类
@@ -232,13 +229,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteArticle(List<Integer> articleIdList) {
-        articleTagService.removeByIds(articleTagService.lambdaQuery()
+        articleTagService.removeBatchByIds(articleTagService.lambdaQuery()
                 .select(ArticleTag::getId)
                 .in(ArticleTag::getArticleId, articleIdList)
                 .list().stream().map(ArticleTag::getId).toList());
-        this.removeByIds(articleIdList);
+        this.removeBatchByIds(articleIdList);
     }
 
     @Override
@@ -302,7 +299,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         ]}*/
         //获取符合条件的的文章
         IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
-                        articleWrapper
+                        this.lambdaQuery()
                                 .eq(status != null, Article::getStatus, status)
                                 .eq(isDelete != null, Article::getIsDelete, isDelete)
                                 .eq(categoryId != null, Article::getCategoryId, categoryId)
@@ -313,15 +310,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                                 .eq(ArticleTag::getTagId, tagId).list().stream()
                                                 .map(ArticleTag::getArticleId).toList())
                                 .getWrapper());
+        //获取文章对应分类id列表
+        //TODO mapper映射优化
+        Map<Integer, String> nameList = new HashMap<>();
+        categoryService.lambdaQuery()
+                .select(Category::getId, Category::getCategoryName)
+                .list()
+                .forEach(category -> nameList.put(category.getId(), category.getCategoryName()));
+        Map<Integer, String> idList = new HashMap<>();
+        p.getRecords().forEach(article -> idList.put(article.getId(), nameList.get(article.getCategoryId())));
         //填充未定义字段
         List<ArticleBackResp> articleBackRespList =
                 BeanCopyUtils.copyBeanList(p.getRecords(), ArticleBackResp.class)
                         .stream().peek(articleBackResp -> articleBackResp
-                                .setCategoryName(categoryService.getById(
-                                        this.getById(articleBackResp.getId()).getCategoryId()).getCategoryName())
-//                                .setTagVOList(this.getArticleTagVOList(articleBackResp.getId()).stream()
-//                                        .filter(tag -> tagId == null || articleTagService.lambdaQuery()
-//                                                .eq(ArticleTag::getTagId, tagId).exists()).toList())
+                                .setCategoryName(idList.get(articleBackResp.getId()))
                                 .setTagVOList(this.getArticleTagVOList(articleBackResp.getId()))
                                 .setLikeCount(Optional.ofNullable(
                                         redisTemplate.opsForZSet().score(
@@ -335,7 +337,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void recommendArticle(RecommendReq recommendReq) {
         try {
             if (!this.lambdaUpdate()
@@ -349,7 +351,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void recycleArticle(DeleteReq deleteReq) {
         try {
             if (!this.lambdaUpdate()
@@ -363,7 +365,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void topArticle(TopReq topReq) {
         try {
             if (!this.lambdaUpdate()
@@ -377,7 +379,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void updateArticle(ArticleReq articleReq) {
         try {
             //添加文章标签
@@ -437,7 +439,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     //获取有效文章列表
     private List<Article> getArticleList() {
-        return articleWrapper
+        return this.lambdaQuery()
                 .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                 .list();

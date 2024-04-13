@@ -1,8 +1,8 @@
 package com.framework.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.mapper.SiteConfigMapper;
 import com.framework.entity.dao.SiteConfig;
+import com.framework.mapper.SiteConfigMapper;
 import com.framework.service.SiteConfigService;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.framework.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.mapper.VisitLogMapper;
 import com.framework.entity.dao.VisitLog;
+import com.framework.mapper.VisitLogMapper;
 import com.framework.service.VisitLogService;
 import org.springframework.stereotype.Service;
 

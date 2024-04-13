@@ -33,5 +33,11 @@ public class Category {
         this.categoryName = categoryName;
         this.createTime = createTime;
     }
+
+    public Category(Integer id, String categoryName, Date createTime) {
+        this.id = id;
+        this.categoryName = categoryName;
+        this.createTime = createTime;
+    }
 }
 

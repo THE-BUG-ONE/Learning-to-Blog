@@ -13,6 +13,7 @@ import jakarta.annotation.Resource;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -91,4 +92,15 @@ public class ArticleAdminController {
         articleService.updateArticle(articleReq);
         return Result.success();
     }
+    //TODO
+    //接口：上传文章图片
+    @PostMapping("/upload")
+    public Result<String> uploadImg(@RequestPart MultipartFile file) {
+        String res = file.getOriginalFilename();
+        return res != null ?
+                Result.success(res) :
+                Result.failure();
+    }
+
+    //
 }

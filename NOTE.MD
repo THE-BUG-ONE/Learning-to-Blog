@@ -108,6 +108,11 @@
     查询时分页后还有匹配条件
   - 解决：
   > 在分页前添加条件
+- mybatisPlus每次查询都会添加匹配条件，参数越来越多
+  - 原因：
+    每次查询使用的是同一个query
+  - 解决：
+  > 将全局变量的this.lambdaQuery()删除，改为每次查询各自使用
 - 405 Method Not Allowed
   - 原因：
     提交类型方法错误
@@ -152,3 +157,8 @@
   .reversed()).collect(Collectors.toList());
 - 添加标签时应注意不要重复添加
 > 新添加的数据在数据库中可能存在并且不能重复，这时需要判断，数据库中已有的数据应跳过，不进行存储
+- mybatisPlus需要使用事务异常回滚时需要配置
+> 在某个Configuration类或启动类上加上@@EnableTransactionManagement  
+  在需要开启事务的方法上加上注解@Transactional
+  默认报RuntimeException异常时回滚
+  使用@Transactional(rollbackFor = Exception.class)更改检测的异常

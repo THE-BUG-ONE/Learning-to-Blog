@@ -2,8 +2,8 @@ package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Category;
-import com.framework.entity.vo.response.ArticleConditionList;
-import com.framework.entity.vo.response.CategoryResp;
+import com.framework.entity.vo.request.CategoryReq;
+import com.framework.entity.vo.response.*;
 
 import java.util.List;
 
@@ -19,6 +19,16 @@ public interface CategoryService extends IService<Category> {
     ArticleConditionList getCategoryArticleList(Integer categoryId, Integer current,
                                                         Integer size, Integer tagId);
 
+    void addCategory(CategoryReq categoryReq);
+
     void addCategory(String categoryName);
+
+    void deleteCategory(List<Integer> categoryIdlist);
+
+    PageResult<CategoryBackResp> getBackCategoryList(Integer current, Integer size, String keyword);
+
+    List<CategoryOptionResp> getCategoryOptionList();
+
+    void updateCategory(CategoryReq categoryReq);
 }
 

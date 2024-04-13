@@ -1,8 +1,8 @@
 package com.framework.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.mapper.UserMapper;
 import com.framework.entity.dao.User;
+import com.framework.mapper.UserMapper;
 import com.framework.service.UserService;
 import org.springframework.stereotype.Service;
 
