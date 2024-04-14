@@ -1,8 +1,4 @@
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blog.BackendBlogApplication;
-import com.framework.entity.dao.Article;
-import com.framework.entity.dao.Category;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.CategoryService;
@@ -11,8 +7,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
 
 @SpringBootTest(classes = BackendBlogApplication.class)
 @RunWith(SpringJUnit4ClassRunner.class)

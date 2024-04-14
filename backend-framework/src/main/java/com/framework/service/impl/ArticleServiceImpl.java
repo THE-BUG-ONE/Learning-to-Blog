@@ -9,10 +9,7 @@ import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
 import com.framework.entity.dao.Category;
 import com.framework.entity.dao.Tag;
-import com.framework.entity.vo.request.ArticleReq;
-import com.framework.entity.vo.request.DeleteReq;
-import com.framework.entity.vo.request.RecommendReq;
-import com.framework.entity.vo.request.TopReq;
+import com.framework.entity.vo.request.*;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.*;
@@ -270,9 +267,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public PageResult<ArticleBackResp> getBackArticle(
-            Integer articleType, Integer categoryId, Integer current, Integer isDelete,
-            String keyword, Integer size, Integer status, Integer tagId) {
+    public PageResult<ArticleBackResp> getBackArticle(ArticleBackReq articleBackReq) {
         /*{
         "count": 0,
         "recordList": [
@@ -297,6 +292,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             "viewCount": 0
           }
         ]}*/
+
+        //类型 (1原创 2转载 3翻译)
+        Integer articleType = articleBackReq.getArticleType();
+        //分类id
+        Integer categoryId = articleBackReq.getCategoryId();
+        //标签id
+        Integer tagId = articleBackReq.getTagId();
+        //是否删除 (0否 1是)
+        Integer isDelete = articleBackReq.getIsDelete();
+        //状态 (1公开 2私密 3评论可见)
+        Integer status = articleBackReq.getStatus();
+        //关键词
+        String keyword = articleBackReq.getKeyword();
+        //页数
+        Integer current = articleBackReq.getCurrent();
+        //条数
+        Integer size = articleBackReq.getSize();
+
         //获取符合条件的的文章
         IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
                         this.lambdaQuery()
@@ -305,25 +318,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                 .eq(categoryId != null, Article::getCategoryId, categoryId)
                                 .eq(articleType != null, Article::getArticleType, articleType)
                                 .like(keyword != null, Article::getArticleContent, keyword)
-                                .in(tagId != null, Article::getId,
-                                        articleTagService.lambdaQuery().select(ArticleTag::getArticleId)
-                                                .eq(ArticleTag::getTagId, tagId).list().stream()
-                                                .map(ArticleTag::getArticleId).toList())
+                                .in(tagId != null, Article::getId, articleTagService
+                                        .lambdaQuery()
+                                        .select(ArticleTag::getArticleId)
+                                        .eq(ArticleTag::getTagId, tagId).list().stream()
+                                        .map(ArticleTag::getArticleId)
+                                        .toList())
                                 .getWrapper());
-        //获取文章对应分类id列表
-        //TODO mapper映射优化
-        Map<Integer, String> nameList = new HashMap<>();
-        categoryService.lambdaQuery()
-                .select(Category::getId, Category::getCategoryName)
-                .list()
-                .forEach(category -> nameList.put(category.getId(), category.getCategoryName()));
-        Map<Integer, String> idList = new HashMap<>();
-        p.getRecords().forEach(article -> idList.put(article.getId(), nameList.get(article.getCategoryId())));
+
+        //填充分类名
+        List<Article> articleList = p.getRecords();
+        articleList.forEach(article ->
+                article.setCategoryName(this.getCategoryNameMap().get(article.getCategoryId())));
         //填充未定义字段
-        List<ArticleBackResp> articleBackRespList =
-                BeanCopyUtils.copyBeanList(p.getRecords(), ArticleBackResp.class)
+        List<ArticleBackResp> articleBackRespList = BeanCopyUtils.copyBeanList(articleList, ArticleBackResp.class)
                         .stream().peek(articleBackResp -> articleBackResp
-                                .setCategoryName(idList.get(articleBackResp.getId()))
                                 .setTagVOList(this.getArticleTagVOList(articleBackResp.getId()))
                                 .setLikeCount(Optional.ofNullable(
                                         redisTemplate.opsForZSet().score(
@@ -418,11 +427,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     //获取文章分类列表（分类id，分类名）
     private Map<Integer, CategoryOptionResp> getArticleCategoryVOMap() {
-        Map<Integer, CategoryOptionResp> articleCategoryVOMap = new HashMap<>();
+        Map<Integer, CategoryOptionResp> categoryVOMap = new HashMap<>();
         BeanCopyUtils.copyBeanList(categoryService.list(), CategoryOptionResp.class)
                 .forEach(articleCategoryVO ->
-                        articleCategoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
-        return articleCategoryVOMap;
+                        categoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
+        return categoryVOMap;
     }
 
     //获取文章标签列表（标签id，标签名）
@@ -468,7 +477,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .one();
         if (category == null)
             categoryService.addCategory(articleReq.getCategoryName());
+    }
 
+    //获取分类id，分类名map
+    private Map<Integer, String> getCategoryNameMap() {
+        Map<Integer, String> categoryNameMap = new HashMap<>();
+        categoryService.lambdaQuery()
+                .select(Category::getId, Category::getCategoryName)
+                .list()
+                .forEach(category -> categoryNameMap.put(category.getId(), category.getCategoryName()));
+        return categoryNameMap;
     }
 }
 

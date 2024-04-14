@@ -2,10 +2,7 @@ package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Article;
-import com.framework.entity.vo.request.ArticleReq;
-import com.framework.entity.vo.request.DeleteReq;
-import com.framework.entity.vo.request.RecommendReq;
-import com.framework.entity.vo.request.TopReq;
+import com.framework.entity.vo.request.*;
 import com.framework.entity.vo.response.*;
 
 import java.util.List;
@@ -33,7 +30,7 @@ public interface ArticleService extends IService<Article> {
 
     ArticleInfoResp editArticle(Integer articleId);
 
-    PageResult<ArticleBackResp> getBackArticle(Integer articleType, Integer categoryId, Integer current, Integer isDelete, String keyword, Integer size, Integer status, Integer tagId);
+    PageResult<ArticleBackResp> getBackArticle(ArticleBackReq articleBackReq);
 
     void recommendArticle(RecommendReq recommendReq);
 

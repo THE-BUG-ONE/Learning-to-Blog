@@ -1,10 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
-import com.framework.entity.vo.request.ArticleReq;
-import com.framework.entity.vo.request.DeleteReq;
-import com.framework.entity.vo.request.RecommendReq;
-import com.framework.entity.vo.request.TopReq;
+import com.framework.entity.vo.request.*;
 import com.framework.entity.vo.response.ArticleBackResp;
 import com.framework.entity.vo.response.ArticleInfoResp;
 import com.framework.entity.vo.response.PageResult;
@@ -50,16 +47,8 @@ public class ArticleAdminController {
     //接口：查看后台文章列表
     @GetMapping("/list")
     public Result<PageResult<ArticleBackResp>> getBackArticle(
-            @Nullable @RequestParam("articleType") @Validated Integer articleType,
-            @Nullable @RequestParam("categoryId") @Validated Integer categoryId,
-            @RequestParam("current") @Validated Integer current,
-            @Nullable @RequestParam("isDelete") @Validated Integer isDelete,
-            @Nullable @RequestParam("keyword") @Validated String keyword,
-            @RequestParam("size") @Validated Integer size,
-            @Nullable @RequestParam("status") @Validated Integer status,
-            @Nullable @RequestParam("tagId") @Validated Integer tagId) {
-        PageResult<ArticleBackResp> res = articleService.getBackArticle(
-                articleType, categoryId, current, isDelete, keyword, size, status, tagId);
+            @RequestBody @Validated ArticleBackReq articleBackReq) {
+        PageResult<ArticleBackResp> res = articleService.getBackArticle(articleBackReq);
         return res != null ?
                 Result.success(res) :
                 Result.failure();
