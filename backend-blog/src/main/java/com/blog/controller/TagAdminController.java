@@ -52,4 +52,11 @@ public class TagAdminController {
                 Result.success(res) :
                 Result.failure();
     }
+
+    //接口：修改标签
+    @PutMapping("update")
+    public Result<?> updateTag(@RequestBody @Validated TagReq tagReq) {
+        tagService.updateTag(tagReq);
+        return Result.success();
+    }
 }

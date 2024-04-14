@@ -4,15 +4,11 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
-import com.framework.entity.dao.ArticleTag;
 import com.framework.entity.dao.Category;
-import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.request.ArticleConditionReq;
 import com.framework.entity.vo.request.CategoryReq;
 import com.framework.entity.vo.response.*;
-import com.framework.mapper.ArticleMapper;
 import com.framework.mapper.CategoryMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.ArticleTagService;
@@ -24,9 +20,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 

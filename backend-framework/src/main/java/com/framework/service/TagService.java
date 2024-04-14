@@ -29,5 +29,7 @@ public interface TagService extends IService<Tag> {
     PageResult<TagBackResp> getBackTagList(TagBackReq tagBackReq);
 
     List<TagOptionResp> getTagOptionList(Integer articleId);
+
+    void updateTag(TagReq tagReq);
 }
 

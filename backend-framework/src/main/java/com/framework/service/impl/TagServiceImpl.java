@@ -1,10 +1,8 @@
 package com.framework.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
 import com.framework.entity.dao.Tag;
@@ -12,7 +10,6 @@ import com.framework.entity.vo.request.ArticleConditionReq;
 import com.framework.entity.vo.request.TagBackReq;
 import com.framework.entity.vo.request.TagReq;
 import com.framework.entity.vo.response.*;
-import com.framework.mapper.ArticleMapper;
 import com.framework.mapper.TagMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.ArticleTagService;
@@ -162,6 +159,22 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                         .map(ArticleTag::getTagId)
                         .toList())
                 .list(), TagOptionResp.class);
+    }
+
+    @Override
+    @Transactional
+    public void updateTag(TagReq tagReq) {
+        try {
+            Integer id = tagReq.getId();
+            String tagName = tagReq.getTagName();
+            if (id == null || !this.lambdaUpdate()
+                    .eq(Tag::getId, id)
+                    .set(Tag::getTagName, tagName)
+                    .update())
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("标签修改异常");
+        }
     }
 
 
