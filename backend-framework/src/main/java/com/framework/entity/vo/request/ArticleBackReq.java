@@ -1,6 +1,5 @@
 package com.framework.entity.vo.request;
 
-import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

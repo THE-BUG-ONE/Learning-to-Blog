@@ -9,6 +9,7 @@ import com.framework.entity.dao.Article;
 import com.framework.entity.dao.ArticleTag;
 import com.framework.entity.dao.Category;
 import com.framework.entity.dao.Tag;
+import com.framework.entity.vo.request.ArticleConditionReq;
 import com.framework.entity.vo.request.CategoryReq;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
@@ -37,10 +38,6 @@ import java.util.stream.Collectors;
  */
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
-
-    @Lazy
-    @Resource
-    ArticleMapper articleMapper;
 
     @Lazy
     @Resource
@@ -73,11 +70,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .toList();
     }
 
+    //标签id可为空，为空时从文章字段中获取
     @Override
-    public ArticleConditionList getCategoryArticleList(Integer categoryId,
-                                                               Integer current,
-                                                               Integer size,
-                                                               Integer tagId) {
+    public ArticleConditionList getArticleConditionList(ArticleConditionReq articleConditionReq) {
         /*{
         "articleConditionVOList": [{
             "articleCover": "string",
@@ -97,36 +92,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         }],
         "name": "string"
         }*/
-        IPage<Article> p =  articleMapper.selectPage(new Page<>(current, size),
-                articleService.lambdaQuery()
-                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                        .eq(Article::getCategoryId, categoryId)
-                        .getWrapper());
-        //获取当前Tag的所有ArticleId
-        List<Integer> articleIdList = articleTagService.lambdaQuery()
-                .eq(ArticleTag::getTagId, tagId).list().stream()
-                .map(ArticleTag::getArticleId)
-                .toList();
+
+        Integer categoryId = articleConditionReq.getCategoryId();
+        Integer tagId = articleConditionReq.getTagId();
+        Integer current = articleConditionReq.getCurrent();
+        Integer size = articleConditionReq.getSize();
+
         //筛选包含当前Tag的所有Article
-        List<Article> articleList = p.getRecords()
-                .stream()
-                .filter(article -> articleIdList.contains(article.getId()))
-                .toList();
-        //存储文章分类列表
-        Map<Integer, CategoryOptionResp> articleCategoryVOMap = getArticleCategoryVOMap();
+        List<Article> articleList = articleService.getArticlePageList(current, size, categoryId, tagId);
         //封装
         List<ArticleConditionResp> articleConditionRespList =
                 BeanCopyUtils.copyBeanList(articleList, ArticleConditionResp.class)
                         .stream()
-                        .peek(articleConditionResp -> {
-                            articleConditionResp.setCategory(articleCategoryVOMap.get(articleMapper.selectById(articleConditionResp.getId()).getCategoryId()));
-                            articleConditionResp.setTagVOList(getArticleTagVOList(articleConditionResp.getId()));
-                        })
+                        .peek(article -> {
+                            article.setCategory(this.getCategoryOptionVO(categoryId));
+                            article.setTagVOList(tagService.getTagOptionList(article.getId()));})
                         .toList();
 
         return new ArticleConditionList(
-                tagService.getById(tagId).getTagName(),
+                this.getById(categoryId).getCategoryName(),
                 articleConditionRespList);
     }
 
@@ -224,24 +208,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     //获取文章分类列表（分类id，分类名）
-    private Map<Integer, CategoryOptionResp> getArticleCategoryVOMap() {
-        Map<Integer, CategoryOptionResp> articleCategoryVOMap = new HashMap<>();
-        BeanCopyUtils.copyBeanList(this.list(), CategoryOptionResp.class)
-                .forEach(articleCategoryVO ->
-                        articleCategoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
-        return articleCategoryVOMap;
-    }
-
-    //获取文章标签列表（标签id，标签名）
-    private List<TagOptionResp> getArticleTagVOList(int id) {
-        return BeanCopyUtils.copyBeanList(tagService.lambdaQuery()
-                .in(Tag::getId,articleTagService.lambdaQuery()
-                        .eq(ArticleTag::getArticleId, id)
-                        .list()
-                        .stream()
-                        .map(ArticleTag::getTagId)
-                        .collect(Collectors.toSet()))
-                .list(), TagOptionResp.class);
+    @Override
+    public CategoryOptionResp getCategoryOptionVO(Integer categoryId) {
+        return BeanCopyUtils.copyBean(this.getById(categoryId), CategoryOptionResp.class);
     }
 }
 

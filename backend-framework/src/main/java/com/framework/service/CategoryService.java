@@ -2,6 +2,7 @@ package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Category;
+import com.framework.entity.vo.request.ArticleConditionReq;
 import com.framework.entity.vo.request.CategoryReq;
 import com.framework.entity.vo.response.*;
 
@@ -16,8 +17,7 @@ import java.util.List;
 public interface CategoryService extends IService<Category> {
     List<CategoryResp> getCategoryList();
 
-    ArticleConditionList getCategoryArticleList(Integer categoryId, Integer current,
-                                                        Integer size, Integer tagId);
+    ArticleConditionList getArticleConditionList(ArticleConditionReq articleConditionReq);
 
     void addCategory(CategoryReq categoryReq);
 
@@ -30,5 +30,7 @@ public interface CategoryService extends IService<Category> {
     List<CategoryOptionResp> getCategoryOptionList();
 
     void updateCategory(CategoryReq categoryReq);
+
+    CategoryOptionResp getCategoryOptionVO(Integer categoryId);
 }
 

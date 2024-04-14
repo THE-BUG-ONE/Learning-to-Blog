@@ -32,9 +32,6 @@ import java.util.stream.Collectors;
 @Service("articleService")
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
-    @Resource
-    private ArticleMapper articleMapper;
-
     @Lazy
     @Resource
     private CategoryService categoryService;
@@ -80,21 +77,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             ]
           }
         */
-        IPage<Article> p = this.page(new Page<>(current, size),
-                this.lambdaQuery()
-                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                        .orderByDesc(Article::getIsTop)
-                        .getWrapper());
+        List<Article> articleList = this.getArticlePageList(current, size);
 
         //存储文章分类列表
         Map<Integer, CategoryOptionResp> articleCategoryVOMap = getArticleCategoryVOMap();
 
-        List<ArticleHomeResp> articleHomeRespList = p.getRecords()
+        List<ArticleHomeResp> articleHomeRespList = articleList
                         .stream()
                         .map(article -> BeanCopyUtils.copyBean(article, ArticleHomeResp.class)
                                 .setCategory(articleCategoryVOMap.get(article.getCategoryId()))
-                                .setTagVOList(getArticleTagVOList(article.getId())))
+                                .setTagVOList(tagService.getTagOptionList(article.getId())))
                         .toList();
         return new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
     }
@@ -151,11 +143,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         redisTemplate.opsForZSet().incrementScore(
                 SystemConstants.ARTICLE_VIEW_COUNT, articleId, 1D);
         //获取article
-        Article article = articleMapper.selectById(articleId);
+        Article article = this.getById(articleId);
         //填充article属性
         return BeanCopyUtils.copyBean(article, ArticleResp.class)
                 .setCategory(getArticleCategoryVOMap().get(article.getCategoryId()))
-                .setTagVOList(getArticleTagVOList(articleId))
+                .setTagVOList(tagService.getTagOptionList(articleId))
                 .setNextArticle(selectOtherArticle(articleId, true))
                 .setLastArticle(selectOtherArticle(articleId, false))
                 .setLikeCount(Optional.ofNullable(
@@ -311,7 +303,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Integer size = articleBackReq.getSize();
 
         //获取符合条件的的文章
-        IPage<Article> p = articleMapper.selectPage(new Page<>(current, size),
+        List<Article> articleList = this.page(new Page<>(current, size),
                         this.lambdaQuery()
                                 .eq(status != null, Article::getStatus, status)
                                 .eq(isDelete != null, Article::getIsDelete, isDelete)
@@ -324,16 +316,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                         .eq(ArticleTag::getTagId, tagId).list().stream()
                                         .map(ArticleTag::getArticleId)
                                         .toList())
-                                .getWrapper());
+                                .getWrapper()).getRecords();
 
         //填充分类名
-        List<Article> articleList = p.getRecords();
         articleList.forEach(article ->
                 article.setCategoryName(this.getCategoryNameMap().get(article.getCategoryId())));
         //填充未定义字段
         List<ArticleBackResp> articleBackRespList = BeanCopyUtils.copyBeanList(articleList, ArticleBackResp.class)
                         .stream().peek(articleBackResp -> articleBackResp
-                                .setTagVOList(this.getArticleTagVOList(articleBackResp.getId()))
+                                .setTagVOList(tagService.getTagOptionList(articleBackResp.getId()))
                                 .setLikeCount(Optional.ofNullable(
                                         redisTemplate.opsForZSet().score(
                                                 SystemConstants.ARTICLE_LIKE_COUNT, articleBackResp.getId()))
@@ -416,7 +407,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .sorted(Comparator.comparing(Article::getId))
                 .toList();
         //获取当前文章索引
-        int index = articleList.indexOf(articleMapper.selectById(id));
+        int index = articleList.indexOf(this.getById(id));
         //判断列表边界
         if ((index == -1) || (flag && index + 1 > articleList.size() - 1) || (!flag && index - 1 < 0)) return null;
         //获取目标文章
@@ -432,18 +423,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .forEach(articleCategoryVO ->
                         categoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
         return categoryVOMap;
-    }
-
-    //获取文章标签列表（标签id，标签名）
-    private List<TagOptionResp> getArticleTagVOList(int id) {
-        return BeanCopyUtils.copyBeanList(tagService.lambdaQuery()
-                .in(Tag::getId,articleTagService.lambdaQuery()
-                        .eq(ArticleTag::getArticleId, id)
-                        .list()
-                        .stream()
-                        .map(ArticleTag::getTagId)
-                        .collect(Collectors.toSet()))
-                .list(), TagOptionResp.class);
     }
 
     //获取有效文章列表
@@ -487,6 +466,31 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .list()
                 .forEach(category -> categoryNameMap.put(category.getId(), category.getCategoryName()));
         return categoryNameMap;
+    }
+
+    public List<Article> getArticlePageList(Integer current, Integer size) {
+        return this.page(new Page<>(current, size),
+                this.lambdaQuery()
+                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC))
+                .getRecords();
+    }
+
+    //获取文章分页列表
+    @Override
+    public List<Article> getArticlePageList(
+            Integer current, Integer size, Integer categoryId, Integer tagId) {
+        return this.page(new Page<>(current, size), this.lambdaQuery()
+                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                        .eq(categoryId != null, Article::getCategoryId, categoryId)
+                        .in(tagId != null, Article::getId, articleTagService.lambdaQuery()
+                                .eq(ArticleTag::getTagId, tagId)
+                                .list()
+                                .stream()
+                                .map(ArticleTag::getArticleId)
+                                .toList())
+                        .getWrapper()).getRecords();
     }
 }
 

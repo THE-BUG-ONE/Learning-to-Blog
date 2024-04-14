@@ -18,7 +18,7 @@ import java.util.List;
 public class CategoryAdminController {
 
     @Resource
-    CategoryService categoryService;
+    private CategoryService categoryService;
 
     //接口：添加分类
     @PostMapping("/add")
@@ -61,6 +61,4 @@ public class CategoryAdminController {
         categoryService.updateCategory(categoryReq);
         return Result.success();
     }
-
-    //接口：
 }

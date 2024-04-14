@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BlogInfoController {
 
     @Resource
-    BlogInfoService blogInfoService;
+    private BlogInfoService blogInfoService;
 
     //接口：查看博客信息
     @GetMapping("/")

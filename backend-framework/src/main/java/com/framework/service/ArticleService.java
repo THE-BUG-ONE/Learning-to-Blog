@@ -39,5 +39,8 @@ public interface ArticleService extends IService<Article> {
     void topArticle(TopReq topReq);
 
     void updateArticle(ArticleReq articleReq);
+
+    List<Article> getArticlePageList(Integer current, Integer size, Integer categoryId, Integer tagId);
+
 }
 
