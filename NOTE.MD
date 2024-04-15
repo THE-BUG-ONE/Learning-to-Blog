@@ -113,6 +113,11 @@
     每次查询使用的是同一个query
   - 解决：
   > 将全局变量的this.lambdaQuery()删除，改为每次查询各自使用
+- url参数请求无法用@RequestBody
+  - 原因：
+    @RequestBody接收json数据
+  - 解决：
+    删除@RequestBody
 - 405 Method Not Allowed
   - 原因：
     提交类型方法错误

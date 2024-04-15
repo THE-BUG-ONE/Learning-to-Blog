@@ -30,7 +30,7 @@ public class CategoryController {
     //接口：查看分类下的文章
     @GetMapping("/article")
     public Result<ArticleConditionList> getCategoryArticleList(
-            @RequestBody @Validated ArticleConditionReq articleConditionReq) {
+            @Validated ArticleConditionReq articleConditionReq) {
         ArticleConditionList res = categoryService.getArticleConditionList(articleConditionReq);
         return res == null ?
                 Result.failure() :

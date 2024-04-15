@@ -470,7 +470,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return this.page(new Page<>(current, size),
                 this.lambdaQuery()
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC))
+                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                        .getWrapper())
                 .getRecords();
     }
 
