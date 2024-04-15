@@ -7,7 +7,6 @@ import com.framework.entity.vo.response.ArticleInfoResp;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.service.ArticleService;
 import jakarta.annotation.Resource;
-import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,6 +89,4 @@ public class ArticleAdminController {
                 Result.success(res) :
                 Result.failure();
     }
-
-    //
 }

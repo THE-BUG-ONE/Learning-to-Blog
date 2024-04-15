@@ -162,3 +162,4 @@
   在需要开启事务的方法上加上注解@Transactional
   默认报RuntimeException异常时回滚
   使用@Transactional(rollbackFor = Exception.class)更改检测的异常
+- 项目启动时从数据库中读取数据存入redis，防止写锁

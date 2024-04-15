@@ -69,12 +69,13 @@ public class BlogInfoService {
     public void report() {
         stringRedisTemplate.opsForValue().increment(SystemConstants.BLOG_VIEW_COUNT, 1);
     }
-
+    //TODO 参数返回缺失
     public BlogBackInfoResp getBlogBackInfo() {
         //获取文章浏览量前5
         Map<Object, Double> articleMap = Objects.requireNonNull(redisTemplate.opsForZSet()
                 .reverseRangeWithScores(SystemConstants.ARTICLE_VIEW_COUNT, 0, 4))
-                .stream().collect(Collectors.toMap(
+                .stream()
+                .collect(Collectors.toMap(
                         ZSetOperations.TypedTuple::getValue,
                         ZSetOperations.TypedTuple::getScore));
         return new BlogBackInfoResp(
