@@ -10,35 +10,25 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * (Task)表实体类
+ * (Carousel)表实体类
  *
  * @author makejava
- * @since 2024-04-15 17:07:28
+ * @since 2024-04-16 15:31:44
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_task")
-public class Task {
+@TableName("t_carousel")
+public class Carousel {
     @TableId
-    //任务id    
+    //主键    
     private Integer id;
-    //任务名称
-    private String taskName;
-    //任务组名
-    private String taskGroup;
-    //调用目标
-    private String invokeTarget;
-    //cron执行表达式
-    private String cronExpression;
-    //计划执行错误策略 (1立即执行 2执行一次 3放弃执行)
-    private Integer misfirePolicy;
-    //是否并发执行 (0否 1是)
-    private Integer concurrent;
-    //任务状态 (0运行 1暂停)
+    //轮播图地址
+    private String imgUrl;
+    //是否显示 (0否 1是)
     private Integer status;
-    //任务备注信息
+    //备注
     private String remark;
     //创建时间
     private Date createTime;

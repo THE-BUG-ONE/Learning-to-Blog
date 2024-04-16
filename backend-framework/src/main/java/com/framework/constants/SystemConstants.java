@@ -54,4 +54,13 @@ public class SystemConstants {
     public static final String ARTICLE_VIEW_COUNT = "article_view_count";
     //查询一条
     public static final String LAST_LIMIT_1 = "limit 1";
+
+    //JWTRedisKey
+    public static final String JWT_REDIS_KEY = "blogLogin:";
+    //JWT密钥
+    public static final String JWT_KEY = "abcdefg";
+    //JWTHead
+    public static final String JWT_HEAD = "Bearer ";
+    //JWT过期时间
+    public static final int JWT_EXPIRE = 259200;
 }

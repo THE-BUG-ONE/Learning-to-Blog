@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @SpringBootTest(classes = BackendBlogApplication.class)
@@ -21,7 +22,11 @@ public class SpringTest {
     @Resource
     ArticleMapper articleMapper;
 
+    @Resource
+    PasswordEncoder encoder;
+
     @Test
     public void test() {
+        System.out.println(encoder.encode("123456"));
     }
 }
