@@ -62,7 +62,7 @@ public class SystemConstants {
     //JWTHead
     public static final String JWT_HEAD = "Bearer ";
     //JWT过期时间
-    public static final int JWT_EXPIRE = 259200;
+    public static final int JWT_EXPIRE = 3;
     //JWT黑名单
     public static final String JWT_BLACK_LIST = "jwt:blackList:";
 }

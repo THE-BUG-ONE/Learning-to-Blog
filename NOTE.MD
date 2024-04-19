@@ -123,6 +123,21 @@
     需要存储String类型
   - 解决：
   > 使用RedisTemplate<String, Object>
+- RedisTemplate无法存入非序列化对象
+  - 原因：
+    存入的LoginUser的字段User类未被序列化
+  - 解决：
+    将User实现接口Serializable
+- jwt解析后取id使用asString()后取空值
+  - 原因：
+    未知
+  - 解决：
+  > 使用toString()
+- redis中同一个键会自动在前面增加乱码以添加同键不同值的多条数据
+  - 原因：
+    redis存取时未进行序列化配置
+  - 解决：
+    创建RedisConfiguration配置redis序列化
 - 405 Method Not Allowed
   - 原因：
     提交类型方法错误
