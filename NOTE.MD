@@ -118,6 +118,11 @@
     @RequestBody接收json数据
   - 解决：
     删除@RequestBody
+- StringRedisTemplate无法直接存储对象
+  - 原因：
+    需要存储String类型
+  - 解决：
+  > 使用RedisTemplate<String, Object>
 - 405 Method Not Allowed
   - 原因：
     提交类型方法错误
@@ -128,6 +133,11 @@
     请求参数个数或类型错误
   - 解决：
   > 接口参数@RequestParam改为@RequestBody
+- 403
+  - 原因：
+    访问路径没有权限(大部分), login接口实现中用户校验失败
+  - 解决：
+  > 接收的用户密码不需要再次加密，应直接传入UsernamePasswordAuthenticationToken
 - 415 Unsupported Media Type
   - 原因：
     服务器无法处理请求附带的媒体格式
@@ -169,3 +179,8 @@
   使用@Transactional(rollbackFor = Exception.class)更改检测的异常
 - 项目启动时从数据库中读取数据存入redis，防止写锁
 > 实现CommendLineRunner接口，重写run方法
+- securityConfig
+> requestMatchers参数为匹配的接口路径
+  anonymous接在后面表示路径访问用户为匿名用户
+  permitAll接在后面表示路径访问用户为所有用户
+  authenticated接在后面表示路径访问用户为认证用户

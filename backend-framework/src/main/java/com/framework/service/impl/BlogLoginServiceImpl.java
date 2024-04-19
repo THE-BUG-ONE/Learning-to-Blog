@@ -7,7 +7,7 @@ import com.framework.service.BlogLoginService;
 import com.framework.service.UserService;
 import com.framework.utils.JwtUtils;
 import jakarta.annotation.Resource;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +28,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     private UserService userService;
 
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Resource
     private PasswordEncoder encoder;
@@ -45,10 +45,10 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         int userId = loginUser.getUser().getId();
         String token = SystemConstants.JWT_HEAD + JwtUtils.createJwt(loginUser, userId);
-        //存入redis
-        stringRedisTemplate.opsForValue().set(
+        //将loginUser按id存入redis
+        redisTemplate.opsForValue().set(
                 SystemConstants.JWT_REDIS_KEY + userId,
-                token,
+                loginUser,
                 SystemConstants.JWT_EXPIRE,
                 TimeUnit.DAYS);
         System.out.println(token);
