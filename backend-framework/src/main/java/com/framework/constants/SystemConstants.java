@@ -2,11 +2,6 @@ package com.framework.constants;
 
 public class SystemConstants {
 
-    //主键
-    public static final String TABLE_PRIMARY = "id";
-
-
-
     //公开文章
     public static final int ARTICLE_STATUS_PUBLIC = 1;
     //私密文章

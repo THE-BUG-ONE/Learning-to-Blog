@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum AppHttpCodeEnum {
     SUCCESS(200, "请求成功"),
     UNAUTHORIZED(401,"未登录"),
-    FORBIDDEN(403, "请求无权限")
+    FORBIDDEN(403, "请求无权限"),
+    INTERNAL_ERROR(500, "服务器内部错误")
 
     ;
 

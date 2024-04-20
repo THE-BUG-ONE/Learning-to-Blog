@@ -21,18 +21,24 @@ public record Result<T>(boolean flag, int code, String msg, T data) {
     }
 
     public static <T> Result<T> failure() {
-        return new Result<>(
-                false,
+        return failure(
                 AppHttpCodeEnum.FORBIDDEN.getCode(),
-                AppHttpCodeEnum.FORBIDDEN.getMsg(),
-                null);
+                AppHttpCodeEnum.FORBIDDEN.getMsg()
+        );
     }
 
     public static <T> Result<T> failure(AppHttpCodeEnum appHttpCodeEnum) {
+        return failure(
+                appHttpCodeEnum.getCode(),
+                appHttpCodeEnum.getMsg()
+        );
+    }
+
+    public static <T> Result<T> failure(int code, String msg) {
         return new Result<>(
                 false,
-                appHttpCodeEnum.getCode(),
-                appHttpCodeEnum.getMsg(),
+                code,
+                msg,
                 null);
     }
 
