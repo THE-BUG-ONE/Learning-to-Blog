@@ -28,6 +28,14 @@ public record Result<T>(boolean flag, int code, String msg, T data) {
                 null);
     }
 
+    public static <T> Result<T> failure(AppHttpCodeEnum appHttpCodeEnum) {
+        return new Result<>(
+                false,
+                appHttpCodeEnum.getCode(),
+                appHttpCodeEnum.getMsg(),
+                null);
+    }
+
     public String asJsonString() {
         return JSONObject.toJSONString(this, JSONWriter.Feature.WriteNulls);
     }

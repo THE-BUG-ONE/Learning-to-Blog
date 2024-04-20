@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum AppHttpCodeEnum {
     SUCCESS(200, "请求成功"),
-    UNAUTHORIZED(401,"请登录后操作"),
-    FORBIDDEN(403, "禁止")
+    UNAUTHORIZED(401,"未登录"),
+    FORBIDDEN(403, "请求无权限")
 
     ;
 

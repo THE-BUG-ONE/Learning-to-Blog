@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userService.lambdaQuery().eq(User::getUsername, username).one();
         //用户不存在则抛出异常
         if (Objects.isNull(user))
-            throw new UsernameNotFoundException("用户名不存在");
+            throw new UsernameNotFoundException("用户不存在");
         //权限信息封装
         user.setPassword(user.getPassword());
         return new LoginUser(user);

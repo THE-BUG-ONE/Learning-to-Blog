@@ -1,6 +1,5 @@
 package com.framework.filter;
 
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.LoginUser;
@@ -19,7 +18,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 @Component

@@ -138,6 +138,15 @@
     redis存取时未进行序列化配置
   - 解决：
     创建RedisConfiguration配置redis序列化
+- 请求异常时返回的状态码和信息错误
+  - 原因：
+    未配置认证和授权失败处理器
+  - 解决：
+  > httpSecurity.exceptionHandling(conf -> conf
+  .accessDeniedHandler(this::handle)          //授权失败处理器
+  .authenticationEntryPoint(this::commence))  //认证失败处理器
+  处理器方法中使用
+  response.getWriter().write(Result.failure().asJsonString());
 - 405 Method Not Allowed
   - 原因：
     提交类型方法错误
@@ -148,7 +157,7 @@
     请求参数个数或类型错误
   - 解决：
   > 接口参数@RequestParam改为@RequestBody
-- 403
+- 403 Forbidden
   - 原因：
     访问路径没有权限(大部分), login接口实现中用户校验失败
   - 解决：
