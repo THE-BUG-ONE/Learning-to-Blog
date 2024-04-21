@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,17 @@ public class BlogLoginServiceImpl implements BlogLoginService {
                 TimeUnit.DAYS);
         System.out.println(token);
         return token;
+    }
+
+    @Override
+    public void logout() {
+        //获取token并解析
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        //获取userId
+        int userId = loginUser.getUser().getId();
+        //删除redis中的用户信息
+        redisTemplate.delete(SystemConstants.JWT_REDIS_KEY + userId);
     }
 
 

@@ -39,7 +39,7 @@ public class JwtUtils {
                     .require(Algorithm.HMAC256(SystemConstants.JWT_KEY))
                     .build()
                     .verify(jwt);
-            if (isInvalidateToken(verity.getClaim("id").asString())) throw new RuntimeException("Token已拉黑");
+            if (isInvalidateToken(verity.getClaim("id").toString())) throw new RuntimeException("Token已拉黑");
             if (new Date().after(verity.getExpiresAt()))
                 throw new TokenExpiredException("Token已过期", verity.getExpiresAtAsInstant());
             return verity;

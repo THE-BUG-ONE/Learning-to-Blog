@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -28,6 +30,10 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Resource
+    @Qualifier("handlerExceptionResolver")
+    private HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -44,8 +50,11 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
         LoginUser loginUser = (LoginUser) redisTemplate.opsForValue()
                 .get(SystemConstants.JWT_REDIS_KEY + userId);
         //若用户信息为空
-        if (Objects.isNull(loginUser))
-            throw new RuntimeException("登录已过期");
+        if (Objects.isNull(loginUser)){
+            handlerExceptionResolver.resolveException(request, response, null, new RuntimeException("登录已过期"));
+            return;
+        }
+
         //存入应用程序上下文
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, null);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

@@ -6,7 +6,6 @@ import com.framework.service.impl.UserDetailsServiceImpl;
 import com.framework.utils.WebUtils;
 import com.framework.utils.enums.AppHttpCodeEnum;
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +55,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/logout").authenticated()
                         .requestMatchers("/admin/**").authenticated()
                         .anyRequest().permitAll())
+                .logout(AbstractHttpConfigurer::disable)
                 .exceptionHandling(conf -> conf
                         .accessDeniedHandler(this::handle)          //授权失败处理器
                         .authenticationEntryPoint(this::commence))  //认证失败处理器
@@ -67,7 +67,6 @@ public class SecurityConfiguration {
     }
 
     private void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        response.setContentType("application/json;charset=utf-8");
         WebUtils.renderString(response, Result.failure(AppHttpCodeEnum.UNAUTHORIZED));
     }
 
