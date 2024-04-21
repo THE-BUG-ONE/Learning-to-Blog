@@ -24,21 +24,13 @@ public class SystemConstants {
     //文章未删除
     public static final int ARTICLE_NOT_DELETE = 0;
 
+    //留言已通过
+    public static final int MESSAGE_IS_CHECKED = 1;
+    //留言未通过
+    public static final int MESSAGE_NOT_CHECKED = 0;
+
     //首页推荐文章个数
     public static final String ARTICLE_RECOMMEND_NUM = "limit 0,10";
-
-
-
-
-
-
-
-
-
-    //分类当前正常
-    public static final int CATEGORY_STATUS_NORMAL = 0;
-    //分类当前禁用
-    public static final int CATEGORY_STATUS_DISABLE = 1;
 
 
     //博客访问量
