@@ -188,3 +188,6 @@
   anonymous接在后面表示路径访问用户为匿名用户
   permitAll接在后面表示路径访问用户为所有用户
   authenticated接在后面表示路径访问用户为认证用户
+- 将一个list返回map
+> commentList.stream().collect(
+  Collectors.toMap(Comment::getId, Comment::getFromUid));
