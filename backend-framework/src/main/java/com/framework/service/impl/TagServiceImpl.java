@@ -150,15 +150,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     //获取文章标签列表（标签id，标签名）
     @Override
     public List<TagOptionResp> getTagOptionList(Integer articleId) {
-        return BeanCopyUtils.copyBeanList(this.lambdaQuery()
-                .in(Tag::getId,articleTagService.lambdaQuery()
-                        .select(ArticleTag::getTagId)
-                        .eq(articleId != null, ArticleTag::getArticleId, articleId)
-                        .list()
-                        .stream()
-                        .map(ArticleTag::getTagId)
-                        .toList())
-                .list(), TagOptionResp.class);
+        return baseMapper.getTagOptionList(articleId);
     }
 
     @Override

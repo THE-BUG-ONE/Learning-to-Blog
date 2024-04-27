@@ -1,5 +1,6 @@
 package com.framework.entity.vo.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
+@JsonIgnoreProperties(value = "handler")
 public class ArticleHomeResp {
     //文章id
     private Integer id;

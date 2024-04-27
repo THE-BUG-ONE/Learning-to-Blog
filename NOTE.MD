@@ -131,6 +131,11 @@
   > 在filter中使用HandlerExceptionResolver,抛出异常时：
     handlerExceptionResolver.resolveException(request, response, null, new RuntimeException("登录已过期"));
     return;
+- Type definition error: 
+  [simple type, class org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory$EnhancedResultObjectProxyImpl]
+  - 原因：在进行实体类代理过程中会添加一个handler的属性，故导致解析失败
+  - 解决：
+  > 在实体类前，即你返回需要jackson解析的类，前面添加注解，让Jackson序列化时忽略handler属性
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：

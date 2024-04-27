@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentListReq {
+public class CommentBackReq {
     //条数
-    private Integer size ;
+    private Integer size;
     //当前页
-    private Integer current ;
+    private Integer current;
     //评论主题类型
     private Integer commentType;
     //是否通过 (0否 1是)

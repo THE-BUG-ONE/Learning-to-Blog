@@ -51,41 +51,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public PageResult<ArticleHomeResp> getArticleHomeList(Integer current, Integer size) {
-        /*{
-            "count": 0, 文章数
-            "recordList": [ 文章列表
-              {
-                "articleContent": "string",   文章内容1
-                "articleCover": "string", 文章缩略图1
-                "articleTitle": "string", 文章标题1
-                "category": { 分类
-                  "categoryName": "string",
-                  "id": 0
-                },
-                "createTime": "2024-03-25T05:39:38.535Z", 创建时间1
-                "id": 0, 文章id1
-                "isTop": 0, 文章置顶1
-                "tagVOList": [    文章标签
-                  {
-                    "id": 0,
-                    "tagName": "string"
-                  }
-                ]
-              }
-            ]
-          }
-        */
-        List<Article> articleList = this.getArticlePageList(current, size);
-
-        //存储文章分类列表
-        Map<Integer, CategoryOptionResp> articleCategoryVOMap = getArticleCategoryVOMap();
-
-        List<ArticleHomeResp> articleHomeRespList = articleList
-                        .stream()
-                        .map(article -> BeanCopyUtils.copyBean(article, ArticleHomeResp.class)
-                                .setCategory(articleCategoryVOMap.get(article.getCategoryId()))
-                                .setTagVOList(tagService.getTagOptionList(article.getId())))
-                        .toList();
+        List<ArticleHomeResp> articleHomeRespList = baseMapper.getArticleHomeList(current, size);
         return new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
     }
 
@@ -464,15 +430,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .list()
                 .forEach(category -> categoryNameMap.put(category.getId(), category.getCategoryName()));
         return categoryNameMap;
-    }
-
-    public List<Article> getArticlePageList(Integer current, Integer size) {
-        return this.page(new Page<>(current, size),
-                this.lambdaQuery()
-                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                        .getWrapper())
-                .getRecords();
     }
 
     //获取文章分页列表

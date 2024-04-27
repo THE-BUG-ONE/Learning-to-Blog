@@ -2,12 +2,9 @@ package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Comment;
-import com.framework.entity.vo.request.CommentListReq;
+import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.request.CommentReq;
-import com.framework.entity.vo.response.CommentResp;
-import com.framework.entity.vo.response.PageResult;
-import com.framework.entity.vo.response.RecentCommentResp;
-import com.framework.entity.vo.response.ReplyResp;
+import com.framework.entity.vo.response.*;
 
 import java.util.List;
 
@@ -21,12 +18,16 @@ public interface CommentService extends IService<Comment> {
 
     void addComment(CommentReq commentReq);
 
-    PageResult<CommentResp> getCommentList(CommentListReq commentListReq);
+    PageResult<CommentResp> getCommentList(CommentBackReq commentBackReq);
 
     void likeComment(Integer commentId);
 
     List<ReplyResp> getCommentReply(Integer commentId);
 
     List<RecentCommentResp> getNewComment();
+
+    void deleteComment(List<Integer> commentIdList);
+
+    PageResult<CommentBackResp> getBackCommentList(CommentBackReq commentBackReq);
 }
 

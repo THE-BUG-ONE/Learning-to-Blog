@@ -25,9 +25,9 @@ public class ReplyResp {
     //点赞数
     private Integer likeCount;
     //父级评论id
-    private Integer parentId;;
+    private Integer parentId;
     //被评论用户昵称
-    private String toNickname;;
+    private String toNickname;
     //被评论用户id
     private Integer toUid;
     //个人网站

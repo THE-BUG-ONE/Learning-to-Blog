@@ -6,12 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.LoginUser;
 import com.framework.entity.dao.User;
-import com.framework.entity.vo.request.CommentListReq;
+import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.request.CommentReq;
-import com.framework.entity.vo.response.CommentResp;
-import com.framework.entity.vo.response.PageResult;
-import com.framework.entity.vo.response.RecentCommentResp;
-import com.framework.entity.vo.response.ReplyResp;
+import com.framework.entity.vo.response.*;
 import com.framework.mapper.CommentMapper;
 import com.framework.entity.dao.Comment;
 import com.framework.service.CommentService;
@@ -24,10 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +36,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Lazy
     @Resource
     private UserService userService;
+
+    @Lazy
+    @Resource
+    private CommentMapper commentMapper;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -66,7 +64,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     }
 
     @Override
-    public PageResult<CommentResp> getCommentList(CommentListReq commentListReq) {
+    public PageResult<CommentResp> getCommentList(CommentBackReq commentBackReq) {
         /*{
             "count": 0,
             "recordList": [
@@ -98,12 +96,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
               }
             ]
           }*/
-        Integer size = commentListReq.getSize();
-        Integer current = commentListReq.getCurrent();
-        Integer commentType = commentListReq.getCommentType();
-        Integer isCheck = commentListReq.getIsCheck();
-        String keyword = commentListReq.getKeyword();
-        Integer typeId = commentListReq.getTypeId();
+        Integer size = commentBackReq.getSize();
+        Integer current = commentBackReq.getCurrent();
+        Integer commentType = commentBackReq.getCommentType();
+        Integer isCheck = commentBackReq.getIsCheck();
+        String keyword = commentBackReq.getKeyword();
+        Integer typeId = commentBackReq.getTypeId();
         //获取筛选后的评论列表
         List<Comment> commentList = this.page(new Page<>(current, size),
                         this.lambdaQuery()
@@ -171,6 +169,35 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                             .setAvatar(user.getAvatar())
                             .setNickname(user.getNickname());
                 }).toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(List<Integer> commentIdList) {
+        try {
+            //Set结构防重
+            Set<Integer> idList = new HashSet<>();
+            //获取对应评论的回复评论
+            commentIdList.forEach(id -> idList.addAll(this.lambdaQuery()
+                    .select(Comment::getId)
+                    .eq(Comment::getReplyId, id)
+                    .list()
+                    .stream()
+                    .map(Comment::getId)
+                    .toList()));
+            //集合所有应操作的评论
+            idList.addAll(commentIdList);
+            if (!this.removeBatchByIds(idList))
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("评论删除异常");
+        }
+    }
+
+    @Override
+    public PageResult<CommentBackResp> getBackCommentList(CommentBackReq commentBackReq) {
+        List<CommentBackResp> respList = commentMapper.getBackCommentList(commentBackReq);
+        return new PageResult<>(respList.size(), respList);
     }
 
     //获取评论对应的回复评论列表

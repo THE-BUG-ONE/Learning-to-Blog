@@ -204,7 +204,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     //获取文章分类列表（分类id，分类名）
     @Override
     public CategoryOptionResp getCategoryOptionVO(Integer categoryId) {
-        return BeanCopyUtils.copyBean(this.getById(categoryId), CategoryOptionResp.class);
+        return baseMapper.getCategoryOption(categoryId);
     }
 }
 

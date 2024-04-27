@@ -20,6 +20,8 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+    lazy-loading-enabled: true
   global-config:
     db-config:
       id-type: auto
