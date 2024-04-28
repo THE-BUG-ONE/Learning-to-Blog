@@ -1,20 +1,22 @@
 package com.framework.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.Category;
 import com.framework.entity.vo.request.ArticleConditionReq;
+import com.framework.entity.vo.request.KeywordReq;
 import com.framework.entity.vo.request.CategoryReq;
 import com.framework.entity.vo.response.*;
+import com.framework.mapper.ArticleMapper;
 import com.framework.mapper.CategoryMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.ArticleTagService;
 import com.framework.service.CategoryService;
 import com.framework.service.TagService;
 import com.framework.utils.BeanCopyUtils;
+import com.framework.utils.PageUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Lazy
     @Resource
+    private ArticleMapper articleMapper;
+
+    @Lazy
+    @Resource
     private TagService tagService;
 
     @Lazy
@@ -47,65 +53,21 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public List<CategoryResp> getCategoryList() {
-        /*[
-        {
-            "articleCount": 0,
-            "categoryName": "string",
-            "id": 0
-        }
-        ]*/
-        //封装
-        return BeanCopyUtils.copyBeanList(this.lambdaQuery().list(), CategoryResp.class)
-                .stream()
-                .peek(categoryResp -> categoryResp.setArticleCount(Math.toIntExact(
-                        articleService.lambdaQuery()
-                                .eq(Article::getCategoryId, categoryResp.getId())
-                                .count())))
-                .toList();
+        return baseMapper.getCategoryList();
     }
 
     //标签id可为空，为空时从文章字段中获取
     @Override
-    public ArticleConditionList getArticleConditionList(ArticleConditionReq articleConditionReq) {
-        /*{
-        "articleConditionVOList": [{
-            "articleCover": "string",
-            "articleTitle": "string",
-            "category": {
-              "categoryName": "string",
-              "id": 0
-            },
-            "createTime": "2024-03-29T06:40:20.925Z",
-            "id": 0,
-            "tagVOList": [
-              {
-                "id": 0,
-                "tagName": "string"
-              }
-             ]
-        }],
-        "name": "string"
-        }*/
-
-        Integer categoryId = articleConditionReq.getCategoryId();
-        Integer tagId = articleConditionReq.getTagId();
-        Integer current = articleConditionReq.getCurrent();
-        Integer size = articleConditionReq.getSize();
-
+    public ArticleConditionList getArticleConditionList(ArticleConditionReq req) {
+        //设置分页sql中的起始点
+        PageUtils.setCurrent(req);
         //筛选包含当前Tag的所有Article
-        List<Article> articleList = articleService.getArticlePageList(current, size, categoryId, tagId);
-        //封装
-        List<ArticleConditionResp> articleConditionRespList =
-                BeanCopyUtils.copyBeanList(articleList, ArticleConditionResp.class)
-                        .stream()
-                        .peek(article -> {
-                            article.setCategory(this.getCategoryOptionVO(categoryId));
-                            article.setTagVOList(tagService.getTagOptionList(article.getId()));})
-                        .toList();
+        List<ArticleConditionResp> res = articleMapper.getArticleConditionList(req);
 
+        //分类名为条件名
         return new ArticleConditionList(
-                this.getById(categoryId).getCategoryName(),
-                articleConditionRespList);
+                this.getById(req.getCategoryId()).getCategoryName(),
+                res);
     }
 
     @Override
@@ -114,7 +76,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         try {
             //若分类存在取消添加
             if (this.lambdaQuery().eq(Category::getCategoryName, categoryName).exists() ||
-                    !this.save(new Category(categoryName, DateUtil.date()))
+                    !this.save(new Category(categoryName, DateTime.now()))
             ) throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("添加分类异常");
@@ -141,26 +103,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public PageResult<CategoryBackResp> getBackCategoryList(Integer current, Integer size, String keyword) {
-        /*{
-            "articleCount": 0,
-            "categoryName": "string",
-            "createTime": "2024-04-13T05:47:43.625Z",
-            "id": 0
-        }*/
-        //若关键词存在匹配关键词
-        IPage<Category> p = this.page(new Page<>(current, size),
-                this.lambdaQuery()
-                        .like(keyword != null, Category::getCategoryName, keyword)
-                        .getWrapper());
-        List<CategoryBackResp> categoryBackRespList =
-                BeanCopyUtils.copyBeanList(p.getRecords(), CategoryBackResp.class)
-                        .stream()
-                        .peek(categoryBackResp -> categoryBackResp.setArticleCount(
-                                Math.toIntExact(articleService.lambdaQuery()
-                                        .eq(Article::getCategoryId, categoryBackResp.getId())
-                                        .count()))).toList();
-        return new PageResult<>(categoryBackRespList.size(), categoryBackRespList);
+    public PageResult<CategoryBackResp> getBackCategoryList(KeywordReq req) {
+        PageUtils.setCurrent(req);
+        List<CategoryBackResp> backCategoryList = baseMapper.getBackCategoryList(req);
+        return new PageResult<>(backCategoryList.size(), backCategoryList);
     }
 
     @Override
@@ -179,7 +125,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     !this.lambdaUpdate()
                             .eq(Category::getId,id)
                             .set(Category::getCategoryName, categoryName)
-                            .set(Category::getUpdateTime, DateUtil.date()).update())
+                            .set(Category::getUpdateTime, DateTime.now()).update())
                 throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("分类名重复或分类不存在");
@@ -194,7 +140,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         try {
             if (!this.save(id == null ?
                     new Category(categoryName, DateUtil.date()) :
-                    new Category(id, categoryName, DateUtil.date())
+                    new Category(id, categoryName, DateTime.now())
             )) throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("添加分类异常");

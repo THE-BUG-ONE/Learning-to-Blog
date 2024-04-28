@@ -136,6 +136,10 @@
   - 原因：在进行实体类代理过程中会添加一个handler的属性，故导致解析失败
   - 解决：
   > 在实体类前，即你返回需要jackson解析的类，前面添加注解，让Jackson序列化时忽略handler属性
+- There is no getter for property named 'param' in 'class com.framework.entity.vo.request.ArticleConditionReq'
+  - 原因：传入的参数为对象时为加上注解@Param
+  - 解决：
+  > 在mapper方法参数对象前添加@Param("param")
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：
@@ -196,3 +200,13 @@
 - 将一个list返回map
 > commentList.stream().collect(
   Collectors.toMap(Comment::getId, Comment::getFromUid));
+- 单表简单查询使用mybatis，多表复杂查询使用mybatis-plus
+> map-underscore-to-camel-case: true 开启表字段转类属性自动驼峰命名
+  lazy-loading-enabled: true  开启懒加载查询，需要数据库数据时才交互
+- 前端请求参数类型query与body
+> Query查询参数，将参数拼在请求地址上
+  Body请求体参数，请求体中的数据，可以传递对象 (一般json都是body传参）
+- mybatis使用模糊查询时使用CONCAT方法拼接
+> like concat('%',#{param.keyword},'%')
+- java一个方法传入不同的类，并且获取类中的一些共同参数
+> 使用多态，有共同参数的多个类继承同一个类

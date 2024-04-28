@@ -7,15 +7,11 @@ import lombok.NoArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ArticleConditionReq extends PageCalculate{
-    //分类id
-    private Integer categoryId;
+@NoArgsConstructor
+public class PageReq extends PageCalculate {
     //当前页
     private Integer current;
     //条数
     private Integer size;
-    //标签id
-    private Integer tagId;
 }

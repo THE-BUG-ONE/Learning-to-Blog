@@ -14,7 +14,7 @@ import java.util.List;
  * @since 2024-03-25 13:22:23
  */
 public interface ArticleService extends IService<Article> {
-    PageResult<ArticleHomeResp> getArticleHomeList(Integer current, Integer size);
+    PageResult<ArticleHomeResp> getArticleHomeList(PageReq pageReq);
 
     List<ArticleRecommendResp> getArticleRecommendList();
 

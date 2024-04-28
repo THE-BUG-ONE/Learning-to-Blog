@@ -3,6 +3,7 @@ package com.framework.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Category;
 import com.framework.entity.vo.request.ArticleConditionReq;
+import com.framework.entity.vo.request.KeywordReq;
 import com.framework.entity.vo.request.CategoryReq;
 import com.framework.entity.vo.response.*;
 
@@ -25,7 +26,7 @@ public interface CategoryService extends IService<Category> {
 
     void deleteCategory(List<Integer> categoryIdlist);
 
-    PageResult<CategoryBackResp> getBackCategoryList(Integer current, Integer size, String keyword);
+    PageResult<CategoryBackResp> getBackCategoryList(KeywordReq keywordReq);
 
     List<CategoryOptionResp> getCategoryOptionList();
 

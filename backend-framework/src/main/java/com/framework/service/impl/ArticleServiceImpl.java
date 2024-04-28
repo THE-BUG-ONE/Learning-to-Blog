@@ -1,21 +1,21 @@
 package com.framework.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
-import com.framework.entity.dao.Article;
-import com.framework.entity.dao.ArticleTag;
-import com.framework.entity.dao.Category;
-import com.framework.entity.dao.Tag;
+import com.framework.entity.dao.*;
 import com.framework.entity.vo.request.*;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
 import com.framework.service.*;
 import com.framework.utils.BeanCopyUtils;
+import com.framework.utils.PageUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,68 +50,31 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public PageResult<ArticleHomeResp> getArticleHomeList(Integer current, Integer size) {
-        List<ArticleHomeResp> articleHomeRespList = baseMapper.getArticleHomeList(current, size);
+    public PageResult<ArticleHomeResp> getArticleHomeList(PageReq req) {
+        PageUtils.setCurrent(req);
+        List<ArticleHomeResp> articleHomeRespList = baseMapper.getArticleHomeList(req);
         return new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
     }
 
     @Override
     public List<ArticleRecommendResp> getArticleRecommendList() {
-        /*[
-            {
-                "articleCover": "string",
-                "articleTitle": "string",
-                "createTime": "2024-03-28T04:04:43.419Z",
-                "id": 0
-            }
-        ]*/
-        List<Article> articleList = this.getArticleList().stream()
-                .filter(article -> article.getIsRecommend() == 1).toList();
-        return BeanCopyUtils.copyBeanList(articleList, ArticleRecommendResp.class);
+        //文章为推荐、未删除、公开
+        return BeanCopyUtils.copyBeanList(
+                this.lambdaQuery()
+                        .eq(Article::getIsRecommend, SystemConstants.ARTICLE_IS_RECOMMEND)
+                        .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                        .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                        .list()
+                , ArticleRecommendResp.class);
     }
 
     @Override
     public ArticleResp getArticleDetail(Integer articleId) {
-        /*{
-        "articleContent": "string",
-        "articleCover": "string",
-        "articleTitle": "string",
-        "articleType": 0,
-        "category": {
-          "categoryName": "string",
-          "id": 0
-        },
-        "createTime": "2024-03-28T07:00:47.751Z",
-        "id": 0,
-        "lastArticle": {
-          "articleCover": "string",
-          "articleTitle": "string",
-          "id": 0
-        },
-            "likeCount": 0,
-        "nextArticle": {
-          "articleCover": "string",
-          "articleTitle": "string",
-          "id": 0
-        },
-        "tagVOList": [
-          {
-            "id": 0,
-            "tagName": "string"
-          }
-        ],
-        "updateTime": "2024-03-28T07:00:47.751Z",
-            "viewCount": 0
-        }*/
         //浏览量+1
         redisTemplate.opsForZSet().incrementScore(
                 SystemConstants.ARTICLE_VIEW_COUNT, articleId, 1D);
-        //获取article
-        Article article = this.getById(articleId);
         //填充article属性
-        return BeanCopyUtils.copyBean(article, ArticleResp.class)
-                .setCategory(getArticleCategoryVOMap().get(article.getCategoryId()))
-                .setTagVOList(tagService.getTagOptionList(articleId))
+        return baseMapper.getArticleDetail(articleId)
                 .setNextArticle(selectOtherArticle(articleId, true))
                 .setLastArticle(selectOtherArticle(articleId, false))
                 .setLikeCount(Optional.ofNullable(
@@ -126,21 +89,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public List<ArticleSearchResp> getArticleSearchList(String keyword) {
-        /*[
-        {
-            "articleContent": "string",
-            "articleTitle": "string",
-            "id": 0,
-            "isDelete": 0,
-            "status": 0
-        }
-        ]*/
-
         return BeanCopyUtils.copyBeanList(
-                this.getArticleList().stream()
-                        .filter(article -> article.getArticleTitle().contains(keyword))
-                        .toList(),
-                ArticleSearchResp.class);
+                this.lambdaQuery()
+                        .like(Article::getArticleContent, keyword)
+                        .list()
+                , ArticleSearchResp.class);
     }
 
     @Override
@@ -154,22 +107,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public void addArticle(ArticleReq articleReq) {
         try {
             //如果分类不存在添加分类
-            this.addArticleCategory(articleReq);
-            //封装
+            categoryService.addCategory(articleReq.getCategoryName());
+            //设置文章创建时间、分类ID
             Article newArticle = BeanCopyUtils.copyBean(articleReq, Article.class)
-                    .setCreateTime(DateUtil.date())
-                    .setCategoryId(
-                            categoryService.lambdaQuery()
-                                    .select(Category::getId)
-                                    .eq(Category::getCategoryName, articleReq.getCategoryName())
-                                    .one().getId());
+                    .setCreateTime(DateTime.now())
+                    .setCategoryId(categoryService.lambdaQuery()
+                            .select(Category::getId)
+                            .eq(Category::getCategoryName, articleReq.getCategoryName())
+                            .one()
+                            .getId());
+            //若请求参数中没有文章缩略图，则使用网站默认缩略图
             if (articleReq.getArticleCover() == null)
-                newArticle.setArticleCover(
-                        siteConfigService.getSiteConfig().getArticleCover());
-            //TODO 需要完成获取用户id,暂时固定为1
-            newArticle.setUserId(1);
+                newArticle.setArticleCover(siteConfigService.getSiteConfig().getArticleCover());
+            //从应用程序上下文中获取用户ID，设置文章用户ID
+            LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            newArticle.setUserId(loginUser.getUser().getId());
             //添加文章
             if (!this.save(newArticle)) throw new RuntimeException();
+            //获取最新文章ID，设置请求参数的文章ID
             articleReq.setId(this.lambdaQuery()
                     .orderByDesc(Article::getCreateTime)
                     .last(SystemConstants.LAST_LIMIT_1).one()
@@ -184,41 +139,35 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     @Transactional
     public void deleteArticle(List<Integer> articleIdList) {
+        //删除文章标签表对应数据
         articleTagService.removeBatchByIds(articleTagService.lambdaQuery()
                 .select(ArticleTag::getId)
                 .in(ArticleTag::getArticleId, articleIdList)
-                .list().stream().map(ArticleTag::getId).toList());
+                .list()
+                .stream()
+                .map(ArticleTag::getId)
+                .toList());
+        //删除文章对应数据
         this.removeBatchByIds(articleIdList);
     }
 
     @Override
     public ArticleInfoResp editArticle(Integer articleId) {
-        /*{
-            "articleContent": "string",
-            "articleCover": "string",
-            "articleTitle": "string",
-            "articleType": 0,
-            "categoryName": "string",
-            "id": 0,
-            "isRecommend": 0,
-            "isTop": 0,
-            "status": 0,
-            "tagNameList": [
-                "string"
-            ]
-        },*/
         Article article = this.getById(articleId);
-        if (article == null) return null;
         //获取tag名列表
         List<Integer> tagIdList = articleTagService.lambdaQuery()
-                .eq(ArticleTag::getArticleId, articleId).list()
-                .stream().map(ArticleTag::getTagId).toList();
+                .eq(ArticleTag::getArticleId, articleId)
+                .list()
+                .stream()
+                .map(ArticleTag::getTagId)
+                .toList();
         List<String> tagNameList = tagService.listByIds(tagIdList)
-                .stream().map(Tag::getTagName).toList();
-        //封装
+                .stream()
+                .map(Tag::getTagName)
+                .toList();
+        //设置文章分类名、标签名列表
         return BeanCopyUtils.copyBean(article, ArticleInfoResp.class)
-                .setCategoryName(
-                        categoryService.getById(article.getCategoryId()).getCategoryName())
+                .setCategoryName(categoryService.getById(article.getCategoryId()).getCategoryName())
                 .setTagNameList(tagNameList);
     }
 
@@ -283,20 +232,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                 .getWrapper()).getRecords();
 
         //填充分类名
-        articleList.forEach(article ->
-                article.setCategoryName(this.getCategoryNameMap().get(article.getCategoryId())));
+        Map<Integer, String> nameMap = this.getCategoryNameMap();
+        Map<Integer, String> categoryMap = new HashMap<>();
+        articleList.forEach(article -> categoryMap.put(article.getId(), nameMap.get(article.getCategoryId())));
         //填充未定义字段
         List<ArticleBackResp> articleBackRespList = BeanCopyUtils.copyBeanList(articleList, ArticleBackResp.class)
-                        .stream().peek(articleBackResp -> articleBackResp
-                                .setTagVOList(tagService.getTagOptionList(articleBackResp.getId()))
-                                .setLikeCount(Optional.ofNullable(
-                                        redisTemplate.opsForZSet().score(
-                                                SystemConstants.ARTICLE_LIKE_COUNT, articleBackResp.getId()))
-                                        .orElse(0D).intValue())
-                                .setViewCount(Optional.ofNullable(
-                                        redisTemplate.opsForZSet().score(
-                                                SystemConstants.ARTICLE_VIEW_COUNT, articleBackResp.getId()))
-                                        .orElse(0D).intValue())).toList();
+                .stream()
+                .peek(articleBackResp -> articleBackResp
+                        .setCategoryName(categoryMap.get(articleBackResp.getId()))
+                        .setTagVOList(tagService.getTagOptionList(articleBackResp.getId()))
+                        .setLikeCount(Optional.ofNullable(redisTemplate.opsForZSet()
+                                        .score(SystemConstants.ARTICLE_LIKE_COUNT, articleBackResp.getId()))
+                                .orElse(0D).intValue())
+                        .setViewCount(Optional.ofNullable(redisTemplate.opsForZSet()
+                                        .score(SystemConstants.ARTICLE_VIEW_COUNT, articleBackResp.getId()))
+                                .orElse(0D).intValue())).toList();
         return new PageResult<>(articleBackRespList.size(), articleBackRespList);
     }
 
@@ -349,13 +299,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             //添加文章标签
             this.addArticleTag(articleReq);
             //若分类不存在添加文章分类
-            this.addArticleCategory(articleReq);
-            Article article = BeanCopyUtils.copyBean(articleReq, Article.class)
-                    .setCategoryId(categoryService.lambdaQuery()
-                            .eq(Category::getCategoryName, articleReq.getCategoryName())
-                            .one().getId())
-                    .setUpdateTime(DateUtil.date());
-            if (!this.saveOrUpdate(article))
+            categoryService.addCategory(articleReq.getCategoryName());
+            if (!this.lambdaUpdate()
+                    .eq(Article::getId, articleReq.getId())
+                    .update(BeanCopyUtils.copyBean(articleReq, Article.class)
+                            .setCategoryId(categoryService.lambdaQuery()
+                                    .eq(Category::getCategoryName, articleReq.getCategoryName())
+                                    .one()
+                                    .getId())
+                            .setUpdateTime(DateTime.now())))
                 throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("文章修改异常");
@@ -366,7 +318,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //flag(true:下一个,false:上一个)
     private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
         //将所有有效文章以主键排序
-        List<Article> articleList = this.getArticleList()
+        List<Article> articleList = this.lambdaQuery()
+                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
+                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
+                .list()
                 .stream()
                 .sorted(Comparator.comparing(Article::getId))
                 .toList();
@@ -380,46 +335,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 BeanCopyUtils.copyBean(article, ArticlePaginationResp.class);
     }
 
-    //获取文章分类列表（分类id，分类名）
-    private Map<Integer, CategoryOptionResp> getArticleCategoryVOMap() {
-        Map<Integer, CategoryOptionResp> categoryVOMap = new HashMap<>();
-        BeanCopyUtils.copyBeanList(categoryService.list(), CategoryOptionResp.class)
-                .forEach(articleCategoryVO ->
-                        categoryVOMap.put(articleCategoryVO.getId(),articleCategoryVO));
-        return categoryVOMap;
-    }
-
-    //获取有效文章列表
-    private List<Article> getArticleList() {
-        return this.lambdaQuery()
-                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
-                .list();
-    }
-
     //添加文章标签列表
     private void addArticleTag(ArticleReq article) {
         //获取已有标签名列表
         List<String> savedTagNameList = tagService.lambdaQuery()
-                .select(Tag::getTagName).list()
-                .stream().map(Tag::getTagName).toList();
+                .select(Tag::getTagName)
+                .list()
+                .stream()
+                .map(Tag::getTagName)
+                .toList();
         //获取未添加标签名列表
-        List<String> tagNameList = article.getTagNameList()
-                .stream().filter(tagName -> !savedTagNameList.contains(tagName)).toList();
+        List<String> tagNameList = article
+                .getTagNameList()
+                .stream()
+                .filter(tagName -> !savedTagNameList.contains(tagName))
+                .toList();
         //保存标签
         tagService.addTag(tagNameList);
         //添加文章标签外键
         articleTagService.addArticleTag(article.getId(), article.getTagNameList());
-    }
-
-    //添加文章分类
-    private void addArticleCategory(ArticleReq articleReq) {
-        Category category = categoryService.lambdaQuery()
-                .select(Category::getId)
-                .eq(Category::getCategoryName, articleReq.getCategoryName())
-                .one();
-        if (category == null)
-            categoryService.addCategory(articleReq.getCategoryName());
     }
 
     //获取分类id，分类名map

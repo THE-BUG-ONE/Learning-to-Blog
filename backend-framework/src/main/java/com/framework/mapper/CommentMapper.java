@@ -5,7 +5,6 @@ import com.framework.entity.dao.Comment;
 import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.response.CommentBackResp;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 

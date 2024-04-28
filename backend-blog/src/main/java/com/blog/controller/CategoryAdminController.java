@@ -1,13 +1,13 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.entity.vo.request.KeywordReq;
 import com.framework.entity.vo.request.CategoryReq;
 import com.framework.entity.vo.response.CategoryBackResp;
 import com.framework.entity.vo.response.CategoryOptionResp;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.service.CategoryService;
 import jakarta.annotation.Resource;
-import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,10 +37,8 @@ public class CategoryAdminController {
     //接口：查看后台分类列表
     @GetMapping("/list")
     public Result<PageResult<CategoryBackResp>> getBackCategoryList(
-            @RequestParam("current") @Validated Integer current,
-            @RequestParam("size") @Validated Integer size,
-            @RequestParam("keyword") @Validated @Nullable String keyword) {
-        PageResult<CategoryBackResp> res = categoryService.getBackCategoryList(current, size, keyword);
+            @Validated KeywordReq keywordReq) {
+        PageResult<CategoryBackResp> res = categoryService.getBackCategoryList(keywordReq);
         return res != null ?
                 Result.success(res) :
                 Result.failure();

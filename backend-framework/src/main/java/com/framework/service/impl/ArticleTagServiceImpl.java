@@ -9,6 +9,7 @@ import com.framework.service.TagService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,16 +27,23 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
     private TagService tagService;
 
     @Override
+    @Transactional
     public void addArticleTag(Integer articleId, List<String> tagNameList) {
         try {
-            if (!tagNameList.isEmpty()){
-                //获取文章tagId列表
-                List<Integer> tagIdList = tagService.lambdaQuery()
-                        .in(Tag::getTagName, tagNameList).list().stream()
-                        .map(Tag::getId).toList();
-
-                tagIdList.forEach(tagId -> this.save(new ArticleTag(articleId, tagId)));
-            }
+            //获取文章对应的标签ID列表
+            List<Integer> tagIdList = tagService.lambdaQuery()
+                    .in(Tag::getTagName, tagNameList)
+                    .list()
+                    .stream()
+                    .map(Tag::getId)
+                    .toList();
+            //创建文章标签列表
+            List<ArticleTag> articleTagList = tagIdList
+                    .stream()
+                    .map(tagId -> new ArticleTag(articleId, tagId))
+                    .toList();
+            if (articleTagList.isEmpty() || !this.saveBatch(articleTagList))
+                throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("文章标签表存入异常");
         }

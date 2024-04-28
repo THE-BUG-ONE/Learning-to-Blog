@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@JsonIgnoreProperties(value = "handler")
+@JsonIgnoreProperties("handler")
 public class ArticleHomeResp {
     //文章id
     private Integer id;

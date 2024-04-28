@@ -29,9 +29,6 @@ public class Article {
     private Integer userId;
     //分类id
     private Integer categoryId;
-    //分类名
-    @TableField(exist = false)
-    private String categoryName;
     //缩略图
     private String articleCover;
     //文章标题

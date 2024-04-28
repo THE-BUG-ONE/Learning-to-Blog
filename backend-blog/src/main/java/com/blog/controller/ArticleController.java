@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.entity.vo.request.PageReq;
 import com.framework.entity.vo.response.*;
 import com.framework.service.ArticleService;
 import jakarta.annotation.Resource;
@@ -27,10 +28,8 @@ public class ArticleController {
 
     //接口：首页文章列表
     @GetMapping("/list")
-    public Result<PageResult<ArticleHomeResp>> getArticleHomeList(
-            @RequestParam("current") @Validated Integer current,
-            @RequestParam("size") @Validated Integer size) {
-        PageResult<ArticleHomeResp> res = articleService.getArticleHomeList(current, size);
+    public Result<PageResult<ArticleHomeResp>> getArticleHomeList(@Validated PageReq pageReq) {
+        PageResult<ArticleHomeResp> res = articleService.getArticleHomeList(pageReq);
         return res != null ?
                 Result.success(res) :
                 Result.failure();

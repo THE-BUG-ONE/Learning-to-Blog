@@ -1,5 +1,6 @@
 package com.framework.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -50,8 +51,13 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Transactional
     public void addTag(List<String> tagNameList) {
         try {
-            if (!tagNameList.isEmpty())
-                tagNameList.forEach(tagName -> this.save(new Tag(tagName, DateUtil.date())));
+            //创建标签列表
+            List<Tag> tagList = tagNameList
+                    .stream()
+                    .map(tagName -> new Tag(tagName, DateTime.now()))
+                    .toList();
+            if (tagList.isEmpty() || !this.saveBatch(tagList))
+                throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("标签添加异常");
         }
