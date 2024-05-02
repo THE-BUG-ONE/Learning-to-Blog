@@ -1,7 +1,6 @@
 package com.framework.service.impl;
 
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
@@ -47,11 +46,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private SiteConfigService siteConfigService;
 
     @Resource
+    private PageUtils pageUtils;
+
+    @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public PageResult<ArticleHomeResp> getArticleHomeList(PageReq req) {
-        PageUtils.setCurrent(req);
+        pageUtils.setCurrent(req);
         List<ArticleHomeResp> articleHomeRespList = baseMapper.getArticleHomeList(req);
         return new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
     }

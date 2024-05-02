@@ -37,6 +37,9 @@ public class SecurityConfiguration {
     @Resource
     private JwtAuthorizeFilter jwtAuthorizeFilter;
 
+    @Resource
+    private WebUtils webUtils;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -52,6 +55,8 @@ public class SecurityConfiguration {
         return httpSecurity
                 .authorizeHttpRequests(conf -> conf
                         .requestMatchers("/login").anonymous()
+                        .requestMatchers("/register").anonymous()
+                        .requestMatchers("/code").anonymous()
                         .requestMatchers("/logout").authenticated()
                         .requestMatchers("/admin/**").authenticated()
                         .anyRequest().permitAll())
@@ -67,11 +72,11 @@ public class SecurityConfiguration {
     }
 
     private void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        WebUtils.renderString(response, Result.failure(AppHttpCodeEnum.UNAUTHORIZED));
+        webUtils.renderString(response, Result.failure(AppHttpCodeEnum.UNAUTHORIZED));
     }
 
     private void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
-        WebUtils.renderString(response, Result.failure());
+        webUtils.renderString(response, Result.failure());
     }
 
     private CorsConfigurationSource corsConfigurationSource() {

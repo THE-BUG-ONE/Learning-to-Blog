@@ -59,4 +59,9 @@ public class SystemConstants {
     public static final int JWT_EXPIRE = 3;
     //JWT黑名单
     public static final String JWT_BLACK_LIST = "jwt:blackList:";
+
+    //验证邮箱的限制IP
+    public static final String VERIFY_EMAIL_LIMIT = "verify:email:limit:";
+    //验证邮箱的内容
+    public static final String VERIFY_EMAIL_DATA = "verify:email:data:";
 }

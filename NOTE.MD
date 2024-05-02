@@ -140,6 +140,10 @@
   - 原因：传入的参数为对象时为加上注解@Param
   - 解决：
   > 在mapper方法参数对象前添加@Param("param")
+- No qualifying bean of type 'org.springframework.mail.MailSender'
+  - 原因：未添加依赖
+  - 解决：
+  > pom添加spring-boot-starter-mail
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：

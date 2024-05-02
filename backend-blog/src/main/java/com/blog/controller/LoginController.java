@@ -2,8 +2,10 @@ package com.blog.controller;
 
 import com.framework.Result;
 import com.framework.entity.vo.request.LoginReq;
+import com.framework.entity.vo.request.RegisterReq;
 import com.framework.service.BlogLoginService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,23 @@ public class LoginController {
     }
 
     //接口：用户退出
-    @RequestMapping("/logout")
+    @GetMapping("/logout")
     public Result<?> logout() {
         blogLoginService.logout();
+        return Result.success();
+    }
+
+    //接口：用户邮箱注册
+    @PostMapping("/register")
+    public Result<?> register(@RequestBody @Validated RegisterReq registerReq) {
+        blogLoginService.register(registerReq);
+        return Result.success();
+    }
+
+    //接口：发送邮箱验证码
+    @GetMapping("/code")
+    public Result<?> code(@Validated String username, HttpServletRequest request) {
+        blogLoginService.code(username, request.getRemoteAddr());
         return Result.success();
     }
 }

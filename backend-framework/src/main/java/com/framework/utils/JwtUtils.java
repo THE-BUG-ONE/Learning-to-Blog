@@ -22,7 +22,7 @@ public class JwtUtils {
     private StringRedisTemplate stringRedisTemplate;
 
     //创建JWT
-    public static String createJwt(UserDetails details, int userId) {
+    public String createJwt(UserDetails details, int userId) {
         return JWT.create()
                 .withClaim("id", userId)
                 .withClaim("username", details.getUsername())

@@ -1,9 +1,11 @@
 package com.framework.utils;
 
-import com.framework.entity.vo.request.PageCalculate;
+import com.framework.entity.vo.PageCalculate;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PageUtils {
-    public static void setCurrent(PageCalculate pageReq) {
+    public void setCurrent(PageCalculate pageReq) {
         pageReq.setCurrent((pageReq.getCurrent() - 1) * pageReq.getSize());
     }
 }

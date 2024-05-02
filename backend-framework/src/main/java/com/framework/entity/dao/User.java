@@ -51,5 +51,17 @@ public class User implements Serializable {
     private Date createTime;
     //更新时间
     private Date updateTime;
+
+    public User(String nickname, String username, String password, String avatar,
+                String email, Integer loginType, Integer isDisable, Date createTime) {
+        this.nickname = nickname;
+        this.username = username;
+        this.password = password;
+        this.avatar = avatar;
+        this.email = email;
+        this.loginType = loginType;
+        this.isDisable = isDisable;
+        this.createTime = createTime;
+    }
 }
 

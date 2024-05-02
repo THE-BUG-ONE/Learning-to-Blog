@@ -1,5 +1,6 @@
 package com.framework.entity.vo.request;
 
+import com.framework.entity.vo.PageCalculate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

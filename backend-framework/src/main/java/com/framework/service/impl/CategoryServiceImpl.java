@@ -51,6 +51,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Resource
     private ArticleTagService articleTagService;
 
+    @Resource
+    private PageUtils pageUtils;
+
     @Override
     public List<CategoryResp> getCategoryList() {
         return baseMapper.getCategoryList();
@@ -60,7 +63,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public ArticleConditionList getArticleConditionList(ArticleConditionReq req) {
         //设置分页sql中的起始点
-        PageUtils.setCurrent(req);
+        pageUtils.setCurrent(req);
         //筛选包含当前Tag的所有Article
         List<ArticleConditionResp> res = articleMapper.getArticleConditionList(req);
 
@@ -104,7 +107,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public PageResult<CategoryBackResp> getBackCategoryList(KeywordReq req) {
-        PageUtils.setCurrent(req);
+        pageUtils.setCurrent(req);
         List<CategoryBackResp> backCategoryList = baseMapper.getBackCategoryList(req);
         return new PageResult<>(backCategoryList.size(), backCategoryList);
     }

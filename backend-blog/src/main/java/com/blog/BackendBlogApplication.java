@@ -8,6 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan("com.framework.mapper")
 public class BackendBlogApplication {
     public static void main(String[] args) {
-        SpringApplication.run(BackendBlogApplication.class,args);
+        SpringApplication.run(BackendBlogApplication.class, args);
     }
 }

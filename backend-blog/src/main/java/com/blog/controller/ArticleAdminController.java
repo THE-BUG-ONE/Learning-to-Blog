@@ -45,8 +45,7 @@ public class ArticleAdminController {
 
     //接口：查看后台文章列表
     @GetMapping("/list")
-    public Result<PageResult<ArticleBackResp>> getBackArticle(
-            @RequestBody @Validated ArticleBackReq articleBackReq) {
+    public Result<PageResult<ArticleBackResp>> getBackArticle(@Validated ArticleBackReq articleBackReq) {
         PageResult<ArticleBackResp> res = articleService.getBackArticle(articleBackReq);
         return res != null ?
                 Result.success(res) :
