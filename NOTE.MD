@@ -144,6 +144,10 @@
   - 原因：未添加依赖
   - 解决：
   > pom添加spring-boot-starter-mail
+- org.springframework.data.redis.serializer.SerializationException
+  - 原因：Redis序列化与SpringBoot序列化冲突
+  - 解决：
+  > 不使用User类的Access(chain = true)
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：
@@ -214,3 +218,7 @@
 > like concat('%',#{param.keyword},'%')
 - java一个方法传入不同的类，并且获取类中的一些共同参数
 > 使用多态，有共同参数的多个类继承同一个类
+- 获取当前请求用户的信息
+> 控制层参数添加: @AuthenticationPrincipal LoginUser loginUser
+- MultipartFile类型保存到本地
+> 设置路径后使用:file.transferTo(new File(路径));

@@ -64,4 +64,17 @@ public class SystemConstants {
     public static final String VERIFY_EMAIL_LIMIT = "verify:email:limit:";
     //验证邮箱的内容
     public static final String VERIFY_EMAIL_DATA = "verify:email:data:";
+
+    //限流封禁IP
+    public static final String FLOW_LIMIT_BLOCK = "flow:block";
+    //限流IP计数
+    public static final String FLOW_LIMIT_COUNTER = "flow:counter";
+
+    //限流过滤器优先度
+    public static final int ORDER_LIMIT = -101;
+
+    //图片格式类型
+    public static final String[] IMAGE_CONTENT_TYPE = {"image/jpeg", "image/jpg", "image/png"};
+    //头像文件路径
+    public static final String AVATAR_PATH = "static/upload/avatar/";
 }

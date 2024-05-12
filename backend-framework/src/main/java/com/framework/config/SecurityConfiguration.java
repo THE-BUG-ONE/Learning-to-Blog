@@ -59,6 +59,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/code").anonymous()
                         .requestMatchers("/logout").authenticated()
                         .requestMatchers("/admin/**").authenticated()
+                        .requestMatchers("/user/**").authenticated()
                         .anyRequest().permitAll())
                 .logout(AbstractHttpConfigurer::disable)
                 .exceptionHandling(conf -> conf
