@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.PageReq;
 import com.framework.entity.vo.response.*;
 import com.framework.service.ArticleService;
@@ -44,7 +45,7 @@ public class ArticleController {
                 Result.failure();
     }
 
-    //接口：搜索文章
+    @SystemLog(businessName = "搜索文章")
     @GetMapping("/search")
     public Result<List<ArticleSearchResp>> getSearchArticle(
             @RequestParam("keyword") @Validated String keyword) {

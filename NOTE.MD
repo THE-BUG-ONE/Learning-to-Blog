@@ -140,6 +140,10 @@
   - 原因：传入的参数为对象时为加上注解@Param
   - 解决：
   > 在mapper方法参数对象前添加@Param("param")
+- AOP切入报空指针异常
+  - 原因：使用AOP注解的方法为private
+  - 解决：
+  > 方法权限改为public/protected
 - No qualifying bean of type 'org.springframework.mail.MailSender'
   - 原因：未添加依赖
   - 解决：
@@ -222,3 +226,5 @@
 > 控制层参数添加: @AuthenticationPrincipal LoginUser loginUser
 - MultipartFile类型保存到本地
 > 设置路径后使用:file.transferTo(new File(路径));
+- 用户上传的文件应使用OSS对象存储云服务器
+>  

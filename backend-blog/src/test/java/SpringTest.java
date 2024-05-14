@@ -27,6 +27,6 @@ public class SpringTest {
 
     @Test
     public void test() {
-        System.out.println(encoder.encode("123456"));
+        System.out.println(111);
     }
 }

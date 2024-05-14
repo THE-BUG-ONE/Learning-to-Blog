@@ -39,11 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             //判断文件类型是否为图片
             if (!Arrays.asList(SystemConstants.IMAGE_CONTENT_TYPE).contains(file.getContentType()))
                 throw new RuntimeException();
-            //获取存储路径并保存
-            String path = fileUtils.subStringPath(
-                    SystemConstants.AVATAR_PATH, Objects.requireNonNull(file.getContentType())).substring(1);
-            File img = new File(path);
-            file.transferTo(img);
+            String path = file.getOriginalFilename();
             //TODO 文件上传未完成
             int userId = loginUser.getUser().getId();
             if (!this.lambdaUpdate()
@@ -55,7 +51,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             //返回文件保存路径
             return path;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("用户头像修改异常");
         }
     }
