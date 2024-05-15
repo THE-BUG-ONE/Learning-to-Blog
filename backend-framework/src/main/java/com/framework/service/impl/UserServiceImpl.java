@@ -1,21 +1,28 @@
 package com.framework.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.LoginUser;
 import com.framework.entity.dao.User;
+import com.framework.entity.vo.request.EmailReq;
+import com.framework.entity.vo.request.UserInfoReq;
+import com.framework.entity.vo.request.UserReq;
+import com.framework.entity.vo.response.UserInfoResp;
 import com.framework.mapper.UserMapper;
 import com.framework.service.UserService;
+import com.framework.utils.BeanCopyUtils;
 import com.framework.utils.FileUtils;
 import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * (User)表服务实现类
@@ -32,27 +39,98 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private FileUtils fileUtils;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private PasswordEncoder encoder;
+
     @Override
     @Transactional
-    public String updateUserAvatar(LoginUser loginUser, MultipartFile file) {
-        try {
-            //判断文件类型是否为图片
-            if (!Arrays.asList(SystemConstants.IMAGE_CONTENT_TYPE).contains(file.getContentType()))
-                throw new RuntimeException();
-            String path = file.getOriginalFilename();
-            //TODO 文件上传未完成
-            int userId = loginUser.getUser().getId();
-            if (!this.lambdaUpdate()
-                    .eq(User::getId, userId)
-                    .set(User::getAvatar, path)
-                    .update()) {
-                throw new RuntimeException();
-            }
-            //返回文件保存路径
-            return path;
-        } catch (Exception e) {
-            throw new RuntimeException("用户头像修改异常");
-        }
+    public String updateUserAvatar(MultipartFile file) {
+        //判断文件类型是否为图片
+        if (!Arrays.asList(SystemConstants.IMAGE_CONTENT_TYPE).contains(file.getContentType()))
+            throw new RuntimeException("文件类型错误");
+        String filePath = file.getOriginalFilename();
+        //TODO 文件上传未完成
+        int userId = getRequestUser().getId();
+        if (!lambdaUpdate()
+                .eq(User::getId, userId)
+                .set(User::getAvatar, filePath)
+                .set(User::getUpdateTime, DateTime.now())
+                .update())
+            throw new RuntimeException("头像修改异常");
+        //返回文件保存路径
+        return filePath;
+    }
+
+    @Override
+    @Transactional
+    public void updateEmail(EmailReq emailReq) {
+        String msg = emailCodeCheck(emailReq.getUsername(), emailReq.getCode());
+        if (msg != null)
+            throw new RuntimeException(msg);
+        int userId = getRequestUser().getId();
+        if (!lambdaUpdate()
+                .eq(User::getId, userId)
+                .set(User::getEmail, emailReq.getUsername())
+                .set(User::getUpdateTime, DateTime.now())
+                .update())
+            throw new RuntimeException("邮箱修改异常");
+    }
+
+    @Override
+    public String emailCodeCheck(String username, String code) {
+        if (lambdaQuery().eq(User::getEmail, username).exists())
+            return "此邮箱地址已被注册";
+        if (!Boolean.TRUE.equals(stringRedisTemplate.hasKey(SystemConstants.VERIFY_EMAIL_DATA + username)))
+            return "验证码不存在";
+        if (!code.equals(stringRedisTemplate.opsForValue().get(SystemConstants.VERIFY_EMAIL_DATA + username)))
+            return "验证码错误";
+        return null;
+    }
+
+    @Override
+    public UserInfoResp getUserInfo() {
+        User user = getRequestUser();
+        return BeanCopyUtils.copyBean(user, UserInfoResp.class);
+    }
+
+    @Override
+    public User getRequestUser() {
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return loginUser.getUser();
+    }
+
+    @Override
+    @Transactional
+    public void updateInfo(UserInfoReq userInfoReq) {
+        String intro = userInfoReq.getIntro();
+        String nickname = userInfoReq.getNickname();
+        String webSite = userInfoReq.getWebSite();
+        int userId = getRequestUser().getId();
+        if (!lambdaUpdate()
+                .eq(User::getId, userId)
+                .set(intro != null, User::getIntro, intro)
+                .set(webSite != null, User::getWebSite, webSite)
+                .set(User::getNickname, nickname)
+                .update())
+            throw new RuntimeException("用户信息修改异常");
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(UserReq userReq) {
+        String msg = emailCodeCheck(userReq.getUsername(), userReq.getCode());
+        if (msg != null)
+            throw new RuntimeException(msg);
+        int userId = getRequestUser().getId();
+        String password = encoder.encode(userReq.getPassword());
+        if (!lambdaUpdate()
+                .eq(User::getId, userId)
+                .set(User::getPassword, password)
+                .update())
+            throw new RuntimeException("用户密码修改异常");
     }
 }
 

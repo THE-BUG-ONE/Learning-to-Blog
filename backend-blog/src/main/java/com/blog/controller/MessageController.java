@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.MessageReq;
 import com.framework.entity.vo.response.MessageResp;
 import com.framework.service.MessageService;
@@ -17,7 +18,7 @@ public class MessageController {
     @Resource
     private MessageService messageService;
 
-    //接口：查看留言列表
+    @SystemLog(businessName = "查看留言列表")
     @GetMapping("/list")
     public Result<List<MessageResp>> getMessageList() {
         List<MessageResp> res = messageService.getMessageList();
@@ -26,7 +27,7 @@ public class MessageController {
                 Result.failure();
     }
 
-    //接口：添加留言
+    @SystemLog(businessName = "添加留言")
     @PostMapping("/add")
     public Result<?> addMessage(@RequestBody @Validated MessageReq messageReq) {
         messageService.addMessage(messageReq);

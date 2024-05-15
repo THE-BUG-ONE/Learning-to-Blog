@@ -21,7 +21,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -88,11 +87,8 @@ public class BlogLoginServiceImpl implements BlogLoginService {
 
     @Override
     public void logout() {
-        //获取token并解析
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         //获取userId
-        int userId = loginUser.getUser().getId();
+        int userId = userService.getRequestUser().getId();
         //删除redis中的用户信息
         redisTemplate.delete(SystemConstants.JWT_REDIS_KEY + userId);
     }
@@ -100,13 +96,11 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     @Override
     public void register(RegisterReq req) {
         String username = req.getUsername();
-        if (userService.lambdaQuery().eq(User::getEmail, username).exists())
-            throw new RuntimeException("此邮箱地址已被注册");
         String code = req.getCode();
-        if (!Boolean.TRUE.equals(stringRedisTemplate.hasKey(SystemConstants.VERIFY_EMAIL_DATA + username)))
-            throw new RuntimeException("验证码不存在");
-        if (!code.equals(stringRedisTemplate.opsForValue().get(SystemConstants.VERIFY_EMAIL_DATA + username)))
-            throw new RuntimeException("验证码错误");
+        //校验验证码
+        String msg = userService.emailCodeCheck(username, code);
+        if (msg != null)
+            throw new RuntimeException(msg);
         String password = encoder.encode(req.getPassword());
         if (userService.save(new User(
                 "None", username, password, siteConfigService.getSiteConfig().getUserAvatar(),
@@ -122,12 +116,12 @@ public class BlogLoginServiceImpl implements BlogLoginService {
                 throw new RuntimeException("请求频繁，请稍后再试");
             Random random = new Random();
             String code = String.valueOf(random.nextInt(899999) + 100000);
-            senEmailMessage(username, code);
+            sendEmailMessage(username, code);
             stringRedisTemplate.opsForValue().set(SystemConstants.VERIFY_EMAIL_DATA + username, code, 3, TimeUnit.MINUTES);
         }
     }
 
-    private void senEmailMessage(String email, String code) {
+    private void sendEmailMessage(String email, String code) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(username);
         message.setTo(email);

@@ -1,8 +1,11 @@
 package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.framework.entity.dao.LoginUser;
 import com.framework.entity.dao.User;
+import com.framework.entity.vo.request.EmailReq;
+import com.framework.entity.vo.request.UserInfoReq;
+import com.framework.entity.vo.request.UserReq;
+import com.framework.entity.vo.response.UserInfoResp;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -13,6 +16,18 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UserService extends IService<User> {
 
-    String updateUserAvatar(LoginUser loginUser, MultipartFile file);
+    String updateUserAvatar(MultipartFile file);
+
+    void updateEmail(EmailReq emailReq);
+
+    String emailCodeCheck(String username, String code);
+
+    UserInfoResp getUserInfo();
+
+    User getRequestUser();
+
+    void updateInfo(UserInfoReq userInfoReq);
+
+    void updatePassword(UserReq userReq);
 }
 

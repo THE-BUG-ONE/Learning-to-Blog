@@ -1,8 +1,9 @@
 package com.blog.controller;
 
 import com.framework.Result;
-import com.framework.entity.vo.request.KeywordReq;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.CategoryReq;
+import com.framework.entity.vo.request.KeywordReq;
 import com.framework.entity.vo.response.CategoryBackResp;
 import com.framework.entity.vo.response.CategoryOptionResp;
 import com.framework.entity.vo.response.PageResult;
@@ -20,21 +21,21 @@ public class CategoryAdminController {
     @Resource
     private CategoryService categoryService;
 
-    //接口：添加分类
+    @SystemLog(businessName = "添加分类")
     @PostMapping("/add")
     public Result<?> addCategory(@RequestBody @Validated CategoryReq categoryReq) {
         categoryService.addCategory(categoryReq);
         return Result.success();
     }
 
-    //接口：删除分类
+    @SystemLog(businessName = "删除分类")
     @DeleteMapping("/delete")
     public Result<?> deleteCategory(@RequestBody @Validated List<Integer> categoryIdlist) {
         categoryService.deleteCategory(categoryIdlist);
         return Result.success();
     }
 
-    //接口：查看后台分类列表
+    @SystemLog(businessName = "查看后台分类列表")
     @GetMapping("/list")
     public Result<PageResult<CategoryBackResp>> getBackCategoryList(
             @Validated KeywordReq keywordReq) {
@@ -44,7 +45,7 @@ public class CategoryAdminController {
                 Result.failure();
     }
 
-    //接口：查看分类选项
+    @SystemLog(businessName = "查看分类选项")
     @GetMapping("/option")
     public Result<List<CategoryOptionResp>> getCategoryOptionList() {
         List<CategoryOptionResp> res = categoryService.getCategoryOptionList();
@@ -53,7 +54,7 @@ public class CategoryAdminController {
                 Result.failure();
     }
 
-    //接口：修改分类
+    @SystemLog(businessName = "修改分类")
     @PutMapping("/update")
     public Result<?> updateCategory(@RequestBody @Validated CategoryReq categoryReq) {
         categoryService.updateCategory(categoryReq);

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Comment;
-import com.framework.entity.dao.LoginUser;
 import com.framework.entity.dao.User;
 import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.request.CommentReq;
@@ -17,7 +16,6 @@ import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,8 +47,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     public void addComment(CommentReq commentReq) {
         try {
             //获取评论用户id
-            LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication();
-            Integer userId = loginUser.getUser().getId();
+            Integer userId = userService.getRequestUser().getId();
 
             Comment comment = BeanCopyUtils.copyBean(commentReq, Comment.class)
                     .setFromUid(userId)

@@ -56,7 +56,6 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(conf -> conf
                         .requestMatchers("/login").anonymous()
                         .requestMatchers("/register").anonymous()
-                        .requestMatchers("/code").anonymous()
                         .requestMatchers("/logout").authenticated()
                         .requestMatchers("/admin/**").authenticated()
                         .requestMatchers("/user/**").authenticated()

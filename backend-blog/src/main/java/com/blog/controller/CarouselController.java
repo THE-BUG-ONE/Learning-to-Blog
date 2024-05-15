@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.response.CarouselResp;
 import com.framework.service.CarouselService;
 import jakarta.annotation.Resource;
@@ -17,7 +18,7 @@ public class CarouselController {
     @Resource
     private CarouselService carouselService;
 
-    //接口：查看轮播图列表
+    @SystemLog(businessName = "查看轮播图列表")
     @GetMapping("/list")
     public Result<List<CarouselResp>> getCarouselList() {
         List<CarouselResp> res = carouselService.getCarouselList();

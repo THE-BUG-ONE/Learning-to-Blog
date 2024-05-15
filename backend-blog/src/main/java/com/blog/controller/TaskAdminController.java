@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.TaskReq;
 import com.framework.service.TaskService;
 import jakarta.annotation.Resource;
@@ -17,7 +18,7 @@ public class TaskAdminController {
     @Resource
     private TaskService taskService;
 
-    //接口：添加定时任务
+    @SystemLog(businessName = "添加定时任务")
     @PostMapping("/add")
     public Result<?> addTask(@RequestBody @Validated TaskReq taskReq) {
         taskService.addTask(taskReq);

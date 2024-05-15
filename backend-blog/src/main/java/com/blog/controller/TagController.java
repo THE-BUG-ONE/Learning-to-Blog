@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.ArticleConditionReq;
 import com.framework.entity.vo.response.ArticleConditionList;
 import com.framework.entity.vo.response.TagResp;
@@ -20,7 +21,7 @@ public class TagController {
     @Resource
     private TagService tagService;
 
-    //接口：查看标签下的文章
+    @SystemLog(businessName = "查看标签下的文章")
     @GetMapping("/article")
     public Result<ArticleConditionList> getTagArticleList(
             @RequestBody @Validated ArticleConditionReq articleConditionReq) {
@@ -30,7 +31,7 @@ public class TagController {
                 Result.failure();
     }
 
-    //接口：查看标签列表
+    @SystemLog(businessName = "查看标签列表")
     @GetMapping("list")
     public Result<List<TagResp>> getTagList() {
         List<TagResp> res = tagService.getTagList();

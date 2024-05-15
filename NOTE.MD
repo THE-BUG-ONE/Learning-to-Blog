@@ -152,6 +152,10 @@
   - 原因：Redis序列化与SpringBoot序列化冲突
   - 解决：
   > 不使用User类的Access(chain = true)
+- Injection of resource dependencies failed
+  - 原因：通常为自动注入异常，项目中为从SecurityContextHolder获取用户信息时
+  - 解决：
+  > 将对象获取放在方法体内
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：
@@ -171,13 +175,13 @@
 ---  
 ### 项目技巧
 - 项目中不应该使用常量，要进行字面值处理，即把所有需要用到的常量放在一个类里
-> 在这个项目中我创建了SystemConstants类用于存放常量
+> 在这个项目中创建了 SystemConstants 类用于存放常量
 - 使用反射实现两个类属性的传递
-> 使用clazz.getConstructor().newInstance()获取目标类  
-  使用BeanUtils.copyProperties()方法拷贝
+> 使用 clazz.getConstructor().newInstance() 获取目标类  
+  使用 BeanUtils.copyProperties() 方法拷贝
 - 使用@Lazy注解解决循环注入问题
-> 在service实现类中经常需要引用其他service实现类，因此非常容易出现循环引入。    
-  通过在自动注入的字段上使用@Lazy注释进行懒加载，当被使用时创建代理类，真正加载时才是真创建。  
+> 在service实现类中经常需要引用其他 service 实现类，因此非常容易出现循环引入。    
+  通过在自动注入的字段上使用 @Lazy 注释进行懒加载，当被使用时创建代理类，真正加载时才是真创建。  
   @Lazy
   @Resource
   private ArticleService articleService;
@@ -188,27 +192,27 @@
 > 在Application.yml文件中配置spring.jackson.date-format
 - 列表类型转换
 > articleList.stream()
-  //map加目标类Builder组合完成
-  .map(article -> ArticleRankResp.builder()
+  //map 加目标类 Builder 组合完成
+  `.map(article -> ArticleRankResp.builder()
     .articleTitle(article.getArticleTitle())
     .viewCount(articleMap.get(article.getId()).intValue())
     .build())
   .sorted(Comparator.comparingInt(ArticleRankResp::getViewCount)
-  .reversed()).collect(Collectors.toList());
+  .reversed()).collect(Collectors.toList());`
 - 添加标签时应注意不要重复添加
 > 新添加的数据在数据库中可能存在并且不能重复，这时需要判断，数据库中已有的数据应跳过，不进行存储
 - mybatisPlus需要使用事务异常回滚时需要配置
-> 在某个Configuration类或启动类上加上@@EnableTransactionManagement  
-  在需要开启事务的方法上加上注解@Transactional
-  默认报RuntimeException异常时回滚
-  使用@Transactional(rollbackFor = Exception.class)更改检测的异常
+> 开启spring事务需要在启动类上加上 @@EnableTransactionManagement  
+  在需要开启事务的方法上加上注解 @Transactional
+  默认报 RuntimeException 异常时回滚
+  使用 @Transactional(rollbackFor = Exception.class) 更改检测的异常
 - 项目启动时从数据库中读取数据存入redis，防止写锁
-> 实现CommendLineRunner接口，重写run方法
+> 实现 CommendLineRunner 接口，重写run方法
 - securityConfig
-> requestMatchers参数为匹配的接口路径
-  anonymous接在后面表示路径访问用户为匿名用户
-  permitAll接在后面表示路径访问用户为所有用户
-  authenticated接在后面表示路径访问用户为认证用户
+> requestMatchers 参数为匹配的接口路径
+  anonymous 接在后面表示路径访问用户为匿名用户
+  permitAll 接在后面表示路径访问用户为所有用户
+  authenticated 接在后面表示路径访问用户为认证用户
 - 将一个list返回map
 > commentList.stream().collect(
   Collectors.toMap(Comment::getId, Comment::getFromUid));
@@ -216,15 +220,16 @@
 > map-underscore-to-camel-case: true 开启表字段转类属性自动驼峰命名
   lazy-loading-enabled: true  开启懒加载查询，需要数据库数据时才交互
 - 前端请求参数类型query与body
-> Query查询参数，将参数拼在请求地址上
-  Body请求体参数，请求体中的数据，可以传递对象 (一般json都是body传参）
+> Query 查询参数，将参数拼在请求地址上
+  Body 请求体参数，请求体中的数据，可以传递对象 (一般json都是body传参）
 - mybatis使用模糊查询时使用CONCAT方法拼接
 > like concat('%',#{param.keyword},'%')
 - java一个方法传入不同的类，并且获取类中的一些共同参数
 > 使用多态，有共同参数的多个类继承同一个类
 - 获取当前请求用户的信息
 > 控制层参数添加: @AuthenticationPrincipal LoginUser loginUser
+  方法体内使用: (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 - MultipartFile类型保存到本地
-> 设置路径后使用:file.transferTo(new File(路径));
+> 设置路径后使用: file.transferTo(new File(路径));
 - 用户上传的文件应使用OSS对象存储云服务器
 >  

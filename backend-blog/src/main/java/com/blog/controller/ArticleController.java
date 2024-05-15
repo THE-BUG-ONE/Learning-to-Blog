@@ -18,7 +18,7 @@ public class ArticleController {
     @Resource
     private ArticleService articleService;
 
-    //接口：推荐文章
+    @SystemLog(businessName = "推荐文章")
     @GetMapping("/recommend")
     public Result<List<ArticleRecommendResp>> getRecommendArticleList() {
         List<ArticleRecommendResp> res =  articleService.getArticleRecommendList();
@@ -27,7 +27,7 @@ public class ArticleController {
                 Result.failure();
     }
 
-    //接口：首页文章列表
+    @SystemLog(businessName = "首页文章列表")
     @GetMapping("/list")
     public Result<PageResult<ArticleHomeResp>> getArticleHomeList(@Validated PageReq pageReq) {
         PageResult<ArticleHomeResp> res = articleService.getArticleHomeList(pageReq);
@@ -36,7 +36,7 @@ public class ArticleController {
                 Result.failure();
     }
 
-    //接口：查看文章详情
+    @SystemLog(businessName = "查看文章详情")
     @GetMapping("/{articleId}")
     public Result<ArticleResp> getArticle(@PathVariable("articleId") Integer articleId) {
         ArticleResp res = articleService.getArticleDetail(articleId);
@@ -55,7 +55,7 @@ public class ArticleController {
                 Result.failure();
     }
 
-    //接口：点赞文章
+    @SystemLog(businessName = "点赞文章")
     @PostMapping("/{articleId}/like")
     public Result<?> like(@PathVariable("articleId") Integer articleId) {
         articleService.likeArticle(articleId);

@@ -4,7 +4,10 @@ import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
-import com.framework.entity.dao.*;
+import com.framework.entity.dao.Article;
+import com.framework.entity.dao.ArticleTag;
+import com.framework.entity.dao.Category;
+import com.framework.entity.dao.Tag;
 import com.framework.entity.vo.request.*;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.ArticleMapper;
@@ -14,7 +17,6 @@ import com.framework.utils.PageUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Lazy
     @Resource
     private CategoryService categoryService;
+
+    @Lazy
+    @Resource
+    private UserService userService;
 
     @Lazy
     @Resource
@@ -122,8 +128,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             if (articleReq.getArticleCover() == null)
                 newArticle.setArticleCover(siteConfigService.getSiteConfig().getArticleCover());
             //从应用程序上下文中获取用户ID，设置文章用户ID
-            LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            newArticle.setUserId(loginUser.getUser().getId());
+            newArticle.setUserId(userService.getRequestUser().getId());
             //添加文章
             if (!this.save(newArticle)) throw new RuntimeException();
             //获取最新文章ID，设置请求参数的文章ID

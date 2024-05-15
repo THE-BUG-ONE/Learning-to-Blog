@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.CheckReq;
 import com.framework.entity.vo.request.MessageBackReq;
 import com.framework.entity.vo.response.MessageBackResp;
@@ -19,14 +20,14 @@ public class MessageAdminController {
     @Resource
     private MessageService messageService;
 
-    //接口：删除留言
+    @SystemLog(businessName = "删除留言")
     @DeleteMapping("/delete")
     public Result<?> deleteMessage(@RequestBody @Validated List<Integer> messageIdList) {
         messageService.deleteMessage(messageIdList);
         return Result.success();
     }
 
-    //接口：查看后台留言列表
+    @SystemLog(businessName = "查看后台留言列表")
     @GetMapping("/list")
     public Result<PageResult<MessageBackResp>> getBackMessageList(@Validated MessageBackReq messageBackReq) {
         PageResult<MessageBackResp> res = messageService.getBackMessageList(messageBackReq);
@@ -35,7 +36,7 @@ public class MessageAdminController {
                 Result.failure();
     }
 
-    //接口：审核留言
+    @SystemLog(businessName = "审核留言")
     @PutMapping("/pass")
     public Result<?> checkMessage(@RequestBody @Validated CheckReq checkReq) {
         messageService.checkMessage(checkReq);

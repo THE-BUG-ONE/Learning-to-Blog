@@ -5,7 +5,6 @@ import com.framework.annotation.SystemLog;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -27,9 +26,12 @@ public class LogAspect {
     public Object printLog(ProceedingJoinPoint pjp) throws Throwable {
         Object ret;
         try {
+            //方法前增强操作
             handleBefore(pjp);
+            //运行方法
             ret = pjp.proceed();
-            handleAfter();
+            //方法后增强操作
+            handleAfter(ret);
         } finally {
             //结束后换行
             log.info("=========END=========" + System.lineSeparator());
@@ -44,6 +46,7 @@ public class LogAspect {
         //从请求应用程序上下文获取请求报文内容
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         //切口方法权限为private时值为null
+        //断言变量不为空
         assert requestAttributes != null;
         //获取请求内容
         HttpServletRequest request = requestAttributes.getRequest();
@@ -66,9 +69,9 @@ public class LogAspect {
         log.info("Request Args    : {}", JSON.toJSONString(pjp.getArgs()));
     }
 
-    private void handleAfter() {
+    private void handleAfter(Object ret) {
         // 打印出参
-        log.info("Response        : {}","");
+        log.info("Response        : {}", JSON.toJSONString(ret));
     }
 
     private SystemLog getSystemLog(MethodSignature methodSignature) {

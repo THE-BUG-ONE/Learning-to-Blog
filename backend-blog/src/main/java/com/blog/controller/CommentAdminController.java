@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.framework.Result;
+import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.response.CommentBackResp;
 import com.framework.entity.vo.response.PageResult;
@@ -18,14 +19,14 @@ public class CommentAdminController {
     @Resource
     private CommentService commentService;
 
-    //接口：删除评论
+    @SystemLog(businessName = "删除评论")
     @DeleteMapping("/delete")
     public Result<?> deleteComment(@RequestBody @Validated List<Integer> commentIdList ) {
         commentService.deleteComment(commentIdList);
         return Result.success();
     }
 
-    //接口：查看后台评论
+    @SystemLog(businessName = "查看后台评论")
     @GetMapping("/list")
     public Result<PageResult<CommentBackResp>> getBackCommentList(@Validated CommentBackReq commentBackReq) {
         PageResult<CommentBackResp> res = commentService.getBackCommentList(commentBackReq);
