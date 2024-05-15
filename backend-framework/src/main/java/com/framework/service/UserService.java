@@ -20,11 +20,9 @@ public interface UserService extends IService<User> {
 
     void updateEmail(EmailReq emailReq);
 
-    String emailCodeCheck(String username, String code);
+    String emailCodeCheck(String username, String code, String type);
 
     UserInfoResp getUserInfo();
-
-    User getRequestUser();
 
     void updateInfo(UserInfoReq userInfoReq);
 

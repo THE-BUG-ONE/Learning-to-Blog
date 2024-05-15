@@ -14,6 +14,7 @@ import com.framework.mapper.ArticleMapper;
 import com.framework.service.*;
 import com.framework.utils.BeanCopyUtils;
 import com.framework.utils.PageUtils;
+import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -53,6 +54,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Resource
     private PageUtils pageUtils;
+
+    @Resource
+    private WebUtils webUtils;
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -128,7 +132,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             if (articleReq.getArticleCover() == null)
                 newArticle.setArticleCover(siteConfigService.getSiteConfig().getArticleCover());
             //从应用程序上下文中获取用户ID，设置文章用户ID
-            newArticle.setUserId(userService.getRequestUser().getId());
+            newArticle.setUserId(webUtils.getRequestUser().getId());
             //添加文章
             if (!this.save(newArticle)) throw new RuntimeException();
             //获取最新文章ID，设置请求参数的文章ID

@@ -3,20 +3,20 @@ package com.framework.service.impl;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
-import com.framework.entity.dao.LoginUser;
 import com.framework.entity.dao.User;
 import com.framework.entity.vo.request.EmailReq;
 import com.framework.entity.vo.request.UserInfoReq;
 import com.framework.entity.vo.request.UserReq;
 import com.framework.entity.vo.response.UserInfoResp;
 import com.framework.mapper.UserMapper;
+import com.framework.service.BlogLoginService;
 import com.framework.service.UserService;
 import com.framework.utils.BeanCopyUtils;
 import com.framework.utils.FileUtils;
 import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +39,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private FileUtils fileUtils;
 
+    @Lazy
+    @Resource
+    private BlogLoginService blogLoginService;
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -53,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RuntimeException("文件类型错误");
         String filePath = file.getOriginalFilename();
         //TODO 文件上传未完成
-        int userId = getRequestUser().getId();
+        int userId = webUtils.getRequestUser().getId();
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(User::getAvatar, filePath)
@@ -67,21 +71,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional
     public void updateEmail(EmailReq emailReq) {
-        String msg = emailCodeCheck(emailReq.getUsername(), emailReq.getCode());
+        String msg = emailCodeCheck(emailReq.getUsername(), emailReq.getCode(), SystemConstants.EMAIL_RESET_CODE);
         if (msg != null)
             throw new RuntimeException(msg);
-        int userId = getRequestUser().getId();
+        int userId = webUtils.getRequestUser().getId();
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(User::getEmail, emailReq.getUsername())
                 .set(User::getUpdateTime, DateTime.now())
                 .update())
             throw new RuntimeException("邮箱修改异常");
+        //邮箱修改后应退出登录
+        blogLoginService.logout();
     }
 
     @Override
-    public String emailCodeCheck(String username, String code) {
-        if (lambdaQuery().eq(User::getEmail, username).exists())
+    public String emailCodeCheck(String username, String code, String type) {
+        if (type.equals(SystemConstants.REGISTER_CODE) && lambdaQuery().eq(User::getEmail, username).exists())
             return "此邮箱地址已被注册";
         if (!Boolean.TRUE.equals(stringRedisTemplate.hasKey(SystemConstants.VERIFY_EMAIL_DATA + username)))
             return "验证码不存在";
@@ -92,14 +98,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserInfoResp getUserInfo() {
-        User user = getRequestUser();
+        User user = webUtils.getRequestUser();
         return BeanCopyUtils.copyBean(user, UserInfoResp.class);
-    }
-
-    @Override
-    public User getRequestUser() {
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return loginUser.getUser();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String intro = userInfoReq.getIntro();
         String nickname = userInfoReq.getNickname();
         String webSite = userInfoReq.getWebSite();
-        int userId = getRequestUser().getId();
+        int userId = webUtils.getRequestUser().getId();
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(intro != null, User::getIntro, intro)
@@ -121,16 +121,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional
     public void updatePassword(UserReq userReq) {
-        String msg = emailCodeCheck(userReq.getUsername(), userReq.getCode());
+        String msg = emailCodeCheck(userReq.getUsername(), userReq.getCode(), SystemConstants.PASSWORD_RESET_CODE);
         if (msg != null)
             throw new RuntimeException(msg);
-        int userId = getRequestUser().getId();
+        int userId = webUtils.getRequestUser().getId();
         String password = encoder.encode(userReq.getPassword());
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(User::getPassword, password)
                 .update())
             throw new RuntimeException("用户密码修改异常");
+        //密码修改后应退出登录
+        blogLoginService.logout();
     }
 }
 

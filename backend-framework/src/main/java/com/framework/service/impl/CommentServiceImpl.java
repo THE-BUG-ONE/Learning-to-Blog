@@ -13,6 +13,7 @@ import com.framework.mapper.CommentMapper;
 import com.framework.service.CommentService;
 import com.framework.service.UserService;
 import com.framework.utils.BeanCopyUtils;
+import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -40,6 +41,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     private CommentMapper commentMapper;
 
     @Resource
+    private WebUtils webUtils;
+
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -47,7 +51,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     public void addComment(CommentReq commentReq) {
         try {
             //获取评论用户id
-            Integer userId = userService.getRequestUser().getId();
+            Integer userId = webUtils.getRequestUser().getId();
 
             Comment comment = BeanCopyUtils.copyBean(commentReq, Comment.class)
                     .setFromUid(userId)

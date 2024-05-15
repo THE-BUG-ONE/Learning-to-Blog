@@ -11,6 +11,7 @@ import com.framework.service.SiteConfigService;
 import com.framework.service.UserService;
 import com.framework.utils.FlowUtils;
 import com.framework.utils.JwtUtils;
+import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -60,6 +61,9 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     @Resource
     private MailSender mailSender;
 
+    @Resource
+    private WebUtils webUtils;
+
     @Value("${spring.mail.username}")
     private String username;
 
@@ -88,7 +92,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     @Override
     public void logout() {
         //获取userId
-        int userId = userService.getRequestUser().getId();
+        int userId = webUtils.getRequestUser().getId();
         //删除redis中的用户信息
         redisTemplate.delete(SystemConstants.JWT_REDIS_KEY + userId);
     }
@@ -98,7 +102,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         String username = req.getUsername();
         String code = req.getCode();
         //校验验证码
-        String msg = userService.emailCodeCheck(username, code);
+        String msg = userService.emailCodeCheck(username, code, SystemConstants.REGISTER_CODE);
         if (msg != null)
             throw new RuntimeException(msg);
         String password = encoder.encode(req.getPassword());
@@ -110,23 +114,30 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     }
 
     @Override
-    public void code(String username, String ip) {
+    public void code(String username, String type) {
+        String ip = webUtils.getRequest().getRemoteAddr();
         synchronized (ip.intern()) {
             if (flowUtils.limitOnceCheck(SystemConstants.VERIFY_EMAIL_LIMIT + ip, 60))
                 throw new RuntimeException("请求频繁，请稍后再试");
             Random random = new Random();
             String code = String.valueOf(random.nextInt(899999) + 100000);
-            sendEmailMessage(username, code);
+            sendEmailMessage(username, code, type);
             stringRedisTemplate.opsForValue().set(SystemConstants.VERIFY_EMAIL_DATA + username, code, 3, TimeUnit.MINUTES);
         }
     }
 
-    private void sendEmailMessage(String email, String code) {
+    private void sendEmailMessage(String email, String code, String type) {
         SimpleMailMessage message = new SimpleMailMessage();
+        String subject = switch (type) {
+            case SystemConstants.REGISTER_CODE -> "当前邮件为注册邮件";
+            case SystemConstants.EMAIL_RESET_CODE -> "当前邮件为邮箱更改邮件";
+            case SystemConstants.PASSWORD_RESET_CODE -> "当前邮件为密码重置邮件";
+            default -> null;
+        };
         message.setFrom(username);
         message.setTo(email);
         message.setText("验证码:" + code + "\n当前验证码有效时间为3分钟");
-        message.setSubject("当前邮件为注册邮件");
+        message.setSubject(subject);
         mailSender.send(message);
     }
 }

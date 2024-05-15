@@ -10,5 +10,5 @@ public interface BlogLoginService {
 
     void register(RegisterReq registerReq);
 
-    void code(String username, String ip);
+    void code(String username, String type);
 }

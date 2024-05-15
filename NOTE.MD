@@ -149,25 +149,29 @@
   - 解决：
   > pom添加spring-boot-starter-mail
 - org.springframework.data.redis.serializer.SerializationException
-  - 原因：Redis序列化与SpringBoot序列化冲突
+  - 原因：Redis 序列化与 SpringBoot 序列化冲突
   - 解决：
   > 不使用User类的Access(chain = true)
 - Injection of resource dependencies failed
-  - 原因：通常为自动注入异常，项目中为从SecurityContextHolder获取用户信息时
+  - 原因：通常为自动注入异常，项目中为从 SecurityContextHolder 获取用户信息时
   - 解决：
   > 将对象获取放在方法体内
+- It is illegal to call this method if the current request is not in asynchronous mode (i.e. isAsyncStarted() returns false)
+  - 原因：通过AOP切面时，对传入的内容转换成 JSON 时报错，方法请求参数中有 Request 或 Response
+  - 解决：
+  > 方法中的request使用其他工具类的 RequestContextHolder 获取
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：
-  > 接口参数@RequestParam改为@RequestBody
+  > 接口参数 @RequestParam 改为 @RequestBody
 - 403 Forbidden
-  - 原因：访问路径没有权限(大部分), login接口实现中用户校验失败
+  - 原因：访问路径没有权限(大部分), login 接口实现中用户校验失败
   - 解决：
-  > 接收的用户密码不需要再次加密，应直接传入UsernamePasswordAuthenticationToken
+  > 接收的用户密码不需要再次加密，应直接传入 UsernamePasswordAuthenticationToken
 - 405 Method Not Allowed
   - 原因：提交类型方法错误
   - 解决：
-  > 提交方法包括[GET,POST,DELETE]等
+  > 提交方法包括 [GET,POST,DELETE] 等
 - 415 Unsupported Media Type
   - 原因：服务器无法处理请求附带的媒体格式
   - 解决：

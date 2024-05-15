@@ -2,6 +2,7 @@ package com.blog.controller;
 
 import com.framework.Result;
 import com.framework.annotation.SystemLog;
+import com.framework.constants.SystemConstants;
 import com.framework.entity.vo.request.LoginReq;
 import com.framework.entity.vo.request.RegisterReq;
 import com.framework.service.BlogLoginService;
@@ -47,8 +48,8 @@ public class LoginController {
 
     @SystemLog(businessName = "发送邮箱验证码")
     @GetMapping("/code")
-    public Result<?> code(@Validated String username, HttpServletRequest request) {
-        blogLoginService.code(username, request.getRemoteAddr());
+    public Result<?> code(@Validated String username) {
+        blogLoginService.code(username, SystemConstants.REGISTER_CODE);
         return Result.success();
     }
 }

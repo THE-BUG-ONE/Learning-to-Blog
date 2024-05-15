@@ -77,4 +77,11 @@ public class SystemConstants {
     public static final String[] IMAGE_CONTENT_TYPE = {"image/jpeg", "image/jpg", "image/png"};
     //头像文件路径
     public static final String AVATAR_PATH = "static/upload/avatar/";
+
+    //验证码类型为注册
+    public static final String REGISTER_CODE = "register";
+    //验证码类型为邮箱重置
+    public static final String EMAIL_RESET_CODE = "emailReset";
+    //验证码类型为密码重置
+    public static final String PASSWORD_RESET_CODE = "passwordReset";
 }
