@@ -7,6 +7,7 @@ import com.framework.entity.vo.response.ArticleConditionList;
 import com.framework.entity.vo.response.CategoryResp;
 import com.framework.service.CategoryService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,7 @@ public class CategoryController {
     @SystemLog(businessName = "查看分类下的文章")
     @GetMapping("/article")
     public Result<ArticleConditionList> getCategoryArticleList(
-            @Validated ArticleConditionReq articleConditionReq) {
+            @Valid ArticleConditionReq articleConditionReq) {
         ArticleConditionList res = categoryService.getArticleConditionList(articleConditionReq);
         return res == null ?
                 Result.failure() :

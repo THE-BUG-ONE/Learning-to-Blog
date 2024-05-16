@@ -1,5 +1,6 @@
 package com.framework.entity.vo.request;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,11 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryReq {
     //分类名
+    @NotEmpty
     private String categoryName;
     //分类id
     private Integer id;
 
-    public CategoryReq(String categoryName) {
-        this.categoryName = categoryName;
-    }
 }

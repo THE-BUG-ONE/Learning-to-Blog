@@ -6,6 +6,7 @@ import com.framework.entity.vo.request.MessageReq;
 import com.framework.entity.vo.response.MessageResp;
 import com.framework.service.MessageService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class MessageController {
 
     @SystemLog(businessName = "添加留言")
     @PostMapping("/add")
-    public Result<?> addMessage(@RequestBody @Validated MessageReq messageReq) {
+    public Result<?> addMessage(@RequestBody @Valid MessageReq messageReq) {
         messageService.addMessage(messageReq);
         return Result.success();
     }

@@ -1,16 +1,17 @@
 package com.framework.entity.vo.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserInfoReq {
     //用户昵称
-    @NonNull
+    @NotEmpty
     private String nickname;
     //个人网站
     private String webSite;

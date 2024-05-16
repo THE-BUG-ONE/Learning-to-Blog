@@ -5,6 +5,7 @@ import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.TaskReq;
 import com.framework.service.TaskService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class TaskAdminController {
 
     @SystemLog(businessName = "添加定时任务")
     @PostMapping("/add")
-    public Result<?> addTask(@RequestBody @Validated TaskReq taskReq) {
+    public Result<?> addTask(@RequestBody @Valid TaskReq taskReq) {
         taskService.addTask(taskReq);
         return Result.success();
     }

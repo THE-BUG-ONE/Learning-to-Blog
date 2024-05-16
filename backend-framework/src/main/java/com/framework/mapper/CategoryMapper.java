@@ -42,7 +42,17 @@ public interface CategoryMapper extends BaseMapper<Category> {
             "createTime": "2024-04-13T05:47:43.625Z",
             "id": 0
     }*/
-    @Select("select * from t_category where category_name like CONCAT('%',#{param.keyword},'%') limit #{param.current},#{param.size}")
+    @Select("""
+    <script>
+        select * from t_category
+        <where>
+            <if test='param.keyword != null'>
+                and category_name like CONCAT('%',#{param.keyword},'%')
+            </if>
+        </where>
+        limit #{param.current},#{param.size}
+    </script>
+    """)
     @Results(id = "getBackCategoryMap", value = {
             @Result(column = "id", property = "id"),
             @Result(column = "id", property = "articleCount",

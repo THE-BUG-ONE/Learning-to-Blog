@@ -160,6 +160,10 @@
   - 原因：通过AOP切面时，对传入的内容转换成 JSON 时报错，方法请求参数中有 Request 或 Response
   - 解决：
   > 方法中的request使用其他工具类的 RequestContextHolder 获取
+- No validator could be found for constraint '.....' validating type 'java.lang.Integer'
+  - 原因：@NotEmpty 注解只能支持字符串类型的字段
+  - 解决：
+  > 非字符串类型字段校验使用 @NotNull
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
   - 解决：
@@ -236,4 +240,4 @@
 - MultipartFile类型保存到本地
 > 设置路径后使用: file.transferTo(new File(路径));
 - 用户上传的文件应使用OSS对象存储云服务器
->  
+- 使用 validation 校验请求参数，在请求体字段上添加注解，并在 controller 请求方法中的请求参数前添加 @Valid  注解开启校验

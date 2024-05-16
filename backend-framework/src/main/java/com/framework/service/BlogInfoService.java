@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -82,7 +83,7 @@ public class BlogInfoService {
                 articleService.lambdaQuery()
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC).count(),
-                this.getArticleRank(articleMap), //articleRankVOList
+                getArticleRank(articleMap), //articleRankVOList
                 null, //articleStatisticsList
                 categoryService.getCategoryList(),
                 messageService.count(), //messageCount

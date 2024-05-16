@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Comment;
 import com.framework.entity.dao.User;
+import com.framework.entity.vo.request.CheckReq;
 import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.request.CommentReq;
 import com.framework.entity.vo.response.*;
@@ -57,46 +58,15 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                     .setFromUid(userId)
                     .setIsCheck(0)
                     .setCreateTime(DateTime.now());
-            if (!this.save(comment))
+            if (!save(comment))
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("评论添加异常");
+            throw new RuntimeException("添加评论异常:[未知异常]");
         }
     }
 
     @Override
     public PageResult<CommentResp> getCommentList(CommentBackReq commentBackReq) {
-        /*{
-            "count": 0,
-            "recordList": [
-              {
-                "avatar": "string",
-                "commentContent": "string",
-                "createTime": "2024-04-22T06:50:47.297Z",
-                "fromNickname": "string",
-                "fromUid": 0,
-                "id": 0,
-                "likeCount": 0,
-                "replyCount": 0,
-                "replyVOList": [
-                  {
-                    "avatar": "string",
-                    "commentContent": "string",
-                    "createTime": "2024-04-22T06:50:47.297Z",
-                    "fromNickname": "string",
-                    "fromUid": 0,
-                    "id": 0,
-                    "likeCount": 0,
-                    "parentId": 0,
-                    "toNickname": "string",
-                    "toUid": 0,
-                    "webSite": "string"
-                  }
-                ],
-                "webSite": "string"
-              }
-            ]
-          }*/
         Integer size = commentBackReq.getSize();
         Integer current = commentBackReq.getCurrent();
         Integer commentType = commentBackReq.getCommentType();
@@ -104,8 +74,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         String keyword = commentBackReq.getKeyword();
         Integer typeId = commentBackReq.getTypeId();
         //获取筛选后的评论列表
-        List<Comment> commentList = this.page(new Page<>(current, size),
-                        this.lambdaQuery()
+        List<Comment> commentList = page(new Page<>(current, size),
+                        lambdaQuery()
                                 .eq(commentType != null, Comment::getCommentType, commentType)
                                 .eq(isCheck != null, Comment::getIsCheck, isCheck)
                                 .eq(isCheck == null, Comment::getIsCheck, SystemConstants.COMMENT_IS_CHECKED)
@@ -144,7 +114,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Override
     public List<ReplyResp> getCommentReply(Integer commentId) {
-        Comment comment = this.getById(commentId);
+        Comment comment = getById(commentId);
         if (comment == null) return null;
         return getReplyVOList(comment.getFromUid(), commentId);
     }
@@ -152,7 +122,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Override
     public List<RecentCommentResp> getNewComment() {
         //获取最新评论列表
-        List<Comment> commentList = this.lambdaQuery()
+        List<Comment> commentList = lambdaQuery()
                 .eq(Comment::getIsCheck, SystemConstants.COMMENT_IS_CHECKED)
                 .last(SystemConstants.COMMENT_NEW_NUM)
                 .list();
@@ -179,7 +149,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             //Set结构防重
             Set<Integer> idList = new HashSet<>();
             //获取对应评论的回复评论
-            commentIdList.forEach(id -> idList.addAll(this.lambdaQuery()
+            commentIdList.forEach(id -> idList.addAll(lambdaQuery()
                     .select(Comment::getId)
                     .eq(Comment::getReplyId, id)
                     .list()
@@ -188,10 +158,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                     .toList()));
             //集合所有应操作的评论
             idList.addAll(commentIdList);
-            if (!this.removeBatchByIds(idList))
+            if (!removeBatchByIds(idList))
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("评论删除异常");
+            throw new RuntimeException("删除评论异常:[未知异常]");
         }
     }
 
@@ -201,12 +171,26 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return new PageResult<>(respList.size(), respList);
     }
 
+    @Override
+    @Transactional
+    public void passComment(CheckReq checkReq) {
+        try {
+            if (!lambdaUpdate()
+                    .in(Comment::getId, checkReq.getIdList())
+                    .set(Comment::getIsCheck, checkReq.getIsCheck())
+                    .update())
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("审核评论异常:[未知异常]");
+        }
+    }
+
     //获取评论对应的回复评论列表
     private List<ReplyResp> getReplyVOList(int userId, int id) {
         //获取用户id与对应的用户
         Map<Integer, User> userMap = getUserMap();
         //获取对应评论的回复评论
-        List<Comment> commentList = this.lambdaQuery()
+        List<Comment> commentList = lambdaQuery()
                 .eq(Comment::getReplyId, id).list();
         //获取对应评论的用户id
         User toUser = userMap.get(userId);

@@ -8,6 +8,7 @@ import com.framework.entity.vo.response.FriendBackResp;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.service.FriendService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +23,14 @@ public class FriendAdminController {
 
     @SystemLog(businessName = "添加友链")
     @PostMapping("/add")
-    public Result<?> addFriend(@RequestBody @Validated FriendReq friendReq) {
+    public Result<?> addFriend(@RequestBody @Valid FriendReq friendReq) {
         friendService.addFriend(friendReq);
         return Result.success();
     }
 
     @SystemLog(businessName = "删除友链")
     @DeleteMapping("/delete")
-    public Result<?> deleteFriend(@RequestBody @Validated List<Integer> friendIdList) {
+    public Result<?> deleteFriend(@RequestBody @Valid List<Integer> friendIdList) {
         friendService.deleteFriend(friendIdList);
         return Result.success();
     }
@@ -37,7 +38,7 @@ public class FriendAdminController {
     @SystemLog(businessName = "查看友链后台列表")
     @GetMapping("/list")
     public Result<PageResult<FriendBackResp>> getBackFriendList(
-            @RequestBody @Validated FriendBackReq friendBackReq) {
+            @RequestBody @Valid FriendBackReq friendBackReq) {
         PageResult<FriendBackResp> res = friendService.getBackFriendList(friendBackReq);
         return res != null ?
                 Result.success(res) :
@@ -46,7 +47,7 @@ public class FriendAdminController {
 
     @SystemLog(businessName = "修改友链")
     @PutMapping("/update")
-    public Result<?> updateFriend(@RequestBody @Validated FriendReq friendReq) {
+    public Result<?> updateFriend(@RequestBody @Valid FriendReq friendReq) {
         friendService.updateFriend(friendReq);
         return Result.success();
     }

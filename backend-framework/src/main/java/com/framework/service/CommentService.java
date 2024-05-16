@@ -2,6 +2,7 @@ package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Comment;
+import com.framework.entity.vo.request.CheckReq;
 import com.framework.entity.vo.request.CommentBackReq;
 import com.framework.entity.vo.request.CommentReq;
 import com.framework.entity.vo.response.*;
@@ -29,5 +30,7 @@ public interface CommentService extends IService<Comment> {
     void deleteComment(List<Integer> commentIdList);
 
     PageResult<CommentBackResp> getBackCommentList(CommentBackReq commentBackReq);
+
+    void passComment(CheckReq checkReq);
 }
 

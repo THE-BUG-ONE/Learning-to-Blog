@@ -7,6 +7,7 @@ import com.framework.entity.vo.response.ArticleConditionList;
 import com.framework.entity.vo.response.TagResp;
 import com.framework.service.TagService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ public class TagController {
     @SystemLog(businessName = "查看标签下的文章")
     @GetMapping("/article")
     public Result<ArticleConditionList> getTagArticleList(
-            @RequestBody @Validated ArticleConditionReq articleConditionReq) {
+            @RequestBody @Valid ArticleConditionReq articleConditionReq) {
         ArticleConditionList res = tagService.getArticleConditionList(articleConditionReq);
         return res != null ?
                 Result.success(res) :

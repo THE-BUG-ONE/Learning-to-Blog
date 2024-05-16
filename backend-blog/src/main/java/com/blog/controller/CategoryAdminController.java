@@ -9,6 +9,9 @@ import com.framework.entity.vo.response.CategoryOptionResp;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.service.CategoryService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,22 +26,21 @@ public class CategoryAdminController {
 
     @SystemLog(businessName = "添加分类")
     @PostMapping("/add")
-    public Result<?> addCategory(@RequestBody @Validated CategoryReq categoryReq) {
+    public Result<?> addCategory(@RequestBody @Valid CategoryReq categoryReq) {
         categoryService.addCategory(categoryReq);
         return Result.success();
     }
 
     @SystemLog(businessName = "删除分类")
     @DeleteMapping("/delete")
-    public Result<?> deleteCategory(@RequestBody @Validated List<Integer> categoryIdlist) {
+    public Result<?> deleteCategory(@RequestBody @NotNull List<Integer> categoryIdlist) {
         categoryService.deleteCategory(categoryIdlist);
         return Result.success();
     }
 
     @SystemLog(businessName = "查看后台分类列表")
     @GetMapping("/list")
-    public Result<PageResult<CategoryBackResp>> getBackCategoryList(
-            @Validated KeywordReq keywordReq) {
+    public Result<PageResult<CategoryBackResp>> getBackCategoryList(@Valid KeywordReq keywordReq) {
         PageResult<CategoryBackResp> res = categoryService.getBackCategoryList(keywordReq);
         return res != null ?
                 Result.success(res) :
@@ -56,7 +58,7 @@ public class CategoryAdminController {
 
     @SystemLog(businessName = "修改分类")
     @PutMapping("/update")
-    public Result<?> updateCategory(@RequestBody @Validated CategoryReq categoryReq) {
+    public Result<?> updateCategory(@RequestBody @Valid CategoryReq categoryReq) {
         categoryService.updateCategory(categoryReq);
         return Result.success();
     }

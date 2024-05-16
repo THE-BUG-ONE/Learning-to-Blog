@@ -69,7 +69,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
         //分类名为条件名
         return new ArticleConditionList(
-                this.getById(req.getCategoryId()).getCategoryName(),
+                getById(req.getCategoryId()).getCategoryName(),
                 res);
     }
 
@@ -78,11 +78,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     public void addCategory(String categoryName) {
         try {
             //若分类存在取消添加
-            if (this.lambdaQuery().eq(Category::getCategoryName, categoryName).exists() ||
-                    !this.save(new Category(categoryName, DateTime.now()))
+            if (lambdaQuery().eq(Category::getCategoryName, categoryName).exists() ||
+                    !save(new Category(categoryName, DateTime.now()))
             ) throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("添加分类异常");
+            throw new RuntimeException("添加分类异常:[未知异常]");
         }
     }
 
@@ -97,11 +97,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     .stream()
                     .map(Article::getCategoryId).collect(Collectors.toSet());
             //删除文章数为0的分类
-            if (!this.removeBatchByIds(
+            if (!removeBatchByIds(
                     categoryIdlist.stream().filter(id -> !idList.contains(id)).toList()))
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("删除分类异常");
+            throw new RuntimeException("删除分类异常:[未知异常]");
         }
     }
 
@@ -114,7 +114,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public List<CategoryOptionResp> getCategoryOptionList() {
-        return BeanCopyUtils.copyBeanList(this.list(), CategoryOptionResp.class);
+        return BeanCopyUtils.copyBeanList(list(), CategoryOptionResp.class);
     }
 
     @Override
@@ -124,14 +124,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Integer id = categoryReq.getId();
         try {
             if (id == null ||
-                    this.lambdaQuery().eq(Category::getCategoryName, categoryName).exists() ||
-                    !this.lambdaUpdate()
-                            .eq(Category::getId,id)
+                    lambdaQuery()
+                            .eq(Category::getCategoryName, categoryName).or()
+                            .eq(Category::getId, id)
+                            .exists() ||
+                    !lambdaUpdate()
+                            .eq(Category::getId, id)
                             .set(Category::getCategoryName, categoryName)
                             .set(Category::getUpdateTime, DateTime.now()).update())
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("分类名重复或分类不存在");
+            throw new RuntimeException("修改分类异常:[分类名重复,ID重复,分类不存在,未知异常]");
         }
     }
 
@@ -141,12 +144,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         String categoryName = categoryReq.getCategoryName();
         Integer id = categoryReq.getId();
         try {
-            if (!this.save(id == null ?
-                    new Category(categoryName, DateUtil.date()) :
+            // id 为空或者 id 已存在则自动创建 id
+            if (!save((id == null || lambdaQuery()
+                    .eq(Category::getCategoryName, categoryName).or()
+                    .eq(Category::getId, id)
+                    .exists()) ?
+                    new Category(categoryName, DateTime.now()) :
                     new Category(id, categoryName, DateTime.now())
             )) throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("添加分类异常");
+            throw new RuntimeException("添加分类异常:[分类名重复,ID重复,未知异常]");
         }
     }
 
