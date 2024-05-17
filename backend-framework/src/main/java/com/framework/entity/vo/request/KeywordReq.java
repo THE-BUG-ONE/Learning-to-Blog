@@ -1,7 +1,6 @@
 package com.framework.entity.vo.request;
 
 import com.framework.entity.vo.PageCalculate;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

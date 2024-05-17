@@ -7,7 +7,6 @@ import com.framework.entity.vo.response.MessageResp;
 import com.framework.service.MessageService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

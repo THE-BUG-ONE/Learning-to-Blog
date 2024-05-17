@@ -9,7 +9,6 @@ import com.framework.entity.vo.response.UserInfoResp;
 import com.framework.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

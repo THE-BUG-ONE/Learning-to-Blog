@@ -26,7 +26,6 @@ public class SpringTest {
     PasswordEncoder encoder;
 
     @Test
-    public void test() {
-        System.out.println(111);
+    public void test(){
     }
 }

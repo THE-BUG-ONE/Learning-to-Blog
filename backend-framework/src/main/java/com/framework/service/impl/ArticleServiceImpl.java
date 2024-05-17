@@ -72,7 +72,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public List<ArticleRecommendResp> getArticleRecommendList() {
         //文章为推荐、未删除、公开
         return BeanCopyUtils.copyBeanList(
-                this.lambdaQuery()
+                lambdaQuery()
                         .eq(Article::getIsRecommend, SystemConstants.ARTICLE_IS_RECOMMEND)
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
@@ -102,7 +102,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public List<ArticleSearchResp> getArticleSearchList(String keyword) {
         return BeanCopyUtils.copyBeanList(
-                this.lambdaQuery()
+                lambdaQuery()
                         .like(Article::getArticleContent, keyword)
                         .list()
                 , ArticleSearchResp.class);
@@ -134,14 +134,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             //从应用程序上下文中获取用户ID，设置文章用户ID
             newArticle.setUserId(webUtils.getRequestUser().getId());
             //添加文章
-            if (!this.save(newArticle)) throw new RuntimeException();
+            if (!save(newArticle)) throw new RuntimeException();
             //获取最新文章ID，设置请求参数的文章ID
-            articleReq.setId(this.lambdaQuery()
+            articleReq.setId(lambdaQuery()
                     .orderByDesc(Article::getCreateTime)
                     .last(SystemConstants.LAST_LIMIT_1).one()
                     .getId());
             //添加文章标签
-            this.addArticleTag(articleReq);
+            addArticleTag(articleReq);
         } catch (Exception e) {
             throw new RuntimeException("添加文章异常");
         }
@@ -150,21 +150,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     @Transactional
     public void deleteArticle(List<Integer> articleIdList) {
-        //删除文章标签表对应数据
-        articleTagService.removeBatchByIds(articleTagService.lambdaQuery()
-                .select(ArticleTag::getId)
-                .in(ArticleTag::getArticleId, articleIdList)
-                .list()
-                .stream()
-                .map(ArticleTag::getId)
-                .toList());
-        //删除文章对应数据
-        this.removeBatchByIds(articleIdList);
+        try {
+            //删除文章标签表对应数据
+            articleTagService.removeBatchByIds(articleTagService.lambdaQuery()
+                    .select(ArticleTag::getId)
+                    .in(ArticleTag::getArticleId, articleIdList)
+                    .list()
+                    .stream()
+                    .map(ArticleTag::getId)
+                    .toList());
+            //删除文章对应数据
+            removeBatchByIds(articleIdList);
+        } catch (Exception e) {
+            throw new RuntimeException("删除文章异常");
+        }
     }
 
     @Override
     public ArticleInfoResp editArticle(Integer articleId) {
-        Article article = this.getById(articleId);
+        Article article = getById(articleId);
         //获取tag名列表
         List<Integer> tagIdList = articleTagService.lambdaQuery()
                 .eq(ArticleTag::getArticleId, articleId)
@@ -184,31 +188,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public PageResult<ArticleBackResp> getBackArticle(ArticleBackReq articleBackReq) {
-        /*{
-        "count": 0,
-        "recordList": [
-          {
-            "articleCover": "string",
-            "articleTitle": "string",
-            "articleType": 0,
-            "categoryName": "string",
-            "createTime": "2024-04-12T05:35:09.556Z",
-            "id": 0,
-            "isDelete": 0,
-            "isRecommend": 0,
-            "isTop": 0,
-            "likeCount": 0,
-            "status": 0,
-            "tagVOList": [
-              {
-                "id": 0,
-                "tagName": "string"
-              }
-            ],
-            "viewCount": 0
-          }
-        ]}*/
-
         //类型 (1原创 2转载 3翻译)
         Integer articleType = articleBackReq.getArticleType();
         //分类id
@@ -227,8 +206,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Integer size = articleBackReq.getSize();
 
         //获取符合条件的的文章
-        List<Article> articleList = this.page(new Page<>(current, size),
-                        this.lambdaQuery()
+        List<Article> articleList = page(new Page<>(current, size),
+                        lambdaQuery()
                                 .eq(status != null, Article::getStatus, status)
                                 .eq(isDelete != null, Article::getIsDelete, isDelete)
                                 .eq(categoryId != null, Article::getCategoryId, categoryId)
@@ -243,7 +222,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                 .getWrapper()).getRecords();
 
         //填充分类名
-        Map<Integer, String> nameMap = this.getCategoryNameMap();
+        Map<Integer, String> nameMap = getCategoryNameMap();
         Map<Integer, String> categoryMap = new HashMap<>();
         articleList.forEach(article -> categoryMap.put(article.getId(), nameMap.get(article.getCategoryId())));
         //填充未定义字段
@@ -265,13 +244,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Transactional
     public void recommendArticle(RecommendReq recommendReq) {
         try {
-            if (!this.lambdaUpdate()
+            if (!lambdaUpdate()
                     .eq(Article::getId, recommendReq.getId())
                     .set(Article::getIsRecommend, recommendReq.getIsRecommend())
                     .update())
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("文章推荐修改异常");
+            throw new RuntimeException("修改文章推荐异常");
         }
     }
 
@@ -279,13 +258,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Transactional
     public void recycleArticle(DeleteReq deleteReq) {
         try {
-            if (!this.lambdaUpdate()
+            if (!lambdaUpdate()
                     .in(Article::getId, deleteReq.getIdList())
                     .set(Article::getIsDelete, deleteReq.getIsDelete())
                     .update())
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("文章删除状态修改异常");
+            throw new RuntimeException("删除文章状态修改异常");
         }
     }
 
@@ -293,13 +272,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Transactional
     public void topArticle(TopReq topReq) {
         try {
-            if (!this.lambdaUpdate()
+            if (!lambdaUpdate()
                     .eq(Article::getId, topReq.getId())
                     .set(Article::getIsTop, topReq.getIsTop())
                     .update())
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("文章置顶修改异常");
+            throw new RuntimeException("修改文章置顶异常");
         }
     }
 
@@ -308,10 +287,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public void updateArticle(ArticleReq articleReq) {
         try {
             //添加文章标签
-            this.addArticleTag(articleReq);
+            addArticleTag(articleReq);
             //若分类不存在添加文章分类
             categoryService.addCategory(articleReq.getCategoryName());
-            if (!this.lambdaUpdate()
+            if (!lambdaUpdate()
                     .eq(Article::getId, articleReq.getId())
                     .update(BeanCopyUtils.copyBean(articleReq, Article.class)
                             .setCategoryId(categoryService.lambdaQuery()
@@ -321,7 +300,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                             .setUpdateTime(DateTime.now())))
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("文章修改异常");
+            throw new RuntimeException("修改文章异常");
         }
     }
 
@@ -329,7 +308,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //flag(true:下一个,false:上一个)
     private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
         //将所有有效文章以主键排序
-        List<Article> articleList = this.lambdaQuery()
+        List<Article> articleList = lambdaQuery()
                 .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                 .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                 .list()
@@ -337,7 +316,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .sorted(Comparator.comparing(Article::getId))
                 .toList();
         //获取当前文章索引
-        int index = articleList.indexOf(this.getById(id));
+        int index = articleList.indexOf(getById(id));
         //判断列表边界
         if ((index == -1) || (flag && index + 1 > articleList.size() - 1) || (!flag && index - 1 < 0)) return null;
         //获取目标文章
@@ -381,7 +360,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public List<Article> getArticlePageList(
             Integer current, Integer size, Integer categoryId, Integer tagId) {
-        return this.page(new Page<>(current, size), this.lambdaQuery()
+        return page(new Page<>(current, size), lambdaQuery()
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
                         .eq(categoryId != null, Article::getCategoryId, categoryId)
