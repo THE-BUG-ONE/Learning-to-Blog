@@ -2,21 +2,17 @@ package com.framework.handler;
 
 import com.framework.Result;
 import com.framework.utils.WebUtils;
-import com.framework.utils.enums.AppHttpCodeEnum;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @RestControllerAdvice
 @Slf4j

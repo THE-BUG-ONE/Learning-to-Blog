@@ -37,15 +37,20 @@ public class SystemConstants {
     //最新评论个数
     public static final String COMMENT_NEW_NUM = "limit 0,10";
 
+    //用户点赞文章列表
+    public static final String USER_ARTICLE_LIKE = "user:article:like";
 
-    //博客访问量
-    public static final String BLOG_VIEW_COUNT = "blog_view_count:";
+
+    //用户总访问量
+    public static final String USER_VIEW_COUNT = "user:view:count:";
+    //用户一周访问量
+    public static final String USER_WEEK_VIEW_COUNT = "user:view:count";
     //文章点赞量
-    public static final String ARTICLE_LIKE_COUNT = "article_like_count:";
+    public static final String ARTICLE_LIKE_COUNT = "article:like:count:";
     //文章访问量
-    public static final String ARTICLE_VIEW_COUNT = "article_view_count:";
+    public static final String ARTICLE_VIEW_COUNT = "article:view:count:";
     //评论点赞量
-    public static final String COMMENT_LIKE_COUNT = "comment_like_count:";
+    public static final String COMMENT_LIKE_COUNT = "comment:like:count:";
     //查询一条
     public static final String LAST_LIMIT_1 = "limit 1";
 

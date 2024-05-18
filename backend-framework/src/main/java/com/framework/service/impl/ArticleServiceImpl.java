@@ -18,6 +18,7 @@ import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +60,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private WebUtils webUtils;
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public PageResult<ArticleHomeResp> getArticleHomeList(PageReq req) {
@@ -83,20 +84,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public ArticleResp getArticleDetail(Integer articleId) {
         //浏览量+1
-        redisTemplate.opsForZSet().incrementScore(
-                SystemConstants.ARTICLE_VIEW_COUNT, articleId, 1D);
+        stringRedisTemplate.opsForZSet().incrementScore(
+                SystemConstants.ARTICLE_VIEW_COUNT , String.valueOf(articleId), 1L);
         //填充article属性
         return baseMapper.getArticleDetail(articleId)
                 .setNextArticle(selectOtherArticle(articleId, true))
                 .setLastArticle(selectOtherArticle(articleId, false))
                 .setLikeCount(Optional.ofNullable(
-                        redisTemplate.opsForZSet().score(
+                        stringRedisTemplate.opsForZSet().score(
                                 SystemConstants.ARTICLE_LIKE_COUNT, articleId))
                         .orElse(0D).intValue())
                 .setViewCount(Optional.ofNullable(
-                        redisTemplate.opsForZSet().score(
+                        stringRedisTemplate.opsForZSet().score(
                                 SystemConstants.ARTICLE_VIEW_COUNT, articleId))
-                        .orElse(0D).intValue());
+                        .orElse(1D).intValue());
     }
 
     @Override
@@ -110,8 +111,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public void likeArticle(Integer articleId) {
-        redisTemplate.opsForZSet().incrementScore(
-                SystemConstants.ARTICLE_LIKE_COUNT, articleId, 1D);
+        if (!lambdaQuery().eq(Article::getId, articleId).exists())
+            throw new RuntimeException("点赞文章异常:[文章不存在]");
+        //文章点赞量+1
+        stringRedisTemplate.opsForZSet()
+                .incrementScore(SystemConstants.ARTICLE_LIKE_COUNT, String.valueOf(articleId), 1D);
+        Integer id = webUtils.getRequestUser().getId();
+        //添加当前用户点赞文章
+        stringRedisTemplate.opsForSet()
+                .add(SystemConstants.USER_ARTICLE_LIKE + id, String.valueOf(articleId));
     }
 
     @Override
@@ -231,10 +239,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .peek(articleBackResp -> articleBackResp
                         .setCategoryName(categoryMap.get(articleBackResp.getId()))
                         .setTagVOList(tagService.getTagOptionList(articleBackResp.getId()))
-                        .setLikeCount(Optional.ofNullable(redisTemplate.opsForZSet()
+                        .setLikeCount(Optional.ofNullable(stringRedisTemplate.opsForZSet()
                                         .score(SystemConstants.ARTICLE_LIKE_COUNT, articleBackResp.getId()))
                                 .orElse(0D).intValue())
-                        .setViewCount(Optional.ofNullable(redisTemplate.opsForZSet()
+                        .setViewCount(Optional.ofNullable(stringRedisTemplate.opsForZSet()
                                         .score(SystemConstants.ARTICLE_VIEW_COUNT, articleBackResp.getId()))
                                 .orElse(0D).intValue())).toList();
         return new PageResult<>(articleBackRespList.size(), articleBackRespList);

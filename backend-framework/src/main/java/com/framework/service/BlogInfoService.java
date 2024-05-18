@@ -1,11 +1,9 @@
 package com.framework.service;
 
+import cn.hutool.core.date.DateTime;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
-import com.framework.entity.vo.response.ArticleRankResp;
-import com.framework.entity.vo.response.BlogBackInfoResp;
-import com.framework.entity.vo.response.BlogInfoResp;
-import com.framework.entity.vo.response.TagOptionResp;
+import com.framework.entity.vo.response.*;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -47,9 +45,6 @@ public class BlogInfoService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
-
     public BlogInfoResp getBlogInfo() {
         return new BlogInfoResp(
                 articleService.lambdaQuery()
@@ -59,7 +54,7 @@ public class BlogInfoService {
                 siteConfigService.getSiteConfig(),
                 tagService.count(null),
                 Optional.ofNullable(stringRedisTemplate.opsForValue()
-                        .get(SystemConstants.BLOG_VIEW_COUNT)).orElse(String.valueOf(0)));
+                        .get(SystemConstants.USER_VIEW_COUNT)).orElse(String.valueOf(0)));
     }
 
     public String about() {
@@ -67,12 +62,12 @@ public class BlogInfoService {
     }
 
     public void report() {
-        stringRedisTemplate.opsForValue().increment(SystemConstants.BLOG_VIEW_COUNT, 1);
+
     }
     //TODO 参数返回缺失
     public BlogBackInfoResp getBlogBackInfo() {
         //获取文章浏览量前5
-        Map<Object, Double> articleMap = Objects.requireNonNull(redisTemplate.opsForZSet()
+        Map<Object, Double> articleMap = Objects.requireNonNull(stringRedisTemplate.opsForZSet()
                 .reverseRangeWithScores(SystemConstants.ARTICLE_VIEW_COUNT, 0, 4))
                 .stream()
                 .collect(Collectors.toMap(
@@ -82,15 +77,15 @@ public class BlogInfoService {
                 articleService.lambdaQuery()
                         .eq(Article::getIsDelete, SystemConstants.ARTICLE_NOT_DELETE)
                         .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC).count(),
-                getArticleRank(articleMap), //articleRankVOList
+                getArticleRank(articleMap),
                 null, //articleStatisticsList
                 categoryService.getCategoryList(),
-                messageService.count(), //messageCount
+                messageService.count(),
                 BeanCopyUtils.copyBeanList(tagService.list(), TagOptionResp.class),
                 userService.count(),
-                null, //userViewVOList
+                getUserViewList(),
                 Integer.parseInt(Optional.ofNullable(stringRedisTemplate.opsForValue()
-                        .get(SystemConstants.BLOG_VIEW_COUNT)).orElse(String.valueOf(0))));
+                        .get(SystemConstants.USER_VIEW_COUNT)).orElse(String.valueOf(0))));
     }
 
     //获取浏览量前5的文章
@@ -111,5 +106,21 @@ public class BlogInfoService {
                         .build())
                 .sorted(Comparator.comparingInt(ArticleRankResp::getViewCount)
                 .reversed()).collect(Collectors.toList());
+    }
+
+    //获取文章浏览量
+    private List<UserViewResp> getUserViewList() {
+        List<UserViewResp> userViewRespList = new ArrayList<>();
+        Set<ZSetOperations.TypedTuple<String>> viewCounts = stringRedisTemplate.opsForZSet()
+                .rangeWithScores(SystemConstants.ARTICLE_VIEW_COUNT, 0, -1);
+        String userCount = stringRedisTemplate.opsForValue()
+                .get(SystemConstants.USER_WEEK_VIEW_COUNT);
+        if (viewCounts != null) {
+            viewCounts.forEach(count -> userViewRespList.add(new UserViewResp(
+                    DateTime.now(),
+                    Objects.requireNonNull(count.getScore()).intValue(),
+                    Integer.parseInt(Optional.ofNullable(userCount).orElse("0")))));
+        }
+        return userViewRespList;
     }
 }

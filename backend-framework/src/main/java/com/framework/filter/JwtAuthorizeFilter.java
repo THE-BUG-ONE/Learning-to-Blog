@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtAuthorizeFilter extends OncePerRequestFilter {
@@ -30,6 +32,9 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     @Qualifier("handlerExceptionResolver")
@@ -54,6 +59,16 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
             handlerExceptionResolver.resolveException(request, response, null, new RuntimeException("登录已过期"));
             return;
         }
+
+        //每周用户访问量+1
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(SystemConstants.USER_WEEK_VIEW_COUNT)))
+            stringRedisTemplate.opsForValue()
+                    .increment(SystemConstants.USER_WEEK_VIEW_COUNT, 1L);
+        else
+            stringRedisTemplate.opsForValue()
+                    .set(SystemConstants.USER_VIEW_COUNT, "1", 7, TimeUnit.DAYS);
+        //总用户访问量+1
+        stringRedisTemplate.opsForValue().increment(SystemConstants.USER_VIEW_COUNT, 1L);
 
         //存入应用程序上下文
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, null);
