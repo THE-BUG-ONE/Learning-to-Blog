@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 @RestControllerAdvice
 @Slf4j
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler extends BasicErrorController {
     @ExceptionHandler(Exception.class)
     public void exceptionHandler(HttpServletRequest request, HttpServletResponse response, Exception e) throws IOException {
         log.error("出现异常:", e);
-        String msg = Character.isLetter(e.getMessage().charAt(0)) ?
+        String msg = !Pattern.matches(".*?[\u4E00-\u9FA5].*?", e.getMessage()) ?
                 getStatus(request).toString().substring(4) :
                 e.getMessage();
         webUtils.renderString(response, Result.failure(getStatus(request).value(), msg));

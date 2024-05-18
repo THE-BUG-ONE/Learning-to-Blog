@@ -241,3 +241,4 @@
 > 设置路径后使用: file.transferTo(new File(路径));
 - 用户上传的文件应使用OSS对象存储云服务器
 - 使用 validation 校验请求参数，在请求体字段上添加注解，并在 controller 请求方法中的请求参数前添加 @Valid  注解开启校验
+- 使用正则表达式匹配异常信息，默认异常信息为接口内传出的信息，若为空则输出 INTERNAL_SERVER_ERROR 正则表达式为 ".*?[\u4E00-\u9FA5].*?"

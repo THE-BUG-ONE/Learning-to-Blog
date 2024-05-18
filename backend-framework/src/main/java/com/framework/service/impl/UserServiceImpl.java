@@ -3,12 +3,15 @@ package com.framework.service.impl;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
+import com.framework.entity.dao.Article;
 import com.framework.entity.dao.User;
 import com.framework.entity.vo.request.EmailReq;
 import com.framework.entity.vo.request.UserInfoReq;
 import com.framework.entity.vo.request.UserReq;
+import com.framework.entity.vo.response.ArticlePaginationResp;
 import com.framework.entity.vo.response.UserInfoResp;
 import com.framework.mapper.UserMapper;
+import com.framework.service.ArticleService;
 import com.framework.service.BlogLoginService;
 import com.framework.service.UserService;
 import com.framework.utils.BeanCopyUtils;
@@ -23,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * (User)表服务实现类
@@ -42,6 +47,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Lazy
     @Resource
     private BlogLoginService blogLoginService;
+
+    @Lazy
+    @Resource
+    private ArticleService articleService;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -99,7 +108,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public UserInfoResp getUserInfo() {
         User user = webUtils.getRequestUser();
-        return BeanCopyUtils.copyBean(user, UserInfoResp.class);
+        Set<String> articleList = stringRedisTemplate.opsForSet()
+                .members(SystemConstants.USER_ARTICLE_LIKE + user.getId());
+
+        return BeanCopyUtils.copyBean(user, UserInfoResp.class)
+                .setArticleLikeSet(new HashSet<>(BeanCopyUtils.copyBeanList(articleService.lambdaQuery()
+                        .in(Article::getId, articleList)
+                        .list(), ArticlePaginationResp.class)));
     }
 
     @Override

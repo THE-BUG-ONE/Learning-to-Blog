@@ -3,16 +3,19 @@ package com.framework.entity.vo.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 public class UserInfoResp {
 
     //点赞文章集合
-    private List<ArticlePaginationResp> articleLikeSet = null;
+    private Set<ArticlePaginationResp> articleLikeSet;
     //用户头像
     private String avatar;
     //点赞评论集合

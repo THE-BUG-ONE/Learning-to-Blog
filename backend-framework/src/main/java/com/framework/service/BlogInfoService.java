@@ -7,7 +7,6 @@ import com.framework.entity.vo.response.*;
 import com.framework.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;

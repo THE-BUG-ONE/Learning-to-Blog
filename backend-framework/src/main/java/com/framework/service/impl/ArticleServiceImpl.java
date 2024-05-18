@@ -17,7 +17,6 @@ import com.framework.utils.PageUtils;
 import com.framework.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,10 +115,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         //文章点赞量+1
         stringRedisTemplate.opsForZSet()
                 .incrementScore(SystemConstants.ARTICLE_LIKE_COUNT, String.valueOf(articleId), 1D);
+        // 点赞文章,若用户已点赞当前文章则取消点赞
         Integer id = webUtils.getRequestUser().getId();
-        //添加当前用户点赞文章
-        stringRedisTemplate.opsForSet()
-                .add(SystemConstants.USER_ARTICLE_LIKE + id, String.valueOf(articleId));
+        if (Boolean.TRUE.equals(stringRedisTemplate.opsForSet()
+                .isMember(SystemConstants.USER_ARTICLE_LIKE + id, articleId)))
+            stringRedisTemplate.opsForSet()
+                    .remove(SystemConstants.USER_ARTICLE_LIKE + id, articleId);
+        else
+            stringRedisTemplate.opsForSet()
+                    .add(SystemConstants.USER_ARTICLE_LIKE + id, String.valueOf(articleId));
     }
 
     @Override
