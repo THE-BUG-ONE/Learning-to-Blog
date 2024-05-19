@@ -4,11 +4,10 @@ import cn.hutool.core.date.DateTime;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.LoginUser;
 import com.framework.entity.dao.User;
+import com.framework.entity.dao.UserRole;
 import com.framework.entity.vo.request.LoginReq;
 import com.framework.entity.vo.request.RegisterReq;
-import com.framework.service.BlogLoginService;
-import com.framework.service.SiteConfigService;
-import com.framework.service.UserService;
+import com.framework.service.*;
 import com.framework.utils.FlowUtils;
 import com.framework.utils.JwtUtils;
 import com.framework.utils.WebUtils;
@@ -43,6 +42,10 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     @Resource
     private SiteConfigService siteConfigService;
 
+    @Lazy
+    @Resource
+    private UserRoleService userRoleService;
+
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -74,7 +77,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         if (Objects.isNull(authentication))
-            throw new RuntimeException("用户名或密码错误");
+            throw new RuntimeException("登录异常:[用户名或密码错误]");
         //生成token
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         int userId = loginUser.getUser().getId();
@@ -100,17 +103,25 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     @Override
     public void register(RegisterReq req) {
         String username = req.getUsername();
+        if (userService.lambdaQuery().eq(User::getUsername, username).exists())
+            throw new RuntimeException("注册用户异常:[用户名已存在]");
         String code = req.getCode();
         //校验验证码
         String msg = userService.emailCodeCheck(username, code, SystemConstants.REGISTER_CODE);
         if (msg != null)
             throw new RuntimeException(msg);
         String password = encoder.encode(req.getPassword());
+        // 添加 用户表|用户权限表|权限表 信息
         if (userService.save(new User(
                 "None", username, password, siteConfigService.getSiteConfig().getUserAvatar(),
-                username, 1, 0, DateTime.now())))
+                username, 1, 0, DateTime.now())) &&
+                userRoleService.save(new UserRole(
+                        userService.lambdaQuery()
+                                .eq(User::getUsername, username)
+                                .one()
+                                .getId(), SystemConstants.USER_ROLE_USER)))
             stringRedisTemplate.delete(SystemConstants.VERIFY_EMAIL_DATA + username);
-        else throw new RuntimeException("内部错误");
+        else throw new RuntimeException("注册用户异常:[未知异常]");
     }
 
     @Override
@@ -118,7 +129,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         String ip = webUtils.getRequest().getRemoteAddr();
         synchronized (ip.intern()) {
             if (flowUtils.limitOnceCheck(SystemConstants.VERIFY_EMAIL_LIMIT + ip, 60))
-                throw new RuntimeException("请求频繁，请稍后再试");
+                throw new RuntimeException("验证码异常:[请求频繁，请稍后再试]");
             Random random = new Random();
             String code = String.valueOf(random.nextInt(899999) + 100000);
             sendEmailMessage(username, code, type);

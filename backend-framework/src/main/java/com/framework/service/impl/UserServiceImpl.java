@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.User;
+import com.framework.entity.vo.request.DisableReq;
 import com.framework.entity.vo.request.EmailReq;
 import com.framework.entity.vo.request.UserInfoReq;
 import com.framework.entity.vo.request.UserReq;
@@ -148,6 +149,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RuntimeException("用户密码修改异常");
         //密码修改后应退出登录
         blogLoginService.logout();
+    }
+
+    @Override
+    @Transactional
+    public void changeUserStatus(DisableReq disableReq) {
+        if (!lambdaUpdate()
+                .eq(User::getId, disableReq.getId())
+                .set(User::getIsDisable, disableReq.getIsDisable())
+                .update())
+            throw new RuntimeException("修改用户状态异常:[未知异常]");
     }
 }
 

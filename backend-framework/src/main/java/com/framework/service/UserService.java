@@ -2,6 +2,7 @@ package com.framework.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.User;
+import com.framework.entity.vo.request.DisableReq;
 import com.framework.entity.vo.request.EmailReq;
 import com.framework.entity.vo.request.UserInfoReq;
 import com.framework.entity.vo.request.UserReq;
@@ -27,5 +28,7 @@ public interface UserService extends IService<User> {
     void updateInfo(UserInfoReq userInfoReq);
 
     void updatePassword(UserReq userReq);
+
+    void changeUserStatus(DisableReq disableReq);
 }
 

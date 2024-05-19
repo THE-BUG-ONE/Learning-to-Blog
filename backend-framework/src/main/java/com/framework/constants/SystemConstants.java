@@ -89,4 +89,12 @@ public class SystemConstants {
     public static final String EMAIL_RESET_CODE = "emailReset";
     //验证码类型为密码重置
     public static final String PASSWORD_RESET_CODE = "passwordReset";
+
+    //用户权限:管理员
+    public static final String USER_ROLE_ADMIN = "1";
+    //用户权限:普通用户
+    public static final String USER_ROLE_USER = "2";
+    //用户权限:测试账号
+    public static final String USER_ROLE_TEST = "3";
+
 }
