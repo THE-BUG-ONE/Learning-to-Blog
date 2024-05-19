@@ -1,16 +1,15 @@
 package com.framework.service.impl;
 
 import cn.hutool.core.date.DateTime;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.User;
-import com.framework.entity.vo.request.DisableReq;
-import com.framework.entity.vo.request.EmailReq;
-import com.framework.entity.vo.request.UserInfoReq;
-import com.framework.entity.vo.request.UserReq;
-import com.framework.entity.vo.response.ArticlePaginationResp;
-import com.framework.entity.vo.response.UserInfoResp;
+import com.framework.entity.vo.request.*;
+import com.framework.entity.vo.response.*;
+import com.framework.mapper.RoleMapper;
 import com.framework.mapper.UserMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.BlogLoginService;
@@ -28,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -52,6 +52,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Lazy
     @Resource
     private ArticleService articleService;
+
+    @Lazy
+    @Resource
+    private RoleMapper roleMapper;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -159,6 +163,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .set(User::getIsDisable, disableReq.getIsDisable())
                 .update())
             throw new RuntimeException("修改用户状态异常:[未知异常]");
+    }
+
+    @Override
+    public UserBackInfoResp getBackUserInfo() {
+        int userId = webUtils.getRequestUser().getId();
+        return BeanCopyUtils.copyBean(lambdaQuery()
+                .eq(User::getId, userId)
+                .one(), UserBackInfoResp.class)
+                .setRoleList(roleMapper.getRoleList(userId));
+    }
+
+    @Override
+    public PageResult<UserBackResp> getBackUserList(UserBackReq req) {
+        Integer current = req.getCurrent();
+        Integer size = req.getSize();
+        String keyword = req.getKeyword();
+        Integer loginType = req.getLoginType();
+
+        List<UserBackResp> respList = BeanCopyUtils.copyBeanList(page(new Page<>(current, size), lambdaQuery()
+                .like(keyword != null, User::getNickname, keyword)
+                .eq(loginType != null, User::getLoginType, loginType)
+                .getWrapper()).getRecords(), UserBackResp.class)
+                .stream()
+                .peek(user -> user.setRoleList(getUserRoleList(user.getId())))
+                .toList();
+        return new PageResult<>(respList.size(), respList);
+    }
+
+    private List<UserRoleResp> getUserRoleList(Integer userId) {
+        return roleMapper.getUserRoleList(userId);
     }
 }
 

@@ -218,20 +218,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Integer size = articleBackReq.getSize();
 
         //获取符合条件的的文章
-        List<Article> articleList = page(new Page<>(current, size),
-                        lambdaQuery()
-                                .eq(status != null, Article::getStatus, status)
-                                .eq(isDelete != null, Article::getIsDelete, isDelete)
-                                .eq(categoryId != null, Article::getCategoryId, categoryId)
-                                .eq(articleType != null, Article::getArticleType, articleType)
-                                .like(keyword != null, Article::getArticleContent, keyword)
-                                .in(tagId != null, Article::getId, articleTagService
-                                        .lambdaQuery()
-                                        .select(ArticleTag::getArticleId)
-                                        .eq(ArticleTag::getTagId, tagId).list().stream()
-                                        .map(ArticleTag::getArticleId)
-                                        .toList())
-                                .getWrapper()).getRecords();
+        List<Article> articleList = page(new Page<>(current, size), lambdaQuery()
+                .eq(status != null, Article::getStatus, status)
+                .eq(isDelete != null, Article::getIsDelete, isDelete)
+                .eq(categoryId != null, Article::getCategoryId, categoryId)
+                .eq(articleType != null, Article::getArticleType, articleType)
+                .like(keyword != null, Article::getArticleContent, keyword)
+                .in(tagId != null, Article::getId, articleTagService
+                        .lambdaQuery()
+                        .select(ArticleTag::getArticleId)
+                        .eq(ArticleTag::getTagId, tagId).list().stream()
+                        .map(ArticleTag::getArticleId)
+                        .toList())
+                .getWrapper()).getRecords();
 
         //填充分类名
         Map<Integer, String> nameMap = getCategoryNameMap();

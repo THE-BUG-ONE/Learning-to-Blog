@@ -23,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Random;
@@ -71,6 +72,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     private String username;
 
     @Override
+    @Transactional
     public String login(LoginReq loginReq) {
         String username = loginReq.getUsername();
         String password = loginReq.getPassword();
@@ -81,6 +83,13 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         //生成token
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         int userId = loginUser.getUser().getId();
+        //更新登录时间
+        if (!userService.lambdaUpdate()
+                .eq(User::getId, userId)
+                .set(User::getLoginTime, DateTime.now())
+                .update())
+            throw new RuntimeException("登录异常:[更新登录时间错误]");
+
         String token = SystemConstants.JWT_HEAD + jwtUtils.createJwt(loginUser, userId);
         //将loginUser按id存入redis
         redisTemplate.opsForValue().set(
@@ -88,7 +97,8 @@ public class BlogLoginServiceImpl implements BlogLoginService {
                 loginUser,
                 SystemConstants.JWT_EXPIRE,
                 TimeUnit.DAYS);
-        System.out.println(token);
+        // 已登录用户ID存入redis
+        stringRedisTemplate.opsForSet().add(SystemConstants.LOGGED_USER_ID, String.valueOf(userId));
         return token;
     }
 
@@ -98,6 +108,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         int userId = webUtils.getRequestUser().getId();
         //删除redis中的用户信息
         redisTemplate.delete(SystemConstants.JWT_REDIS_KEY + userId);
+        stringRedisTemplate.opsForSet().remove(SystemConstants.LOGGED_USER_ID, userId);
     }
 
     @Override
