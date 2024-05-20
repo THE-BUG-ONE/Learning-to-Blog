@@ -40,18 +40,14 @@ public class CategoryAdminController {
     @GetMapping("/list")
     public Result<PageResult<CategoryBackResp>> getBackCategoryList(@Valid KeywordReq keywordReq) {
         PageResult<CategoryBackResp> res = categoryService.getBackCategoryList(keywordReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看分类选项")
     @GetMapping("/option")
     public Result<List<CategoryOptionResp>> getCategoryOptionList() {
         List<CategoryOptionResp> res = categoryService.getCategoryOptionList();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "修改分类")

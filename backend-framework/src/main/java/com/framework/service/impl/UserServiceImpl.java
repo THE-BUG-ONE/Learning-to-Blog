@@ -1,18 +1,19 @@
 package com.framework.service.impl;
 
 import cn.hutool.core.date.DateTime;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
 import com.framework.entity.dao.Article;
 import com.framework.entity.dao.User;
+import com.framework.entity.dao.UserRole;
 import com.framework.entity.vo.request.*;
 import com.framework.entity.vo.response.*;
 import com.framework.mapper.RoleMapper;
 import com.framework.mapper.UserMapper;
 import com.framework.service.ArticleService;
 import com.framework.service.BlogLoginService;
+import com.framework.service.UserRoleService;
 import com.framework.service.UserService;
 import com.framework.utils.BeanCopyUtils;
 import com.framework.utils.FileUtils;
@@ -55,6 +56,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Lazy
     @Resource
+    private UserRoleService userRoleService;
+
+    @Lazy
+    @Resource
     private RoleMapper roleMapper;
 
     @Resource
@@ -62,6 +67,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private PasswordEncoder encoder;
+
+    private final int userId = webUtils.getRequestUser().getId();
 
     @Override
     @Transactional
@@ -71,7 +78,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RuntimeException("文件类型错误");
         String filePath = file.getOriginalFilename();
         //TODO 文件上传未完成
-        int userId = webUtils.getRequestUser().getId();
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(User::getAvatar, filePath)
@@ -88,7 +94,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String msg = emailCodeCheck(emailReq.getUsername(), emailReq.getCode(), SystemConstants.EMAIL_RESET_CODE);
         if (msg != null)
             throw new RuntimeException(msg);
-        int userId = webUtils.getRequestUser().getId();
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(User::getEmail, emailReq.getUsername())
@@ -128,12 +133,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String intro = userInfoReq.getIntro();
         String nickname = userInfoReq.getNickname();
         String webSite = userInfoReq.getWebSite();
-        int userId = webUtils.getRequestUser().getId();
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(intro != null, User::getIntro, intro)
                 .set(webSite != null, User::getWebSite, webSite)
                 .set(User::getNickname, nickname)
+                .set(User::getUpdateTime, DateTime.now())
                 .update())
             throw new RuntimeException("用户信息修改异常");
     }
@@ -144,11 +149,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String msg = emailCodeCheck(userReq.getUsername(), userReq.getCode(), SystemConstants.PASSWORD_RESET_CODE);
         if (msg != null)
             throw new RuntimeException(msg);
-        int userId = webUtils.getRequestUser().getId();
         String password = encoder.encode(userReq.getPassword());
         if (!lambdaUpdate()
                 .eq(User::getId, userId)
                 .set(User::getPassword, password)
+                .set(User::getUpdateTime, DateTime.now())
                 .update())
             throw new RuntimeException("用户密码修改异常");
         //密码修改后应退出登录
@@ -161,13 +166,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!lambdaUpdate()
                 .eq(User::getId, disableReq.getId())
                 .set(User::getIsDisable, disableReq.getIsDisable())
+                .set(User::getUpdateTime, DateTime.now())
                 .update())
             throw new RuntimeException("修改用户状态异常:[未知异常]");
     }
 
     @Override
     public UserBackInfoResp getBackUserInfo() {
-        int userId = webUtils.getRequestUser().getId();
         return BeanCopyUtils.copyBean(lambdaQuery()
                 .eq(User::getId, userId)
                 .one(), UserBackInfoResp.class)
@@ -189,6 +194,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .peek(user -> user.setRoleList(getUserRoleList(user.getId())))
                 .toList();
         return new PageResult<>(respList.size(), respList);
+    }
+
+    @Override
+    public List<UserRoleResp> getUserRoleList() {
+        return getUserRoleList(userId);
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(UserRoleReq req) {
+        Integer id = req.getId();
+        String nickname = req.getNickname();
+        List<UserRole> userRoleList = req.getRoleIdList()
+                .stream()
+                .map(roleId -> new UserRole(id, roleId))
+                .toList();
+
+        if (!lambdaUpdate()
+                .eq(User::getId, id)
+                .set(User::getNickname, nickname)
+                .set(User::getUpdateTime, DateTime.now())
+                .update() ||
+        !userRoleService.remove(userRoleService.lambdaQuery().eq(UserRole::getUserId, id)) ||
+        !userRoleService.saveBatch(userRoleList))
+            throw new RuntimeException("修改用户异常:[删除用户角色错误,保存用户角色错误,未知错误]");
     }
 
     private List<UserRoleResp> getUserRoleList(Integer userId) {

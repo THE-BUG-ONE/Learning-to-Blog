@@ -3,11 +3,10 @@ package com.framework.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.User;
 import com.framework.entity.vo.request.*;
-import com.framework.entity.vo.response.PageResult;
-import com.framework.entity.vo.response.UserBackInfoResp;
-import com.framework.entity.vo.response.UserBackResp;
-import com.framework.entity.vo.response.UserInfoResp;
+import com.framework.entity.vo.response.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * (User)表服务接口
@@ -34,5 +33,9 @@ public interface UserService extends IService<User> {
     UserBackInfoResp getBackUserInfo();
 
     PageResult<UserBackResp> getBackUserList(UserBackReq userBackReq);
+
+    List<UserRoleResp> getUserRoleList();
+
+    void updateUser(UserRoleReq req);
 }
 

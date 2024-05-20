@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.entity.dao.Carousel;
 import com.framework.entity.vo.request.CarouselBackReq;
 import com.framework.entity.vo.request.CarouselReq;
-import com.framework.entity.vo.request.CarouselStatusReq;
+import com.framework.entity.vo.request.StatusReq;
 import com.framework.entity.vo.response.CarouselBackResp;
 import com.framework.entity.vo.response.CarouselResp;
 import com.framework.entity.vo.response.PageResult;
@@ -72,9 +72,9 @@ public class CarouselServiceImpl extends ServiceImpl<CarouselMapper, Carousel> i
 
     @Override
     @Transactional
-    public void updateCarouselStatus(CarouselStatusReq carouselStatusReq) {
-        Integer id = carouselStatusReq.getId();
-        Integer status = carouselStatusReq.getStatus();
+    public void updateCarouselStatus(StatusReq statusReq) {
+        Integer id = statusReq.getId();
+        Integer status = statusReq.getStatus();
         try {
             if (id == null || !this.lambdaUpdate()
                     .eq(Carousel::getId, id)

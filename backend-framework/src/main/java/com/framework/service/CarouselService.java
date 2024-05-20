@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.framework.entity.dao.Carousel;
 import com.framework.entity.vo.request.CarouselBackReq;
 import com.framework.entity.vo.request.CarouselReq;
-import com.framework.entity.vo.request.CarouselStatusReq;
+import com.framework.entity.vo.request.StatusReq;
 import com.framework.entity.vo.response.CarouselBackResp;
 import com.framework.entity.vo.response.CarouselResp;
 import com.framework.entity.vo.response.PageResult;
@@ -28,7 +28,7 @@ public interface CarouselService extends IService<Carousel> {
 
     PageResult<CarouselBackResp> getBackCarouselList(CarouselBackReq carouselBackReq);
 
-    void updateCarouselStatus(CarouselStatusReq carouselStatusReq);
+    void updateCarouselStatus(StatusReq statusReq);
 
     void updateCarousel(CarouselReq carouselReq);
 

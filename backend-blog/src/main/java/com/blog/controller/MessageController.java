@@ -22,9 +22,7 @@ public class MessageController {
     @GetMapping("/list")
     public Result<List<MessageResp>> getMessageList() {
         List<MessageResp> res = messageService.getMessageList();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "添加留言")

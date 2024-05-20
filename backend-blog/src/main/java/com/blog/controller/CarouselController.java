@@ -22,8 +22,6 @@ public class CarouselController {
     @GetMapping("/list")
     public Result<List<CarouselResp>> getCarouselList() {
         List<CarouselResp> res = carouselService.getCarouselList();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 }

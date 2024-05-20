@@ -2,9 +2,6 @@ package com.framework.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.framework.entity.dao.User;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * (User)表数据库访问层

@@ -26,17 +26,13 @@ public class TagController {
     public Result<ArticleConditionList> getTagArticleList(
             @RequestBody @Valid ArticleConditionReq articleConditionReq) {
         ArticleConditionList res = tagService.getArticleConditionList(articleConditionReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看标签列表")
     @GetMapping("list")
     public Result<List<TagResp>> getTagList() {
         List<TagResp> res = tagService.getTagList();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 }

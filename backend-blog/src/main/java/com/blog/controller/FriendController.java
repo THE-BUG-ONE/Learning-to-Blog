@@ -21,8 +21,6 @@ public class FriendController {
     @GetMapping("/list")
     public Result<List<FriendResp>> getFriendList() {
         List<FriendResp> res = friendService.getFriendList();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 }

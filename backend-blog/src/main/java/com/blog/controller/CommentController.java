@@ -33,9 +33,7 @@ public class CommentController {
     @GetMapping("/comment/list")
     public Result<PageResult<CommentResp>> getCommentList(@Valid CommentBackReq commentBackReq) {
         PageResult<CommentResp> res = commentService.getCommentList(commentBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "点赞评论")
@@ -49,17 +47,13 @@ public class CommentController {
     @GetMapping("/comment/{commentId}/reply")
     public Result<List<ReplyResp>> getCommentReply(@PathVariable("commentId") @NotNull Integer commentId) {
         List<ReplyResp> res = commentService.getCommentReply(commentId);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看最新评论")
     @GetMapping("/recent/comment")
     public Result<List<RecentCommentResp>> getNewComment() {
         List<RecentCommentResp> res = commentService.getNewComment();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 }

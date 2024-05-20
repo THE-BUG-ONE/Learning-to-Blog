@@ -25,9 +25,7 @@ public class CategoryController {
     @GetMapping("/list")
     public Result<List<CategoryResp>> getCategoryList() {
         List<CategoryResp> res = categoryService.getCategoryList();
-        return res == null ?
-                Result.failure() :
-                Result.success(res);
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看分类下的文章")
@@ -35,9 +33,7 @@ public class CategoryController {
     public Result<ArticleConditionList> getCategoryArticleList(
             @Valid ArticleConditionReq articleConditionReq) {
         ArticleConditionList res = categoryService.getArticleConditionList(articleConditionReq);
-        return res == null ?
-                Result.failure() :
-                Result.success(res);
+        return Result.result(res);
     }
 
 }

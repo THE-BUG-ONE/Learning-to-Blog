@@ -45,4 +45,10 @@ public record Result<T>(boolean flag, int code, String msg, T data) {
     public String asJsonString() {
         return JSONObject.toJSONString(this, JSONWriter.Feature.WriteNulls);
     }
+
+    public static <T> Result<T> result(T res) {
+        return res != null ?
+                Result.success(res) :
+                Result.failure();
+    }
 }

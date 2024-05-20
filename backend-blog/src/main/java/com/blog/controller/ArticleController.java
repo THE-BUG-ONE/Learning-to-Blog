@@ -23,27 +23,21 @@ public class ArticleController {
     @GetMapping("/recommend")
     public Result<List<ArticleRecommendResp>> getRecommendArticleList() {
         List<ArticleRecommendResp> res =  articleService.getArticleRecommendList();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "首页文章列表")
     @GetMapping("/list")
     public Result<PageResult<ArticleHomeResp>> getArticleHomeList(@Valid PageReq pageReq) {
         PageResult<ArticleHomeResp> res = articleService.getArticleHomeList(pageReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看文章详情")
     @GetMapping("/{articleId}")
     public Result<ArticleResp> getArticle(@PathVariable("articleId") @NotNull Integer articleId) {
         ArticleResp res = articleService.getArticleDetail(articleId);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "搜索文章")
@@ -51,9 +45,7 @@ public class ArticleController {
     public Result<List<ArticleSearchResp>> getSearchArticle(
             @RequestParam("keyword") String keyword) {
         List<ArticleSearchResp> res = articleService.getArticleSearchList(keyword);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "点赞文章")

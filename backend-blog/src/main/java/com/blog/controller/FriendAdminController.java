@@ -39,9 +39,7 @@ public class FriendAdminController {
     public Result<PageResult<FriendBackResp>> getBackFriendList(
             @RequestBody @Valid FriendBackReq friendBackReq) {
         PageResult<FriendBackResp> res = friendService.getBackFriendList(friendBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "修改友链")

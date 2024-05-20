@@ -32,9 +32,7 @@ public class CommentAdminController {
     @GetMapping("/list")
     public Result<PageResult<CommentBackResp>> getBackCommentList(@Valid CommentBackReq commentBackReq) {
         PageResult<CommentBackResp> res = commentService.getBackCommentList(commentBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "审核评论")

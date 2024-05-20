@@ -19,19 +19,15 @@ public class BlogInfoController {
     @SystemLog(businessName = "查看博客信息")
     @GetMapping("/")
     public Result<BlogInfoResp> getBlogInfo() {
-        BlogInfoResp blogInfoResp = blogInfoService.getBlogInfo();
-        return blogInfoResp == null ?
-                Result.failure() :
-                Result.success(blogInfoResp);
+        BlogInfoResp res = blogInfoService.getBlogInfo();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看关于我信息")
     @GetMapping("/about")
     public Result<String> about() {
-        String about = blogInfoService.about();
-        return about == null ?
-                Result.failure() :
-                Result.success(about);
+        String res = blogInfoService.about();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "上传访客信息")
@@ -44,9 +40,7 @@ public class BlogInfoController {
     @SystemLog(businessName = "查看后台信息")
     @GetMapping("/admin")
     public Result<BlogBackInfoResp> admin() {
-        BlogBackInfoResp blogBackInfoResp = blogInfoService.getBlogBackInfo();
-        return blogBackInfoResp == null ?
-                Result.failure() :
-                Result.success(blogBackInfoResp);
+        BlogBackInfoResp res = blogInfoService.getBlogBackInfo();
+        return Result.result(res);
     }
 }

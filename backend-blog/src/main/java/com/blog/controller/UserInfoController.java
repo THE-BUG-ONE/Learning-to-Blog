@@ -24,9 +24,7 @@ public class UserInfoController {
     @PostMapping("/avatar")
     public Result<String> updateUserAvatar(@NotNull @RequestPart("file") MultipartFile file) {
         String res = userService.updateUserAvatar(file);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "修改用户邮箱")
@@ -40,9 +38,7 @@ public class UserInfoController {
     @GetMapping("/getUserInfo")
     public Result<UserInfoResp> getUserInfo() {
         UserInfoResp res = userService.getUserInfo();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "修改用户信息")

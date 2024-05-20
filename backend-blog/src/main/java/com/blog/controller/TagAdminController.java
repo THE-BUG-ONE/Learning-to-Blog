@@ -41,18 +41,14 @@ public class TagAdminController {
     public Result<PageResult<TagBackResp>> getBackTagList(
             @RequestBody @Valid TagBackReq tagBackReq) {
         PageResult<TagBackResp> res = tagService.getBackTagList(tagBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看标签选项")
     @GetMapping("/option")
     public Result<List<TagOptionResp>> getTagOptionList() {
         List<TagOptionResp> res = tagService.getTagOptionList(null);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "修改标签")

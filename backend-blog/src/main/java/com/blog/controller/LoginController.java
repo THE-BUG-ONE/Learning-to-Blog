@@ -24,9 +24,7 @@ public class LoginController {
     @PostMapping("/login")
     public Result<String> login(@RequestBody @Valid LoginReq loginReq) {
         String res = blogLoginService.login(loginReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "用户退出")

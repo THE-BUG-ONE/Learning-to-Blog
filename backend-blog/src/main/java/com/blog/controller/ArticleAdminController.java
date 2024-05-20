@@ -40,18 +40,14 @@ public class ArticleAdminController {
     @GetMapping("/edit/{articleId}")
     public Result<ArticleInfoResp> editArticle(@PathVariable("articleId") @NotNull Integer articleId) {
         ArticleInfoResp res = articleService.editArticle(articleId);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "查看后台文章列表")
     @GetMapping("/list")
     public Result<PageResult<ArticleBackResp>> getBackArticle(@Valid ArticleBackReq articleBackReq) {
         PageResult<ArticleBackResp> res = articleService.getBackArticle(articleBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "推荐文章")
@@ -86,8 +82,6 @@ public class ArticleAdminController {
     @PostMapping("/upload")
     public Result<String> uploadImg(@RequestPart("file") @NotNull MultipartFile file) {
         String res = file.getOriginalFilename();
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 }

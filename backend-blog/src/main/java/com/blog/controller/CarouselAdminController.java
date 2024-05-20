@@ -4,7 +4,7 @@ import com.framework.Result;
 import com.framework.annotation.SystemLog;
 import com.framework.entity.vo.request.CarouselBackReq;
 import com.framework.entity.vo.request.CarouselReq;
-import com.framework.entity.vo.request.CarouselStatusReq;
+import com.framework.entity.vo.request.StatusReq;
 import com.framework.entity.vo.response.CarouselBackResp;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.service.CarouselService;
@@ -41,15 +41,13 @@ public class CarouselAdminController {
     public Result<PageResult<CarouselBackResp>> getBackCarouselList(
             @Valid CarouselBackReq carouselBackReq) {
         PageResult<CarouselBackResp> res = carouselService.getBackCarouselList(carouselBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "修改轮播图状态")
     @PutMapping("/status")
-    public Result<?> updateCarouselStatus(@RequestBody @Valid CarouselStatusReq carouselStatusReq) {
-        carouselService.updateCarouselStatus(carouselStatusReq);
+    public Result<?> updateCarouselStatus(@RequestBody @Valid StatusReq statusReq) {
+        carouselService.updateCarouselStatus(statusReq);
         return Result.success();
     }
 
@@ -64,8 +62,6 @@ public class CarouselAdminController {
     @PostMapping("/upload")
     public Result<String> uploadCarousel(@RequestParam("file") MultipartFile file) {
         String res = carouselService.uploadCarousel(file);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 }

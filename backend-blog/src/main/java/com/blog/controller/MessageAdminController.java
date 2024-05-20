@@ -32,9 +32,7 @@ public class MessageAdminController {
     @GetMapping("/list")
     public Result<PageResult<MessageBackResp>> getBackMessageList(@Valid MessageBackReq messageBackReq) {
         PageResult<MessageBackResp> res = messageService.getBackMessageList(messageBackReq);
-        return res != null ?
-                Result.success(res) :
-                Result.failure();
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "审核留言")
