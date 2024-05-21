@@ -25,5 +25,9 @@ public interface RoleService extends IService<Role> {
     void deleteRole(List<String> roleIdList);
 
     PageResult<RoleResp> getBackRoleList(RoleBackReq req);
+
+    List<Integer> getRoleMenu(String roleId);
+
+    void updateRole(RoleReq roleReq);
 }
 
