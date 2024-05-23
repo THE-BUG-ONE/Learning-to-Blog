@@ -32,6 +32,9 @@ public class SystemConstants {
     //评论已通过
     public static final int COMMENT_IS_CHECKED = 1;
 
+    //说说已公开
+    public static final int TALK_IS_PUBLIC = 1;
+
     //首页推荐文章个数
     public static final String ARTICLE_RECOMMEND_NUM = "limit 0,10";
     //最新评论个数
@@ -53,6 +56,8 @@ public class SystemConstants {
     public static final String COMMENT_LIKE_COUNT = "comment:like:count:";
     //查询一条
     public static final String LAST_LIMIT_1 = "limit 1";
+    //查询十条
+    public static final String LAST_LIMIT_10 = "limit 10";
 
     //JWTRedisKey
     public static final String JWT_REDIS_KEY = "blogLogin:";
@@ -99,4 +104,7 @@ public class SystemConstants {
 
     //已登录用户列表
     public static final String LOGGED_USER_ID = "logged:user:id:";
+
+    //跨域过滤器优先度
+    public static final int ORDER_CORS = -102;
 }

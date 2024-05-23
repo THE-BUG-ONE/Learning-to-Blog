@@ -68,8 +68,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private PasswordEncoder encoder;
 
-    private final int userId = webUtils.getRequestUser().getId();
-
     @Override
     @Transactional
     public String updateUserAvatar(MultipartFile file) {
@@ -79,7 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String filePath = file.getOriginalFilename();
         //TODO 文件上传未完成
         if (!lambdaUpdate()
-                .eq(User::getId, userId)
+                .eq(User::getId, getUserId())
                 .set(User::getAvatar, filePath)
                 .set(User::getUpdateTime, DateTime.now())
                 .update())
@@ -95,7 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (msg != null)
             throw new RuntimeException(msg);
         if (!lambdaUpdate()
-                .eq(User::getId, userId)
+                .eq(User::getId, getUserId())
                 .set(User::getEmail, emailReq.getUsername())
                 .set(User::getUpdateTime, DateTime.now())
                 .update())
@@ -134,7 +132,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String nickname = userInfoReq.getNickname();
         String webSite = userInfoReq.getWebSite();
         if (!lambdaUpdate()
-                .eq(User::getId, userId)
+                .eq(User::getId, getUserId())
                 .set(intro != null, User::getIntro, intro)
                 .set(webSite != null, User::getWebSite, webSite)
                 .set(User::getNickname, nickname)
@@ -151,7 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RuntimeException(msg);
         String password = encoder.encode(userReq.getPassword());
         if (!lambdaUpdate()
-                .eq(User::getId, userId)
+                .eq(User::getId, getUserId())
                 .set(User::getPassword, password)
                 .set(User::getUpdateTime, DateTime.now())
                 .update())
@@ -174,9 +172,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public UserBackInfoResp getBackUserInfo() {
         return BeanCopyUtils.copyBean(lambdaQuery()
-                .eq(User::getId, userId)
+                .eq(User::getId, getUserId())
                 .one(), UserBackInfoResp.class)
-                .setRoleList(roleMapper.getRoleList(userId));
+                .setRoleList(roleMapper.getRoleList(getUserId()));
     }
 
     @Override
@@ -198,7 +196,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<UserRoleResp> getUserRoleList() {
-        return getUserRoleList(userId);
+        return getUserRoleList(getUserId());
     }
 
     @Override
@@ -223,6 +221,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private List<UserRoleResp> getUserRoleList(Integer userId) {
         return roleMapper.getUserRoleList(userId);
+    }
+
+    private int getUserId() {
+        return webUtils.getRequestUser().getId();
     }
 }
 

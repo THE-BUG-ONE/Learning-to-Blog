@@ -59,7 +59,6 @@ public class SecurityConfiguration {
                         .authenticationEntryPoint(this::commence))  //认证失败处理器
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(conf -> conf.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(jwtAuthorizeFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -70,16 +69,5 @@ public class SecurityConfiguration {
 
     private void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         webUtils.renderString(response, Result.failure());
-    }
-
-    private CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setAllowedMethods(Collections.singletonList("*"));
-        configuration.setAllowedOrigins(Collections.singletonList("*"));
-        configuration.setMaxAge(3600L);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
