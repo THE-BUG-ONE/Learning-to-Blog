@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface TagMapper extends BaseMapper<Tag> {
 
-    @Select("select * from t_tag t left join t_article_tag at on t.id = at.tag_id where at.article_id = #{articleId}")
+    @Select("select * from tag t left join article_tag at on t.id = at.tag_id where at.article_id = #{articleId}")
     List<TagOptionResp> getTagOptionList(Integer articleId);
 
 }

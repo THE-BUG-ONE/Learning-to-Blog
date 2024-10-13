@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_category")
+@TableName("category")
 public class Category {
     @TableId
     //分类id    

@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_message")
+@TableName("message")
 public class Message {
     @TableId
     //留言id    

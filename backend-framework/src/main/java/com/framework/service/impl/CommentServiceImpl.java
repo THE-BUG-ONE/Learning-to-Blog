@@ -100,8 +100,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                                             SystemConstants.COMMENT_LIKE_COUNT + commentResp.getId()))
                                     .orElse("0")))
                             .setReplyCount(replyVOList.size())
-                            .setReplyVOList(replyVOList)
-                            .setWebSite(user.getWebSite());
+                            .setReplyVOList(replyVOList);
                 }).toList();
         return new PageResult<>(commentRespList.size(), commentRespList);
     }
@@ -206,8 +205,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                                             SystemConstants.COMMENT_LIKE_COUNT + id))
                                     .orElse("0")))
                             .setToNickname(toUser.getNickname())
-                            .setToUid(toUser.getId())
-                            .setWebSite(toUser.getWebSite());
+                            .setToUid(toUser.getId());
                 }).toList();
     }
 

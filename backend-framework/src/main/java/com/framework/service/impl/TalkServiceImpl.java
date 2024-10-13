@@ -3,12 +3,12 @@ package com.framework.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.framework.constants.SystemConstants;
+import com.framework.entity.dao.Talk;
 import com.framework.entity.dao.User;
 import com.framework.entity.vo.request.PageReq;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.entity.vo.response.TalkResp;
 import com.framework.mapper.TalkMapper;
-import com.framework.entity.dao.Talk;
 import com.framework.service.TalkService;
 import com.framework.service.UserService;
 import com.framework.utils.BeanCopyUtils;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * (Talk)表服务实现类

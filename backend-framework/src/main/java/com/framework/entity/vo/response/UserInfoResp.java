@@ -34,6 +34,4 @@ public class UserInfoResp {
     private List<?> talkLikeSet = null;
     //用户名
     private String username;
-    //个人网站
-    private String webSite;
 }

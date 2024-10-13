@@ -5,20 +5,23 @@ spring:
     host: smtp.163.com
     username: 18160787649@163.com
     password: PWINMOYTJQRDDOZV
+  # mysql 配置
   datasource:
     username: root
-    password: abcd
+    password: fuckoff
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test?characterEncoding=UTF-8
+    url: jdbc:mysql://121.43.163.10:3306/blog_data?characterEncoding=UTF-8
   servlet:
     multipart:
       max-file-size: 2MB
       max-request-size: 5MB
+  # redis 配置
   data:
     redis:
       port: 6379
-      host: localhost
+      host: 121.43.163.10
       database: 0
+      password: fuckoff
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

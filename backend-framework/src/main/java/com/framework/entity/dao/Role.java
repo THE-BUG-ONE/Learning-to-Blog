@@ -17,10 +17,10 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_role")
+@TableName("role")
 public class Role {
     @TableId
-    //主键id    
+    //角色id
     private String id;
     //角色名称
     private String roleName;

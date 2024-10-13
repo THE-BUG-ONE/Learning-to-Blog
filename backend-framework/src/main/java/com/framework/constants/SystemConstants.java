@@ -96,11 +96,11 @@ public class SystemConstants {
     public static final String PASSWORD_RESET_CODE = "passwordReset";
 
     //用户权限:管理员
-    public static final String USER_ROLE_ADMIN = "1";
+    public static final Integer USER_ROLE_ADMIN = 1;
     //用户权限:普通用户
-    public static final String USER_ROLE_USER = "2";
+    public static final Integer USER_ROLE_USER = 2;
     //用户权限:测试账号
-    public static final String USER_ROLE_TEST = "3";
+    public static final Integer USER_ROLE_TEST = 3;
 
     //已登录用户列表
     public static final String LOGGED_USER_ID = "logged:user:id:";

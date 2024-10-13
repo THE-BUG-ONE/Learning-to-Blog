@@ -17,10 +17,10 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_site_config")
+@TableName("site_config")
 public class SiteConfig {
     @TableId
-    //主键    
+    //主键id
     private Integer id;
     //用户头像
     private String userAvatar;

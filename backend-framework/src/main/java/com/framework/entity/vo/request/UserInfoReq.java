@@ -12,8 +12,6 @@ public class UserInfoReq {
     //用户昵称
     @NotEmpty
     private String nickname;
-    //个人网站
-    private String webSite;
     //个人简介
     private String intro;
 }

@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface CategoryMapper extends BaseMapper<Category> {
 
-    @Select("select * from t_category where id = #{id}")
+    @Select("select * from category where id = #{id}")
     CategoryOptionResp getCategoryOption(Integer id);
 
     /*[
@@ -28,7 +28,7 @@ public interface CategoryMapper extends BaseMapper<Category> {
                 "id": 0
             }
     ]*/
-    @Select("select * from t_category")
+    @Select("select * from category")
     @Results(id = "getCategoryMap", value = {
             @Result(column = "id", property = "id"),
             @Result(column = "id", property = "articleCount",
@@ -44,7 +44,7 @@ public interface CategoryMapper extends BaseMapper<Category> {
     }*/
     @Select("""
     <script>
-        select * from t_category
+        select * from category
         <where>
             <if test='param.keyword != null'>
                 and category_name like CONCAT('%',#{param.keyword},'%')

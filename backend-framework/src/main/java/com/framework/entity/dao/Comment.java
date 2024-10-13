@@ -19,10 +19,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_comment")
+@TableName("comment")
 public class Comment {
     @TableId
-    //评论id    
+    //评论id
     private Integer id;
     //类型 (1文章 2友链 3说说)
     private Integer commentType;
@@ -36,7 +36,7 @@ public class Comment {
     private String commentContent;
     //评论用户id
     private Integer fromUid;
-    //回复用户id
+    //评论目标用户id
     private Integer toUid;
     //是否通过 (0否 1是)
     private Integer isCheck;

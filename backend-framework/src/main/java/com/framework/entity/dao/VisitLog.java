@@ -17,10 +17,10 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_visit_log")
+@TableName("visit_log")
 public class VisitLog {
     @TableId
-    //id    
+    //记录id    
     private Integer id;
     //访问页面
     private String page;

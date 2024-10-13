@@ -19,10 +19,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_friend")
+@TableName("friend")
 public class Friend {
     @TableId
-    //友链id    
+    //友链id
     private Integer id;
     //友链名称
     private String name;

@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_article_tag")
+@TableName("article_tag")
 public class ArticleTag {
     @TableId
-    //主键    
+    //文章标签id
     private Integer id;
     //文章id
     private Integer articleId;

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_user_role")
+@TableName("user_role")
 public class UserRole {
     @TableId
     //主键    
@@ -23,9 +23,9 @@ public class UserRole {
     //用户id
     private Integer userId;
     //角色id
-    private String roleId;
+    private Integer roleId;
 
-    public UserRole(Integer userId, String roleId) {
+    public UserRole(Integer userId, Integer roleId) {
         this.userId = userId;
         this.roleId = roleId;
     }

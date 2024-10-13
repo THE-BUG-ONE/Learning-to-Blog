@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_article")
+@TableName("article")
 public class Article {
     @TableId
     //文章id
@@ -36,7 +36,7 @@ public class Article {
     private String articleContent;
     //类型 (1原创 2转载 3翻译)
     private Integer articleType;
-    //是否置顶 (0否 1是）
+    //是否置顶 (0否 1是)
     private Integer isTop;
     //是否删除 (0否 1是)
     private Integer isDelete;

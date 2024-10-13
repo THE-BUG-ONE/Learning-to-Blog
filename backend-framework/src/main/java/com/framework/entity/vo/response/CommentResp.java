@@ -30,6 +30,4 @@ public class CommentResp {
     private Integer replyCount;
     //回复列表
     private List<ReplyResp> replyVOList;
-    //个人网站
-    private String webSite;
 }

@@ -50,13 +50,6 @@ public class RoleController {
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看角色的菜单权限")
-    @GetMapping("/menu/{roleId}")
-    public Result<List<Integer>> getRoleMenu(@PathVariable @NotNull String roleId) {
-        List<Integer> res = roleService.getRoleMenu(roleId);
-        return Result.result(res);
-    }
-
     @SystemLog(businessName = "修改角色")
     @PutMapping("/update")
     public Result<?> updateRole(@RequestBody @Valid RoleReq roleReq) {

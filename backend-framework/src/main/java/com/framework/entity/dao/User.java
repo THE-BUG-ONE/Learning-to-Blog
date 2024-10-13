@@ -18,11 +18,11 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_user")
+@TableName("user")
 public class User implements Serializable {
 
     @TableId
-    //用户id    
+    //用户id
     private Integer id;
     //用户昵称
     private String nickname;
@@ -32,8 +32,6 @@ public class User implements Serializable {
     private String password;
     //头像
     private String avatar;
-    //个人网站
-    private String webSite;
     //个人简介
     private String intro;
     //邮箱

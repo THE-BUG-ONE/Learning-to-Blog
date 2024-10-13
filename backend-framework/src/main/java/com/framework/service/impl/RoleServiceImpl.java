@@ -3,21 +3,15 @@ package com.framework.service.impl;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.framework.entity.dao.Menu;
 import com.framework.entity.dao.Role;
-import com.framework.entity.dao.RoleMenu;
 import com.framework.entity.vo.request.DisableReq;
 import com.framework.entity.vo.request.RoleBackReq;
 import com.framework.entity.vo.request.RoleReq;
 import com.framework.entity.vo.response.PageResult;
 import com.framework.entity.vo.response.RoleResp;
 import com.framework.mapper.RoleMapper;
-import com.framework.service.MenuService;
-import com.framework.service.RoleMenuService;
 import com.framework.service.RoleService;
 import com.framework.utils.BeanCopyUtils;
-import jakarta.annotation.Resource;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +27,6 @@ import java.util.List;
 @Service("roleService")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
-    @Lazy
-    @Resource
-    private RoleMenuService roleMenuService;
-
-    @Lazy
-    @Resource
-    private MenuService menuService;
-
     @Override
     @Transactional
     public void addRole(RoleReq req) {
@@ -51,13 +37,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
         Date date = DateTime.now();
 
-
-        if (!save(new Role(id, roleName, roleDesc, isDisable, date, null)) ||
-        !roleMenuService.saveBatch(req.getMenuIdList()
-                .stream()
-                .map(menuId -> new RoleMenu(null, lambdaQuery()
-                        .eq(Role::getCreateTime, date).one().getId(), menuId))
-                .toList()))
+        if (!save(new Role(id, roleName, roleDesc, isDisable, date, null)))
             throw new RuntimeException("添加角色异常:[添加角色菜单错误,未知异常]");
     }
 
@@ -96,42 +76,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     }
 
     @Override
-    public List<Integer> getRoleMenu(String roleId) {
-        return roleMenuService.lambdaQuery()
-                .select(RoleMenu::getMenuId)
-                .eq(RoleMenu::getRoleId, roleId)
-                .list()
-                .stream()
-                .map(RoleMenu::getMenuId)
-                .toList();
-    }
-
-    @Override
     @Transactional
     public void updateRole(RoleReq roleReq) {
-        List<Integer> menuIdList = menuService.lambdaQuery()
-                .select(Menu::getId).list()
-                .stream().map(Menu::getId).toList();
-
-        String id = roleReq.getId();
-        String roleName = roleReq.getRoleName();
-        Integer isDisable = roleReq.getIsDisable();
-        String roleDesc = roleReq.getRoleDesc();
-        List<RoleMenu> roleMenuList = roleReq.getMenuIdList()
-                .stream()
-                .filter(menuIdList::contains)
-                .map(menuId -> new RoleMenu(null, id, menuId))
-                .toList();
-
-        if (!lambdaUpdate()
-                .eq(Role::getId, id)
-                .set(Role::getRoleName, roleName)
-                .set(Role::getIsDisable, isDisable)
-                .set(roleDesc != null, Role::getRoleDesc, roleDesc)
-                .update() ||
-        roleMenuService.remove(roleMenuService.lambdaQuery().eq(RoleMenu::getRoleId, id)) ||
-        roleMenuService.saveBatch(roleMenuList))
-            throw new RuntimeException("修改角色异常:[修改角色菜单错误,未知异常]");
     }
 }
 

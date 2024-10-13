@@ -40,7 +40,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
             ]
          }]
     }*/
-    @Select("select * from t_article limit #{param.current},#{param.size}")
+    @Select("select * from article limit #{param.current},#{param.size}")
     @Results(id = "articleHomeResultMap", value = {
             @Result(column = "id", property = "id"),
             @Result(column = "category_id", property = "category",
@@ -81,7 +81,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
         "updateTime": "2024-03-28T07:00:47.751Z",
         "viewCount": 0
     }*/
-    @Select("select * from t_article where id = #{articleId}")
+    @Select("select * from article where id = #{articleId}")
     @Results(id = "articleDetailResultMap", value = {
             @Result(column = "id", property = "id"),
             @Result(column = "category_id", property = "category",
@@ -91,7 +91,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
     })
     ArticleResp getArticleDetail(Integer articleId);
 
-    @Select("select count(*) from t_article where category_id = #{categoryId}")
+    @Select("select count(*) from article where category_id = #{categoryId}")
     Integer countArticleByCategoryId(Integer categoryId);
 
     /*{
@@ -114,9 +114,9 @@ public interface ArticleMapper extends BaseMapper<Article> {
         "name": "string"
     }*/
     @Select("""
-            select * from t_article
+            select * from article
             where category_id = #{param.categoryId} and id
-            in (select article_id from t_article_tag where tag_id = #{param.tagId})
+            in (select article_id from article_tag where tag_id = #{param.tagId})
             limit #{param.current},#{param.size}
             """)
     @Results(id = "getArticleConditionMap", value = {

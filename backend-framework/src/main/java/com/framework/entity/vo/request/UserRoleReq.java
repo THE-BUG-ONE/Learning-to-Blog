@@ -19,5 +19,5 @@ public class UserRoleReq {
     private String nickname;
     //角色id
     @NotNull
-    private List<String> roleIdList;
+    private List<Integer> roleIdList;
 }

@@ -19,10 +19,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_carousel")
+@TableName("carousel")
 public class Carousel {
     @TableId
-    //主键    
+    //轮播图id
     private Integer id;
     //轮播图地址
     private String imgUrl;

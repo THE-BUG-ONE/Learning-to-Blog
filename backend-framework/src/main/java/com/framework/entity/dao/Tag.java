@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_tag")
+@TableName("tag")
 public class Tag {
     @TableId
     //标签id    

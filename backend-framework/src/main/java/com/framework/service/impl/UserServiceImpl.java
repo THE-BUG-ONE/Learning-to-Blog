@@ -130,11 +130,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void updateInfo(UserInfoReq userInfoReq) {
         String intro = userInfoReq.getIntro();
         String nickname = userInfoReq.getNickname();
-        String webSite = userInfoReq.getWebSite();
         if (!lambdaUpdate()
                 .eq(User::getId, getUserId())
                 .set(intro != null, User::getIntro, intro)
-                .set(webSite != null, User::getWebSite, webSite)
                 .set(User::getNickname, nickname)
                 .set(User::getUpdateTime, DateTime.now())
                 .update())

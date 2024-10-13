@@ -30,6 +30,4 @@ public class ReplyResp {
     private String toNickname;
     //被评论用户id
     private Integer toUid;
-    //个人网站
-    private String webSite;
 }

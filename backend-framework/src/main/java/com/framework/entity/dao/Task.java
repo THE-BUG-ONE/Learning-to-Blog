@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_task")
+@TableName("task")
 public class Task {
     @TableId
     //任务id    

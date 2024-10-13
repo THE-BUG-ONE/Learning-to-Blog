@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_album")
+@TableName("album")
 public class Album {
     @TableId
     //相册id    

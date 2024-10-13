@@ -26,8 +26,6 @@ public interface RoleService extends IService<Role> {
 
     PageResult<RoleResp> getBackRoleList(RoleBackReq req);
 
-    List<Integer> getRoleMenu(String roleId);
-
     void updateRole(RoleReq roleReq);
 }
 
