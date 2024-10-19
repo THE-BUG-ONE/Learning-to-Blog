@@ -11,7 +11,7 @@
   > 在出现异常的启动类上更改
     @SpringBootApplication  
     改为
-    @SpringBootApplication(scanBasePackages = {"com.framework", "com.blog"})
+    @SpringBootApplication(scanBasePackages = {"com.blog", "com.blog"})
 - 获取分类中的文章数时语法错误
   - 原因：计数时使用方法错误，返回类型错误
   - 解决：
@@ -136,7 +136,7 @@
   - 原因：在进行实体类代理过程中会添加一个handler的属性，故导致解析失败
   - 解决：
   > 在实体类前，即你返回需要jackson解析的类，前面添加注解，让Jackson序列化时忽略handler属性
-- There is no getter for property named 'param' in 'class com.framework.entity.vo.request.ArticleConditionReq'
+- There is no getter for property named 'param' in 'class com.blog.entity.vo.request.ArticleConditionReq'
   - 原因：传入的参数为对象时为加上注解@Param
   - 解决：
   > 在mapper方法参数对象前添加@Param("param")
