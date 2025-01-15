@@ -6,7 +6,6 @@ import com.blog.entity.dao.Article;
 import com.blog.entity.dao.Category;
 import com.blog.entity.vo.request.ArticleConditionReq;
 import com.blog.entity.vo.request.CategoryReq;
-import com.blog.entity.vo.request.KeywordReq;
 import com.blog.entity.vo.request.PageReq;
 import com.blog.entity.vo.response.*;
 import com.blog.mapper.ArticleMapper;
@@ -75,20 +74,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     @Transactional
-    public void addCategory(String categoryName) {
+    public CategoryBackResp addCategory(String categoryName) {
         try {
             //若分类存在取消添加
             if (lambdaQuery().eq(Category::getCategoryName, categoryName).exists() ||
-                    !save(new Category(categoryName, DateTime.now()))
-            ) throw new RuntimeException();
+                    !save(new Category(categoryName, DateTime.now())))
+                throw new RuntimeException();
+            return BeanCopyUtils.copyBean(
+                    lambdaQuery().eq(Category::getCategoryName, categoryName).one(),
+                    CategoryBackResp.class)
+                    .setArticleCount(0);
         } catch (Exception e) {
-            throw new RuntimeException("添加分类异常:[未知异常]");
+            throw new RuntimeException("添加分类异常:[名称重复,未知异常]");
         }
     }
 
     @Override
     @Transactional
-    public void deleteCategory(List<Integer> categoryIdlist) {
+    public void deleteCategory(List<Integer> categoryIdList) {
         try {
             //获取有文章的分类列表
             Set<Integer> idList = articleService.lambdaQuery()
@@ -98,7 +101,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     .map(Article::getCategoryId).collect(Collectors.toSet());
             //删除文章数为0的分类
             if (!removeBatchByIds(
-                    categoryIdlist.stream().filter(id -> !idList.contains(id)).toList()))
+                    categoryIdList.stream().filter(id -> !idList.contains(id)).toList()))
                 throw new RuntimeException();
         } catch (Exception e) {
             throw new RuntimeException("删除分类异常:[未知异常]");
@@ -123,44 +126,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         String categoryName = categoryReq.getCategoryName();
         Integer id = categoryReq.getId();
         try {
-            if (id == null ||
-                    lambdaQuery()
-                            .eq(Category::getCategoryName, categoryName).or()
-                            .eq(Category::getId, id)
-                            .exists() ||
-                    !lambdaUpdate()
-                            .eq(Category::getId, id)
-                            .set(Category::getCategoryName, categoryName)
-                            .set(Category::getUpdateTime, DateTime.now()).update())
+            if (id == null || lambdaQuery()
+                    .eq(Category::getCategoryName, categoryName)
+                    .exists() || !lambdaUpdate()
+                    .eq(Category::getId, id)
+                    .set(Category::getCategoryName, categoryName)
+                    .set(Category::getUpdateTime, DateTime.now()).update())
                 throw new RuntimeException();
         } catch (Exception e) {
-            throw new RuntimeException("修改分类异常:[分类名重复,ID重复,分类不存在,未知异常]");
+            throw new RuntimeException("修改分类异常:[分类名重复,分类不存在,未知异常]");
         }
-    }
-
-    @Override
-    @Transactional
-    public void addCategory(CategoryReq categoryReq) {
-        String categoryName = categoryReq.getCategoryName();
-        Integer id = categoryReq.getId();
-        try {
-            // id 为空或者 id 已存在则自动创建 id
-            if (!save((id == null || lambdaQuery()
-                    .eq(Category::getCategoryName, categoryName).or()
-                    .eq(Category::getId, id)
-                    .exists()) ?
-                    new Category(categoryName, DateTime.now()) :
-                    new Category(id, categoryName, DateTime.now())
-            )) throw new RuntimeException();
-        } catch (Exception e) {
-            throw new RuntimeException("添加分类异常:[分类名重复,ID重复,未知异常]");
-        }
-    }
-
-    //获取文章分类列表（分类id，分类名）
-    @Override
-    public CategoryOptionResp getCategoryOptionVO(Integer categoryId) {
-        return baseMapper.getCategoryOption(categoryId);
     }
 }
 

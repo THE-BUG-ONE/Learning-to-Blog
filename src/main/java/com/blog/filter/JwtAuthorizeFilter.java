@@ -1,7 +1,6 @@
 package com.blog.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.blog.constants.SystemConstants;
 import com.blog.entity.dao.LoginUser;
@@ -24,7 +23,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtAuthorizeFilter extends OncePerRequestFilter {

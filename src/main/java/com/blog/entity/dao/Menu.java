@@ -1,6 +1,7 @@
 package com.blog.entity.dao;
 
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +23,8 @@ public class Menu{
     /**
     * 主键
     */
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     @NotNull(message="[主键]不能为空")
     private Integer id;
     

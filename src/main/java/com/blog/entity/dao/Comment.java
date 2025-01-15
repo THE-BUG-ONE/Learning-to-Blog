@@ -1,5 +1,6 @@
 package com.blog.entity.dao;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,8 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("comment")
 public class Comment {
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     //评论id
     private Integer id;
     //类型 (1文章 2友链 3说说)

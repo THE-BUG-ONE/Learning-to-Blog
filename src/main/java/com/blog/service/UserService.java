@@ -32,14 +32,16 @@ public interface UserService extends IService<User> {
 
     UserBackInfoResp getBackUserInfo();
 
-    PageResult<UserBackResp> getBackUserList(UserBackReq userBackReq);
+    PageResult<UserBackResp> getBackUserList(PageReq pageReq);
 
     List<UserRoleResp> getUserRoleList();
 
-    void updateUser(UserRoleReq req);
+    UserBackResp updateUser(UserInfoReq userInfoReq);
 
     UserMenuResp getUserMenu();
 
     List<UserOptionResp> getUserOptionList(String username);
+
+    void deleteUser(List<Integer> userIdList);
 }
 

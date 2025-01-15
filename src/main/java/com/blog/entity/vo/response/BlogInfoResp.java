@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlogInfoResp {
+    //用户数量
+    private Long userCount;
     //文章数量
     private Long articleCount;
     //分类数量

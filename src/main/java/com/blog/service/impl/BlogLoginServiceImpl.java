@@ -117,6 +117,7 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     }
 
     @Override
+    @Transactional
     public void register(RegisterReq req) {
         String username = req.getUsername();
         if (userService.lambdaQuery().eq(User::getUsername, username).exists())
@@ -130,12 +131,12 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         // 添加 用户表|用户权限表|权限表 信息
         if (userService.save(new User(
                 "None", username, password, siteConfigService.getSiteConfig().getUserAvatar(),
-                username, 1, 0, DateTime.now())) &&
+                username, 0, DateTime.now())) &&
                 userRoleService.save(new UserRole(
                         userService.lambdaQuery()
                                 .eq(User::getUsername, username)
                                 .one()
-                                .getId(), SystemConstants.USER_ROLE_USER)))
+                                .getId(), SystemConstants.USER_ROLE_TEST)))
             stringRedisTemplate.delete(SystemConstants.VERIFY_EMAIL_DATA + username);
         else throw new RuntimeException("注册用户异常:[未知异常]");
     }

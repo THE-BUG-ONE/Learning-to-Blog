@@ -1,5 +1,6 @@
 package com.blog.entity.dao;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,8 @@ import java.util.Date;
 @AllArgsConstructor
 @TableName("role")
 public class Role {
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     //角色id
     private String id;
     //角色名称

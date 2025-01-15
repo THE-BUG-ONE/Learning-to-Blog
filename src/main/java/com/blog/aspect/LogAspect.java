@@ -54,7 +54,7 @@ public class LogAspect {
         //获取被增强方法上的注解对象
         SystemLog systemLog = getSystemLog(methodSignature);
 
-        log.info(System.lineSeparator() + "=========START=========");
+        log.info("=========START=========");
         // 打印请求URL
         log.info("URL             : {}", request.getRequestURL());
         // 打印描述信息

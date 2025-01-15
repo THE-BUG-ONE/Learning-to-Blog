@@ -1,17 +1,18 @@
 package com.blog.entity.dao;
 
-import java.io.Serializable;
-
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.validator.constraints.Length;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
 * 
@@ -25,6 +26,7 @@ public class User implements Serializable {
     /**
     * 用户id
     */
+    @TableId(value = "id", type = IdType.AUTO)
     @NotNull(message="[用户id]不能为空")
     @ApiModelProperty("用户id")
     private Integer id;
@@ -61,13 +63,6 @@ public class User implements Serializable {
     @Length(max= 255,message="编码长度不能超过255")
     private String avatar;
     /**
-    * 个人网站
-    */
-    @Size(max= 255,message="编码长度不能超过255")
-    @ApiModelProperty("个人网站")
-    @Length(max= 255,message="编码长度不能超过255")
-    private String webSite;
-    /**
     * 个人简介
     */
     @Size(max= 100,message="编码长度不能超过100")
@@ -96,12 +91,6 @@ public class User implements Serializable {
     @Length(max= 50,message="编码长度不能超过50")
     private String ipSource;
     /**
-    * 登录方式 (1邮箱 2QQ 3Gitee 4Github)
-    */
-    @NotNull(message="[登录方式 (1邮箱 2QQ 3Gitee 4Github)]不能为空")
-    @ApiModelProperty("登录方式 (1邮箱 2QQ 3Gitee 4Github)")
-    private Integer loginType;
-    /**
     * 是否禁用 (0否 1是)
     */
     @NotNull(message="[是否禁用 (0否 1是)]不能为空")
@@ -125,13 +114,12 @@ public class User implements Serializable {
     private Date updateTime;
 
     public User(String nickname, String username, String password, String avatar,
-                String email, Integer loginType, Integer isDisable, Date createTime) {
+                String email, Integer isDisable, Date createTime) {
         this.nickname = nickname;
         this.username = username;
         this.password = password;
         this.avatar = avatar;
         this.email = email;
-        this.loginType = loginType;
         this.isDisable = isDisable;
         this.createTime = createTime;
     }

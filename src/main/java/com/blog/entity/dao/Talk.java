@@ -1,5 +1,6 @@
 package com.blog.entity.dao;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,8 @@ import java.util.Date;
 @AllArgsConstructor
 @TableName("talk")
 public class Talk {
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     //说说id    
     private Integer id;
     //用户id

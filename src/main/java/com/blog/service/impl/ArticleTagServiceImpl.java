@@ -31,8 +31,11 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
     public void addArticleTag(Integer articleId, List<String> tagNameList) {
         try {
             if (tagNameList.isEmpty()) return;
-            //获取文章对应的标签ID列表
+            //保存新增标签
+            tagService.addTag(tagNameList);
+            //获取标签ID列表
             List<Integer> tagIdList = tagService.lambdaQuery()
+                    .select(Tag::getId)
                     .in(Tag::getTagName, tagNameList)
                     .list()
                     .stream()
@@ -46,8 +49,6 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
             if (articleTagList.isEmpty() || !this.saveBatch(articleTagList))
                 throw new RuntimeException();
 
-            //保存标签
-            tagService.addTag(tagNameList);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()== null ? e.getMessage() :"文章标签表存入异常");
         }
@@ -77,11 +78,7 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
     @Transactional
     public void cleanArticleTagList(List<Integer> articleIdList) {
         try {
-            if (!removeBatchByIds(lambdaQuery()
-                    .in(ArticleTag::getArticleId, articleIdList)
-                    .list().stream().map(ArticleTag::getId).toList()))
-                throw new RuntimeException();
-
+            //数据库已设置外键文章表删除时对应数据删除
             //清除文章标签表中不存在而标签表存在的标签
             tagService.cleanTag();
         } catch (Exception e){

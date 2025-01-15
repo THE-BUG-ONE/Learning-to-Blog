@@ -4,13 +4,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.blog.entity.dao.Article;
 import com.blog.entity.dao.ArticleTag;
 import com.blog.entity.dao.Tag;
-import com.blog.entity.vo.request.ArticleConditionReq;
 import com.blog.entity.vo.request.TagBackReq;
 import com.blog.entity.vo.request.TagReq;
-import com.blog.entity.vo.response.*;
+import com.blog.entity.vo.response.PageResult;
+import com.blog.entity.vo.response.TagBackResp;
+import com.blog.entity.vo.response.TagOptionResp;
+import com.blog.entity.vo.response.TagResp;
 import com.blog.mapper.TagMapper;
 import com.blog.service.ArticleService;
 import com.blog.service.ArticleTagService;
@@ -22,9 +23,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * (Tag)表服务实现类
@@ -52,6 +51,10 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     public void addTag(List<String> tagNameList) {
         try {
             if (tagNameList.isEmpty()) return;
+            //过滤数据库已有标签
+            tagNameList = tagNameList.stream()
+                    .filter(tagName -> !lambdaQuery().eq(Tag::getTagName, tagName).exists())
+                    .toList();
             //创建标签列表
             List<Tag> tagList = tagNameList
                     .stream()
@@ -62,33 +65,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         } catch (Exception e) {
             throw new RuntimeException("标签添加异常");
         }
-    }
-
-    //分类id可为空，为空时从文章字段中获取
-    @Override
-    public ArticleConditionList getArticleConditionList(ArticleConditionReq articleConditionReq) {
-        Integer categoryId = articleConditionReq.getCategoryId();
-        Integer tagId = articleConditionReq.getTagId();
-        Integer page = articleConditionReq.getPage();
-        Integer limit = articleConditionReq.getLimit();
-
-        Map<Integer, Integer> categoryIdMap = new HashMap<>();
-        List<Article> articleList = articleService.getArticlePageList(page, limit, categoryId, tagId)
-                .stream()
-                .peek(article -> categoryIdMap.put(article.getId(), article.getCategoryId()))
-                .toList();
-
-        List<ArticleConditionResp> articleConditionRespList =
-                BeanCopyUtils.copyBeanList(articleList, ArticleConditionResp.class)
-                        .stream()
-                        .peek(article -> {
-                            article.setTagVOList(this.getTagOptionList(article.getId()));
-                            article.setCategory(categoryService.getCategoryOptionVO(
-                                    categoryIdMap.get(article.getId())));})
-                        .toList();
-        return new ArticleConditionList(
-                this.getById(tagId).getTagName(),
-                articleConditionRespList);
     }
 
     @Override

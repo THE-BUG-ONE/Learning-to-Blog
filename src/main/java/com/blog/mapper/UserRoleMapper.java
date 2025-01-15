@@ -10,6 +10,5 @@ import com.blog.entity.dao.UserRole;
  * @since 2024-05-19 14:15:34
  */
 public interface UserRoleMapper extends BaseMapper<UserRole> {
-
 }
 

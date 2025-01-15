@@ -1,7 +1,7 @@
 package com.blog.controller;
 
-import com.blog.entity.vo.Result;
 import com.blog.annotation.SystemLog;
+import com.blog.entity.vo.Result;
 import com.blog.entity.vo.response.BlogBackInfoResp;
 import com.blog.entity.vo.response.BlogInfoResp;
 import com.blog.service.BlogInfoService;
@@ -39,7 +39,7 @@ public class BlogInfoController {
 
     @SystemLog(businessName = "查看后台信息")
     @GetMapping("/blog-info-admin")
-    public Result<BlogBackInfoResp> admin() {
+    public Result<BlogBackInfoResp> getAdminBlogInfo() {
         BlogBackInfoResp res = blogInfoService.getBlogBackInfo();
         return Result.result(res);
     }

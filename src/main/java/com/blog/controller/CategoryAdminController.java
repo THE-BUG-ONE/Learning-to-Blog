@@ -1,12 +1,10 @@
 package com.blog.controller;
 
-import com.blog.entity.vo.Result;
 import com.blog.annotation.SystemLog;
+import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.CategoryReq;
-import com.blog.entity.vo.request.KeywordReq;
 import com.blog.entity.vo.request.PageReq;
 import com.blog.entity.vo.response.CategoryBackResp;
-import com.blog.entity.vo.response.CategoryOptionResp;
 import com.blog.entity.vo.response.PageResult;
 import com.blog.service.CategoryService;
 import jakarta.annotation.Resource;
@@ -25,15 +23,15 @@ public class CategoryAdminController {
 
     @SystemLog(businessName = "添加分类")
     @PostMapping("/add")
-    public Result<?> addCategory(@RequestBody @Valid CategoryReq categoryReq) {
-        categoryService.addCategory(categoryReq);
-        return Result.success();
+    public Result<CategoryBackResp> addCategory(@NotNull String categoryName) {
+        CategoryBackResp res = categoryService.addCategory(categoryName);
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "删除分类")
     @DeleteMapping("/delete")
-    public Result<?> deleteCategory(@RequestBody @NotNull List<Integer> categoryIdlist) {
-        categoryService.deleteCategory(categoryIdlist);
+    public Result<?> deleteCategory(@RequestBody @Valid List<Integer> categoryIdList) {
+        categoryService.deleteCategory(categoryIdList);
         return Result.success();
     }
 

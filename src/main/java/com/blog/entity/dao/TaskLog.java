@@ -1,16 +1,17 @@
 package com.blog.entity.dao;
 
-import java.io.Serializable;
-
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.validator.constraints.Length;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
 * 
@@ -23,6 +24,7 @@ public class TaskLog implements Serializable {
     /**
     * 任务日志id
     */
+    @TableId(value = "id", type = IdType.AUTO)
     @NotNull(message="[任务日志id]不能为空")
     @ApiModelProperty("任务日志id")
     private Integer id;

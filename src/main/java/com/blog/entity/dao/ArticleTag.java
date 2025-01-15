@@ -1,5 +1,6 @@
 package com.blog.entity.dao;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @TableName("article_tag")
 public class ArticleTag {
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     //文章标签id
     private Integer id;
     //文章id

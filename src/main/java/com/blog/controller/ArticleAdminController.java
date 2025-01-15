@@ -1,7 +1,7 @@
 package com.blog.controller;
 
-import com.blog.entity.vo.Result;
 import com.blog.annotation.SystemLog;
+import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.*;
 import com.blog.entity.vo.response.ArticleBackResp;
 import com.blog.entity.vo.response.ArticleDetailResp;
@@ -32,7 +32,7 @@ public class ArticleAdminController {
 
     @SystemLog(businessName = "删除文章")
     @DeleteMapping("/delete")
-    public Result<?> deleteArticle(@RequestBody @NotNull List<Integer> articleIdList) {
+    public Result<?> deleteArticle(@RequestBody @Valid List<Integer> articleIdList) {
         articleService.deleteArticle(articleIdList);
         return Result.success();
     }

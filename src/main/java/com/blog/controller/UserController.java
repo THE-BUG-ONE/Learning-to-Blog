@@ -1,7 +1,7 @@
 package com.blog.controller;
 
-import com.blog.entity.vo.Result;
 import com.blog.annotation.SystemLog;
+import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.EmailReq;
 import com.blog.entity.vo.request.UserInfoReq;
 import com.blog.entity.vo.request.UserReq;

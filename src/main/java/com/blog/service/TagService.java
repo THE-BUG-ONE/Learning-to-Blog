@@ -2,10 +2,12 @@ package com.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.blog.entity.dao.Tag;
-import com.blog.entity.vo.request.ArticleConditionReq;
 import com.blog.entity.vo.request.TagBackReq;
 import com.blog.entity.vo.request.TagReq;
-import com.blog.entity.vo.response.*;
+import com.blog.entity.vo.response.PageResult;
+import com.blog.entity.vo.response.TagBackResp;
+import com.blog.entity.vo.response.TagOptionResp;
+import com.blog.entity.vo.response.TagResp;
 
 import java.util.List;
 
@@ -17,8 +19,6 @@ import java.util.List;
  */
 public interface TagService extends IService<Tag> {
     void addTag(List<String> tagNameList);
-
-    ArticleConditionList getArticleConditionList(ArticleConditionReq articleConditionReq);
 
     List<TagResp> getTagList();
 

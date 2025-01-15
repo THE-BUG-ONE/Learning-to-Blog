@@ -36,6 +36,9 @@ public class SystemConstants {
     //用户点赞文章列表
     public static final String USER_ARTICLE_LIKE = "user:article:like:";
 
+    //文章ID列表
+    public static final String ARTICLE_LIST = "article:id:list";
+
 
     //用户总访问量
     public static final String USER_VIEW_COUNT = "user:view:count:";
@@ -103,4 +106,9 @@ public class SystemConstants {
 
     //测试账号ID
     public static final int TEST_ID = 3;
+
+    //用户已禁用
+    public static final int USER_DISABLE_T = 1;
+    //用户未禁用
+    public static final int USER_DISABLE_F = 0;
 }

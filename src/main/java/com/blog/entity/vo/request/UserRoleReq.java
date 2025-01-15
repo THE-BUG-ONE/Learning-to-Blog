@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.List;
-
 @Data
 @Accessors
 @NoArgsConstructor
@@ -15,9 +13,13 @@ public class UserRoleReq {
     @NotNull
     private Integer id;
     //昵称
-    @NotNull
     private String nickname;
+    //用户名
+    private String username;
+    //个人简介
+    private String intro;
+    //是否禁用 (0否 1是)
+    private Integer isDisable;
     //角色id
-    @NotNull
-    private List<Integer> roleIdList;
+    private Integer roleId;
 }

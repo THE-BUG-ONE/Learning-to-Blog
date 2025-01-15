@@ -16,6 +16,8 @@ public class CommentResp {
     private String avatar;
     //评论内容
     private String commentContent;
+    //用户id
+    private UserResp user;
     //评论时间
     private String createTime;
     //昵称

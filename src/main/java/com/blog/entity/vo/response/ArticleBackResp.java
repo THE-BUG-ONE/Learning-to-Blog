@@ -34,7 +34,7 @@ public class ArticleBackResp {
     //状态 (1公开 2私密 3评论可见)
     private Integer status;
     //标签名列表
-    private List<TagOptionResp> tagVOList;
+    private List<TagOptionResp> tagOptionList;
     //点赞量
     private Long likeCount;
     //浏览量

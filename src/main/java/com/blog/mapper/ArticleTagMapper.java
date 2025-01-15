@@ -2,9 +2,6 @@ package com.blog.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.entity.dao.ArticleTag;
-import org.apache.ibatis.annotations.Delete;
-
-import java.util.List;
 
 /**
  * (ArticleTag)表数据库访问层

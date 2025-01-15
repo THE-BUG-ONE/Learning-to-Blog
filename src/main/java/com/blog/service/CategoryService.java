@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.blog.entity.dao.Category;
 import com.blog.entity.vo.request.ArticleConditionReq;
 import com.blog.entity.vo.request.CategoryReq;
-import com.blog.entity.vo.request.KeywordReq;
 import com.blog.entity.vo.request.PageReq;
 import com.blog.entity.vo.response.*;
 
@@ -21,11 +20,9 @@ public interface CategoryService extends IService<Category> {
 
     ArticleConditionList getArticleConditionList(ArticleConditionReq articleConditionReq);
 
-    void addCategory(CategoryReq categoryReq);
+    CategoryBackResp addCategory(String categoryName);
 
-    void addCategory(String categoryName);
-
-    void deleteCategory(List<Integer> categoryIdlist);
+    void deleteCategory(List<Integer> categoryIdList);
 
     PageResult<CategoryBackResp> getBackCategoryList(PageReq pageReq);
 
@@ -33,6 +30,5 @@ public interface CategoryService extends IService<Category> {
 
     void updateCategory(CategoryReq categoryReq);
 
-    CategoryOptionResp getCategoryOptionVO(Integer categoryId);
 }
 

@@ -1,6 +1,7 @@
 package com.blog.entity.dao;
 
 import cn.hutool.core.date.DateTime;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,8 @@ import java.util.Date;
 @AllArgsConstructor
 @TableName("tag")
 public class Tag {
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     //标签id    
     private Integer id;
     //标签名

@@ -17,16 +17,20 @@ import java.util.List;
 public class ArticleResp {
     //文章id
     private Integer id;
+    //作者
+    private String author;
     //文章分类
     private CategoryOptionResp category;
     //下一个文章
     private ArticlePaginationResp nextArticle;
     //上一个文章
-    private ArticlePaginationResp lastArticle	;
+    private ArticlePaginationResp prevArticle;
     //缩略图
     private String articleCover;
     //文章标题
     private String articleTitle;
+    //文章摘要
+    private String articleDesc;
     //文章内容
     private String articleContent;
     //类型 (1原创 2转载 3翻译)
@@ -36,7 +40,7 @@ public class ArticleResp {
     //浏览量
     private Long viewCount;
     //文章标签
-    private List<TagOptionResp> tagVOList;
+    private List<TagOptionResp> tagOptionList;
     //发表时间
     private Date createTime;
     //更新时间

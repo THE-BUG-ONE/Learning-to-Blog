@@ -21,7 +21,7 @@ public class BlogBackInfoResp {
     //留言量
     private Long messageCount;
     //标签列表
-    private List<TagOptionResp> tagVOList;
+    private List<TagOptionResp> tagOptionList;
     //用户量
     private Long userCount;
     //一周访问量

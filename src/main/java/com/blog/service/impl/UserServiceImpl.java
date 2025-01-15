@@ -1,10 +1,8 @@
 package com.blog.service.impl;
 
 import cn.hutool.core.date.DateTime;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.blog.constants.SystemConstants;
-import com.blog.entity.dao.Article;
 import com.blog.entity.dao.User;
 import com.blog.entity.dao.UserRole;
 import com.blog.entity.vo.request.*;
@@ -17,6 +15,7 @@ import com.blog.service.UserRoleService;
 import com.blog.service.UserService;
 import com.blog.utils.BeanCopyUtils;
 import com.blog.utils.FileUtils;
+import com.blog.utils.PageUtils;
 import com.blog.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -27,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * (User)表服务实现类
@@ -64,6 +61,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private PageUtils pageUtils;
 
     @Resource
     private PasswordEncoder encoder;
@@ -117,7 +117,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public UserInfoResp getUserInfo() {
         User user = webUtils.getRequestUser();
         return BeanCopyUtils.copyBean(user, UserInfoResp.class)
-                .setRoles(roleMapper.getRoleList(user.getId()));
+                .setRoles(roleMapper.getUserRoleNameList(user.getId()));
     }
 
     @Override
@@ -167,24 +167,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return BeanCopyUtils.copyBean(lambdaQuery()
                 .eq(User::getId, getUserId())
                 .one(), UserBackInfoResp.class)
-                .setRoleList(roleMapper.getRoleList(getUserId()));
+                .setRoleList(roleMapper.getUserRoleNameList(getUserId()));
     }
 
     @Override
-    public PageResult<UserBackResp> getBackUserList(UserBackReq req) {
-        Integer page = req.getPage();
-        Integer limit = req.getLimit();
-        String keyword = req.getKeyword();
-        Integer loginType = req.getLoginType();
-
-        List<UserBackResp> respList = BeanCopyUtils.copyBeanList(page(new Page<>(page, limit), lambdaQuery()
-                .like(keyword != null, User::getNickname, keyword)
-                .eq(loginType != null, User::getLoginType, loginType)
-                .getWrapper()).getRecords(), UserBackResp.class)
-                .stream()
-                .peek(user -> user.setRoleList(getUserRoleList(user.getId())))
-                .toList();
-        return new PageResult<>(respList.size(), respList);
+    public PageResult<UserBackResp> getBackUserList(PageReq req) {
+        pageUtils.setPage(req);
+        List<UserBackResp> backUserList = baseMapper.getBackUserList(req);
+        return new PageResult<>(backUserList.size(), backUserList);
     }
 
     @Override
@@ -194,48 +184,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public void updateUser(UserRoleReq req) {
-        Integer id = req.getId();
-        String nickname = req.getNickname();
-        List<UserRole> userRoleList = req.getRoleIdList()
-                .stream()
-                .map(roleId -> new UserRole(id, roleId))
-                .toList();
-
-        if (!lambdaUpdate()
-                .eq(User::getId, id)
-                .set(User::getNickname, nickname)
-                .set(User::getUpdateTime, DateTime.now())
-                .update() ||
-        !userRoleService.remove(userRoleService.lambdaQuery().eq(UserRole::getUserId, id)) ||
-        !userRoleService.saveBatch(userRoleList))
+    public UserBackResp updateUser(UserInfoReq req) {
+        try {
+            if (!lambdaUpdate()
+                    .eq(User::getId, req.getId())
+                    .set(req.getNickname() != null, User::getNickname, req.getNickname())
+                    .set(req.getUsername() != null, User::getUsername, req.getUsername())
+                    .set(req.getIntro() != null, User::getIntro, req.getIntro())
+                    .set(req.getIsDisable() != null, User::getIsDisable, req.getIsDisable())
+                    .update() || (req.getRoleId() != null && !userRoleService.lambdaUpdate()
+                    .eq(UserRole::getUserId, req.getId())
+                    .set(UserRole::getRoleId, req.getRoleId())
+                    .update()))
+                throw new RuntimeException();
+            return baseMapper.getBackUserById(req.getId());
+        } catch (Exception e) {
             throw new RuntimeException("修改用户异常:[删除用户角色错误,保存用户角色错误,未知错误]");
+        }
     }
 
     @Override
     public UserMenuResp getUserMenu() {
-//        //子菜单列表
-//        private List<UserMenuResp> children;
-//        //菜单组件
-//        private String component;
-//        //路由其他信息Response
-//        private MeteResp mete;
-//        //菜单名称
-//        private String name;
-//        //路由地址
-//        private String path;
-//        //重定向地址
-//        private String redirect;
-
-        int userId = getUserId();
-
-
         return null;
     }
 
     @Override
     public List<UserOptionResp> getUserOptionList(String username) {
         return baseMapper.getUserOptionList(username);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(List<Integer> userIdList) {
+        try {
+            //仅允许删除普通用户与测试用户
+            List<Integer> idList = userRoleService.lambdaQuery()
+                    .select(UserRole::getUserId)
+                    .in(UserRole::getRoleId, Arrays.asList(
+                            SystemConstants.USER_ROLE_USER,
+                            SystemConstants.USER_ROLE_TEST))
+                    .list()
+                    .stream().map(UserRole::getUserId).toList();
+            if (!removeBatchByIds(userIdList.stream().filter(idList::contains).toList()))
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("删除用户异常:" + e.getMessage());
+        }
     }
 
     private List<UserRoleResp> getUserRoleList(Integer userId) {

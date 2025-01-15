@@ -1,5 +1,6 @@
 package com.blog.entity.dao;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,8 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("task")
 public class Task {
-    @TableId
+
+    @TableId(value = "id", type = IdType.AUTO)
     //任务id    
     private Integer id;
     //任务名称

@@ -21,7 +21,4 @@ public class ArticleConditionReq extends PageCalculate {
     //条数
     @NotNull
     private Integer limit;
-    //标签id
-    @NotNull
-    private Integer tagId;
 }

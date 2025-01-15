@@ -1,10 +1,10 @@
 package com.blog.controller;
 
-import com.blog.entity.vo.Result;
 import com.blog.annotation.SystemLog;
+import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.DisableReq;
-import com.blog.entity.vo.request.UserBackReq;
-import com.blog.entity.vo.request.UserRoleReq;
+import com.blog.entity.vo.request.PageReq;
+import com.blog.entity.vo.request.UserInfoReq;
 import com.blog.entity.vo.response.*;
 import com.blog.service.UserService;
 import jakarta.annotation.Resource;
@@ -36,8 +36,8 @@ public class UserAdminController {
 
     @SystemLog(businessName = "查看后台用户列表")
     @GetMapping("/list")
-    public Result<PageResult<UserBackResp>> getBackUserList(@Valid UserBackReq userBackReq) {
-        PageResult<UserBackResp> res = userService.getBackUserList(userBackReq);
+    public Result<PageResult<UserBackResp>> getBackUserList(@Valid PageReq pageReq) {
+        PageResult<UserBackResp> res = userService.getBackUserList(pageReq);
         return Result.result(res);
     }
 
@@ -50,9 +50,9 @@ public class UserAdminController {
 
     @SystemLog(businessName = "修改用户")
     @PutMapping("/update")
-    public Result<?> updateUser(@RequestBody @Valid UserRoleReq userRoleReq) {
-        userService.updateUser(userRoleReq);
-        return Result.success();
+    public Result<UserBackResp> updateUser(@RequestBody @Valid UserInfoReq userInfoReq) {
+        UserBackResp res = userService.updateUser(userInfoReq);
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "获取登录用户菜单")
@@ -60,5 +60,12 @@ public class UserAdminController {
     public Result<UserMenuResp> getUserMenu() {
         UserMenuResp res = userService.getUserMenu();
         return Result.result(res);
+    }
+
+    @SystemLog(businessName = "删除用户")
+    @DeleteMapping("/delete")
+    public Result<?> deleteUser(@RequestBody @Valid List<Integer> userIdList) {
+        userService.deleteUser(userIdList);
+        return Result.success();
     }
 }

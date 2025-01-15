@@ -1,8 +1,8 @@
 package com.blog.controller;
 
-import com.blog.entity.vo.Result;
 import com.blog.annotation.SystemLog;
 import com.blog.constants.SystemConstants;
+import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.LoginReq;
 import com.blog.entity.vo.request.RegisterReq;
 import com.blog.service.BlogLoginService;

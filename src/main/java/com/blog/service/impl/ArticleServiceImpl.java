@@ -18,13 +18,11 @@ import com.blog.utils.WebUtils;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * (Article)表服务实现类
@@ -87,7 +85,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         //填充article属性
         return baseMapper.getArticle(articleId)
                 .setNextArticle(selectOtherArticle(articleId, true))
-                .setLastArticle(selectOtherArticle(articleId, false))
+                .setPrevArticle(selectOtherArticle(articleId, false))
                 .setLikeCount(Optional.ofNullable(
                         stringRedisTemplate.opsForZSet().score(
                                 SystemConstants.ARTICLE_LIKE_COUNT, String.valueOf(articleId)))
@@ -145,13 +143,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             newArticle.setUserId(webUtils.getRequestUser().getId());
             //添加文章
             if (!save(newArticle)) throw new RuntimeException("保存时文章异常");
-            //获取最新文章ID，设置请求参数的文章ID
-            articleReq.setId(lambdaQuery()
-                    .orderByDesc(Article::getCreateTime)
-                    .last(SystemConstants.LAST_LIMIT_1).one()
-                    .getId());
-            //添加文章标签
-            addArticleTag(articleReq);
+
+            //添加文章标签 (新增文章ID, 新增文章标签列表)
+            addArticleTag(newArticle.getId(), articleReq.getTagNameList());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage() != null ? e.getMessage() : "添加时文章异常");
         }
@@ -161,16 +155,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Transactional
     public void deleteArticle(List<Integer> articleIdList) {
         try {
-//            //删除文章标签表对应数据
-//            articleTagService.removeBatchByIds(articleTagService.lambdaQuery()
-//                    .select(ArticleTag::getId)
-//                    .in(ArticleTag::getArticleId, articleIdList)
-//                    .list()
-//                    .stream()
-//                    .map(ArticleTag::getId)
-//                    .toList());
             //删除文章对应数据
-            removeBatchByIds(articleIdList);
+            if (!removeBatchByIds(articleIdList))
+                throw new RuntimeException();
             //清理该文章弃用标签中的无用标签
             articleTagService.cleanArticleTagList(articleIdList);
         } catch (Exception e) {
@@ -238,7 +225,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .stream()
                 .peek(articleBackResp -> articleBackResp
                         .setCategoryName(categoryMap.get(articleBackResp.getId()))
-                        .setTagVOList(tagService.getTagOptionList(articleBackResp.getId()))
+                        .setTagOptionList(tagService.getTagOptionList(articleBackResp.getId()))
                         .setLikeCount(Optional.ofNullable(stringRedisTemplate.opsForZSet()
                                         .score(SystemConstants.ARTICLE_LIKE_COUNT, String.valueOf(articleBackResp.getId())))
                                 .orElse(0D).longValue())
@@ -291,8 +278,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             Article newArticle = lambdaQuery().eq(Article::getId, articleReq.getId()).one();
             if (newArticle == null)
                 throw new RuntimeException("文章不存在");
-            //更新文章标签
-            addArticleTag(articleReq);
+            //添加文章标签
+            addArticleTag(articleReq.getId(), articleReq.getTagNameList());
+            //清理文章标签
+            cleanArticleTag(articleReq.getId(), articleReq.getTagNameList());
             //判断分类是否存在
             Integer categoryId =  categoryService.lambdaQuery().select(Category::getId)
                     .eq(Category::getCategoryName, articleReq.getCategoryName()).one().getId();
@@ -313,38 +302,47 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //获取当前文章的下一个或上一个
     //flag(true:下一个,false:上一个)
     private ArticlePaginationResp selectOtherArticle(int id, Boolean flag) {
-        //将所有有效文章以主键排序
-        List<Article> articleList = lambdaQuery()
-                .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC)
-                .list()
-                .stream()
-                .sorted(Comparator.comparing(Article::getId))
-                .toList();
-        //获取当前文章索引
-        int index = articleList.indexOf(getById(id));
-        //判断列表边界
-        if ((index == -1) || (flag && index + 1 > articleList.size() - 1) || (!flag && index - 1 < 0)) return null;
-        //获取目标文章
-        Article article = articleList.get(flag ? index + 1 : index - 1);
-        return article == null ? null :
-                BeanCopyUtils.copyBean(article, ArticlePaginationResp.class);
+        //判断 redis 中是否存在文章 ID 列表数据
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(SystemConstants.ARTICLE_LIST))) {
+            //获取 redis 中的文章 ID 列表数据,转类型为整型列表
+            List<Integer> articleIdList = Objects.requireNonNull(stringRedisTemplate.opsForSet()
+                            .members(SystemConstants.ARTICLE_LIST))
+                    .stream()
+                    .map(Integer::parseInt)
+                    .sorted()
+                    .toList();
+            //获取当前文章 ID 下标
+            int index = articleIdList.indexOf(id);
+            //判断当前下标的下一个或上一个是否越界
+            if ((index == -1) || (flag && index + 1 > articleIdList.size() - 1) || (!flag && index - 1 < 0)) return null;
+            //获取目标文章 ID
+            int articleId = flag ? articleIdList.get(index + 1) : articleIdList.get(index - 1);
+            //返回目标文章
+            return baseMapper.getArticlePaginationResp(articleId);
+        } else {
+            return null;
+        }
     }
 
     //添加文章标签列表
-    private void addArticleTag(ArticleReq article) {
-        List<String> usedTagNameList = tagService.getTagOptionList(article.getId())
+    private void addArticleTag(Integer articleId, List<String> tagNameList) {
+        List<String> usedTagNameList = tagService.getTagOptionList(articleId)
                 .stream().map(TagOptionResp::getTagName).toList();
         //获取未添加标签名列表
-        List<String> tagNameList = article.getTagNameList()
+        List<String> newTagNameList = tagNameList
                 .stream().filter(tagName -> !usedTagNameList.contains(tagName)).toList();
         //保存标签
-        articleTagService.addArticleTag(article.getId(), tagNameList);
+        articleTagService.addArticleTag(articleId, newTagNameList);
+    }
+
+    //清理文章修改后弃用标签数据
+    private void cleanArticleTag(Integer articleId, List<String> tagNameList) {
         //查询弃用标签
-        List<Integer> abandonTagIdList = tagService.getTagOptionList(article.getId())
-                .stream().filter(tagOption -> !article.getTagNameList().contains(tagOption.getTagName()))
+        List<Integer> abandonTagIdList = tagService.getTagOptionList(articleId)
+                .stream().filter(tagOption -> !tagNameList.contains(tagOption.getTagName()))
                 .map(TagOptionResp::getId).toList();
         //清理该文章弃用标签中的无用标签
-        articleTagService.cleanArticleTag(article.getId(), abandonTagIdList);
+        articleTagService.cleanArticleTag(articleId, abandonTagIdList);
     }
 
     //获取分类id，分类名map
@@ -423,6 +421,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage() != null ? e.getMessage() : "文章更新异常:更新文章浏览量与点赞量异常");
         }
+    }
+
+    @Override
+    public PageResult<ArticleHomeResp> getArticleHomeListByCategory(ArticleConditionReq req) {
+        pageUtils.setPage(req);
+        List<ArticleHomeResp> articleHomeRespList = baseMapper.getArticleHomeListByCategory(req);
+        return new PageResult<>(articleHomeRespList.size(), articleHomeRespList);
     }
 }
 

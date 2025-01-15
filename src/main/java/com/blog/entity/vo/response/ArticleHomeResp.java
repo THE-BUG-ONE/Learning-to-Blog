@@ -23,10 +23,8 @@ public class ArticleHomeResp {
     private String articleTitle;
     //文章简介
     private String articleDesc;
-    //文章内容
-    private String articleContent;
     //文章分类
-    private CategoryOptionResp category;
+    private String categoryName;
     //是否置顶 (0否 1是）
     private Integer isTop;
     //发表时间
@@ -34,5 +32,5 @@ public class ArticleHomeResp {
     //修改时间
     private Date updateTime;
     //文章标签
-    private List<TagOptionResp> tagVOList;
+    private List<TagOptionResp> tagNameList;
 }

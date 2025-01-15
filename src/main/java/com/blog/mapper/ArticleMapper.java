@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.entity.dao.Article;
 import com.blog.entity.vo.request.ArticleConditionReq;
 import com.blog.entity.vo.request.PageReq;
-import com.blog.entity.vo.response.ArticleConditionResp;
-import com.blog.entity.vo.response.ArticleDetailResp;
-import com.blog.entity.vo.response.ArticleHomeResp;
-import com.blog.entity.vo.response.ArticleResp;
+import com.blog.entity.vo.response.*;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -44,9 +41,9 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("select * from article limit #{param.page},#{param.limit}")
     @Results(id = "articleHomeResultMap", value = {
             @Result(column = "id", property = "id"),
-            @Result(column = "category_id", property = "category",
-                    one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryOption")),
-            @Result(column = "id", property = "tagVOList",
+            @Result(column = "category_id", property = "categoryName",
+                    one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryNameById")),
+            @Result(column = "id", property = "tagNameList",
                     many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList"))
     })
     List<ArticleHomeResp> getArticleHomeList(@Param("param") PageReq param);
@@ -85,9 +82,11 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("select * from article where id = #{id}")
     @Results(id = "articleResultMap", value = {
             @Result(column = "id", property = "id"),
+            @Result(column = "user_id", property = "author",
+                    one = @One(select = "com.blog.mapper.UserMapper.getNicknameById")),
             @Result(column = "category_id", property = "category",
                     one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryOption")),
-            @Result(column = "id", property = "tagVOList",
+            @Result(column = "id", property = "tagOptionList",
                     many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList"))
     })
     ArticleResp getArticle(Integer id);
@@ -124,7 +123,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
             @Result(column = "id", property = "id"),
             @Result(column = "category_id", property = "category",
                     one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryOption")),
-            @Result(column = "id", property = "tagVOList",
+            @Result(column = "id", property = "tagOptionList",
                     many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList"))
     })
     List<ArticleConditionResp> getArticleConditionList(@Param("param") ArticleConditionReq param);
@@ -132,13 +131,26 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("select * from article where id = ${id}")
     @Results(id = "articleDetailResultMap", value = {
             @Result(column = "id", property = "id"),
-            @Result(column = "category_id", property = "category",
-                    one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryOption")),
+            @Result(column = "category_id", property = "categoryName",
+                    one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryNameById")),
             @Result(column = "id", property = "tagNameList",
                     many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList")),
             @Result(column = "user_id", property = "author",
                     one = @One(select = "com.blog.mapper.UserMapper.getUsernameById"))
     })
     ArticleDetailResp getArticleDetail(Integer id);
+
+    @Select("select id, article_title from article where id = #{articleId}")
+    ArticlePaginationResp getArticlePaginationResp(int articleId);
+
+    @Select("select * from article where category_id = #{param.categoryId} limit #{param.page},#{param.limit}")
+    @Results(id = "articleHomeCategoryMap", value = {
+            @Result(column = "id", property = "id"),
+            @Result(column = "category_id", property = "categoryName",
+                    one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryNameById")),
+            @Result(column = "id", property = "tagNameList",
+                    many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList"))
+    })
+    List<ArticleHomeResp> getArticleHomeListByCategory(@Param("param") ArticleConditionReq req);
 }
 

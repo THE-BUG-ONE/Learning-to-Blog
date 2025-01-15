@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRoleResp {
-    //角色id
+    //用户id
     private String id;
     //角色名
     private String roleName;

@@ -12,6 +12,4 @@ public class ArticlePaginationResp {
     private Integer id;
     //文章标题
     private String articleTitle;
-    //缩略图
-    private String articleCover;
 }

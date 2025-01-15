@@ -3,6 +3,7 @@ package com.blog.service;
 import cn.hutool.core.date.DateTime;
 import com.blog.constants.SystemConstants;
 import com.blog.entity.dao.Article;
+import com.blog.entity.dao.User;
 import com.blog.entity.vo.response.*;
 import com.blog.utils.BeanCopyUtils;
 import jakarta.annotation.Resource;
@@ -47,6 +48,7 @@ public class BlogInfoService {
     public BlogInfoResp getBlogInfo() {
         try {
             return new BlogInfoResp(
+                    userService.lambdaQuery().eq(User::getIsDisable, SystemConstants.USER_DISABLE_F).count(),
                     articleService.lambdaQuery()
                             .eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_PUBLIC).count(),
                     categoryService.count(null),

@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.blog.entity.dao.Article;
 import com.blog.entity.vo.request.*;
 import com.blog.entity.vo.response.*;
-import org.springframework.data.redis.core.ZSetOperations;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * (Article)表服务接口
@@ -52,5 +50,7 @@ public interface ArticleService extends IService<Article> {
     Map<Integer, Long> getArticleViewMap();
 
     void updateArticleLikeAndViewCount();
+
+    PageResult<ArticleHomeResp> getArticleHomeListByCategory(ArticleConditionReq req);
 }
 

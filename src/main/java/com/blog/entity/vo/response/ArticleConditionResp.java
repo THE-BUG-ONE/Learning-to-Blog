@@ -24,5 +24,5 @@ public class ArticleConditionResp {
     //发表时间
     private Date createTime;
     //文章标签
-    private List<TagOptionResp> tagVOList;
+    private List<TagOptionResp> tagOptionList;
 }

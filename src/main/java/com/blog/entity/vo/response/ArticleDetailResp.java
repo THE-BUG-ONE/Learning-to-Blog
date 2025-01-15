@@ -20,7 +20,7 @@ public class ArticleDetailResp {
     //作者
     private String author;
     //分类
-    private CategoryOptionResp category;
+    private String categoryName;
     //缩略图
     private String articleCover;
     //标题

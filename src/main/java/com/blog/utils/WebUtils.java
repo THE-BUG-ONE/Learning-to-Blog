@@ -1,10 +1,9 @@
 package com.blog.utils;
 
-import com.blog.annotation.SystemLog;
 import com.blog.constants.SystemConstants;
-import com.blog.entity.vo.Result;
 import com.blog.entity.dao.LoginUser;
 import com.blog.entity.dao.User;
+import com.blog.entity.vo.Result;
 import com.blog.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,19 +1,19 @@
 package com.blog.entity.dao;
 
 
-import java.util.Date;
-
-import lombok.experimental.Accessors;
-import org.hibernate.validator.constraints.Length;
-
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
+
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -25,7 +25,7 @@ public class Article{
     /**
     * 文章id
     */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     @NotNull(message="[文章id]不能为空")
     private Integer id;
     
