@@ -46,28 +46,30 @@ public class Article{
     */
     @NotBlank(message="[缩略图]不能为空")
     @Size(max= 1024,message="编码长度不能超过1024")
-    @Length(max= 1024,message="编码长度不能超过1,024")private String articleCover;
+    @Length(max= 1024,message="编码长度不能超过1,024")
+    private String articleCover;
     
     /**
     * 文章标题
     */
     @NotBlank(message="[文章标题]不能为空")
     @Size(max= 50,message="编码长度不能超过50")
-    @Length(max= 50,message="编码长度不能超过50")private String articleTitle;
+    @Length(max= 50,message="编码长度不能超过50")
+    private String articleTitle;
     
     /**
     * 文章摘要
     */
     @NotBlank(message="[文章摘要]不能为空")
     @Size(max= 100,message="编码长度不能超过100")
-    @Length(max= 100,message="编码长度不能超过100")private String articleDesc;
+    @Length(max= 100,message="编码长度不能超过100")
+    private String articleDesc;
     
     /**
     * 文章内容
     */
     @NotBlank(message="[文章内容]不能为空")
-    @Size(max= -1,message="编码长度不能超过-1")
-    @Length(max= -1,message="编码长度不能超过-1")private String articleContent;
+    private String articleContent;
     
     /**
     * 类型 (1原创 2转载 3翻译)

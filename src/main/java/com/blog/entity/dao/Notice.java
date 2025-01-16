@@ -20,7 +20,7 @@ import java.util.Date;
 public class Notice{
 
     /**
-    * 
+    * 公告id
     */
     @TableId
     @NotNull(message="[]不能为空")
@@ -31,14 +31,14 @@ public class Notice{
     */
     @NotBlank(message="[公告标题]不能为空")
     @Size(max= 50,message="编码长度不能超过50")
-    @Length(max= 50,message="编码长度不能超过50")private String title;
+    @Length(max= 50,message="编码长度不能超过50")
+    private String title;
     
     /**
     * 公告内容
     */
     @NotBlank(message="[公告内容]不能为空")
-    @Size(max= -1,message="编码长度不能超过-1")
-    @Length(max= -1,message="编码长度不能超过-1")private String content;
+    private String content;
     
     /**
     * 创建时间

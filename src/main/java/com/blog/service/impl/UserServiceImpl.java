@@ -202,12 +202,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RuntimeException("修改用户异常:[删除用户角色错误,保存用户角色错误,未知错误]");
         }
     }
-
-    @Override
-    public UserMenuResp getUserMenu() {
-        return null;
-    }
-
+    
     @Override
     public List<UserOptionResp> getUserOptionList(String username) {
         return baseMapper.getUserOptionList(username);

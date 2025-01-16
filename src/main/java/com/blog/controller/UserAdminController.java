@@ -55,13 +55,6 @@ public class UserAdminController {
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "获取登录用户菜单")
-    @GetMapping("/getUserMenu")
-    public Result<UserMenuResp> getUserMenu() {
-        UserMenuResp res = userService.getUserMenu();
-        return Result.result(res);
-    }
-
     @SystemLog(businessName = "删除用户")
     @DeleteMapping("/delete")
     public Result<?> deleteUser(@RequestBody @Valid List<Integer> userIdList) {

@@ -29,7 +29,7 @@ public class FastJson2RedisSerializer<T> implements RedisSerializer<T> {
 
     @Override
     public T deserialize(byte[] bytes) {
-        if (bytes == null || bytes.length <= 0) {
+        if (bytes == null || bytes.length == 0) {
             return null;
         }
 

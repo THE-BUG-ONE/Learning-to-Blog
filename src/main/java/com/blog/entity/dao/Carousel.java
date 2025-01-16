@@ -27,7 +27,7 @@ public class Carousel{
     private Integer id;
     
     /**
-    * lun'bo'tu'di
+    * 轮播图标题
     */
     private Integer title;
     
