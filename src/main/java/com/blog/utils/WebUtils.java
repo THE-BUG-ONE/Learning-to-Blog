@@ -1,6 +1,5 @@
 package com.blog.utils;
 
-import com.blog.constants.SystemConstants;
 import com.blog.entity.dao.LoginUser;
 import com.blog.entity.dao.User;
 import com.blog.entity.vo.Result;
@@ -39,8 +38,6 @@ public class WebUtils {
 
     public User getRequestUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal.equals("anonymousUser"))
-            return userService.getById(SystemConstants.TEST_ID);
         LoginUser loginUser = (LoginUser) principal;
         return loginUser.getUser();
     }
