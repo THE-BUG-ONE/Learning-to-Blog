@@ -12,6 +12,8 @@ import java.util.Date;
 public class MessageResp {
     //留言id
     private Integer id;
+    //父评论id
+    private Integer parentId;
     //留言用户
     private UserResp user;
     //留言内容

@@ -46,7 +46,7 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
                     .stream()
                     .map(tagId -> new ArticleTag(articleId, tagId))
                     .toList();
-            if (articleTagList.isEmpty() || !this.saveBatch(articleTagList))
+            if (articleTagList.isEmpty() || !saveBatch(articleTagList))
                 throw new RuntimeException();
 
         } catch (Exception e) {

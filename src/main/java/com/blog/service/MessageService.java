@@ -2,6 +2,7 @@ package com.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.blog.entity.dao.Message;
+import com.blog.entity.vo.request.MessageAddReq;
 import com.blog.entity.vo.request.PageReq;
 import com.blog.entity.vo.response.MessageResp;
 import com.blog.entity.vo.response.PageResult;
@@ -14,4 +15,6 @@ import com.blog.entity.vo.response.PageResult;
 public interface MessageService extends IService<Message> {
 
     PageResult<MessageResp> getMessageList(PageReq req);
+
+    MessageResp addMessage(MessageAddReq req);
 }

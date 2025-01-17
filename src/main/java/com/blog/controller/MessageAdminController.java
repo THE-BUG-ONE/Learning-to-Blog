@@ -3,8 +3,10 @@ package com.blog.controller;
 import com.blog.annotation.SystemLog;
 import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.CheckReq;
+import com.blog.entity.vo.request.MessageAddReq;
 import com.blog.entity.vo.request.MessageBackReq;
 import com.blog.entity.vo.response.MessageBackResp;
+import com.blog.entity.vo.response.MessageResp;
 import com.blog.entity.vo.response.PageResult;
 import com.blog.service.MessageService;
 import jakarta.annotation.Resource;
@@ -41,5 +43,12 @@ public class MessageAdminController {
     public Result<?> checkMessage(@RequestBody @Valid CheckReq checkReq) {
 //        messageService.checkMessage(checkReq);
         return Result.success();
+    }
+
+    @SystemLog(businessName = "添加留言")
+    @PostMapping("/add")
+    public Result<MessageResp> addMessage(@RequestBody @Valid MessageAddReq messageReq) {
+        MessageResp res = messageService.addMessage(messageReq);
+        return Result.result(res);
     }
 }

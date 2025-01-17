@@ -18,11 +18,22 @@ import java.util.List;
 public interface MessageMapper extends BaseMapper<Message> {
 
     @Select("select * from message limit #{param.page},#{param.limit} ")
-    @Results(id = "getMessageMap", value = {
+    @Results(id = "getMessageListMap", value = {
             @Result(column = "user_id", property = "user",
                     one = @One(select = "com.blog.mapper.UserMapper.getUserRespById"))
     })
     List<MessageResp> getMessageList(@Param("param") PageReq req);
+
+    @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
+    @Insert("insert into message values (default, #{message.parentId}, #{message.userId}, #{message.message}, default, default, null)")
+    void addMessage(@Param("message") Message message);
+
+    @Select("select * from message where id = #{id}")
+    @Results(id = "getMessageMap", value = {
+            @Result(column = "user_id", property = "user",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById"))
+    })
+    MessageResp getMessage(int id);
 }
 
 

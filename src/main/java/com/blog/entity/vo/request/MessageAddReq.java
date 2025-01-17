@@ -8,14 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageReq {
-    //昵称
-    @NotNull
-    private String nickname;
-    //头像
-    @NotNull
-    private String avatar;
+public class MessageAddReq {
+    //父评论id
+    private Integer parentId;
     //留言内容
     @NotNull
-    private String messageContent;
+    private String message;
 }
