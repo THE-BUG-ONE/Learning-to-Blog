@@ -49,5 +49,8 @@ public interface UserMapper extends BaseMapper<User> {
                     many = @Many(select = "com.blog.mapper.RoleMapper.getUserRoleNameList"))
     })
     UserResp getUserRespById(Integer id);
+
+    @Select("select id,nickname from user where id = #{id}")
+    UserOptionResp getUserOptionRespById();
 }
 

@@ -20,20 +20,33 @@ public interface MessageMapper extends BaseMapper<Message> {
     @Select("select * from message limit #{param.page},#{param.limit} ")
     @Results(id = "getMessageListMap", value = {
             @Result(column = "user_id", property = "user",
-                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById"))
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById")),
+            @Result(column = "from_user_id", property = "fromUser",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById"))
     })
     List<MessageResp> getMessageList(@Param("param") PageReq req);
 
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
-    @Insert("insert into message values (default, #{message.parentId}, #{message.userId}, #{message.message}, default, default, null)")
+    @Insert("insert into message values (default, #{message.parentId}, #{message.rootId}, #{message.fromUserId}, #{message.userId}, #{message.message}, default, default, null)")
     void addMessage(@Param("message") Message message);
 
     @Select("select * from message where id = #{id}")
     @Results(id = "getMessageMap", value = {
             @Result(column = "user_id", property = "user",
-                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById"))
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById")),
+            @Result(column = "from_user_id", property = "fromUser",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById"))
     })
     MessageResp getMessage(int id);
+
+    @Select("select * from message where root_id = #{rootId}")
+    @Results(id = "getMessageReplyListMap", value = {
+            @Result(column = "user_id", property = "user",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById")),
+            @Result(column = "from_user_id", property = "fromUser",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById"))
+    })
+    List<MessageResp> getMessageReplyList(Integer rootId);
 }
 
 

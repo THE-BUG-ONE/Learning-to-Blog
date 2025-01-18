@@ -43,12 +43,19 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public MessageResp addMessage(MessageAddReq req) {
         try {
             int userId = webUtils.getRequestUser().getId();
-            Message message = new Message(req.getParentId(), userId, req.getMessage());
+            Message message = new Message(
+                    req.getParentId(), req.getRootId(), req.getFromUserId(), userId, req.getMessage());
             baseMapper.addMessage(message);
             return BeanCopyUtils.copyBean(baseMapper.getMessage(message.getId()), MessageResp.class);
         } catch (Exception e) {
             throw new RuntimeException("评论添加异常" + e.getMessage());
         }
+    }
+
+    @Override
+    public List<MessageResp> getMessageReplyList(Integer rootId) {
+        if (rootId == 0) return null;
+        return baseMapper.getMessageReplyList(rootId);
     }
 }
 

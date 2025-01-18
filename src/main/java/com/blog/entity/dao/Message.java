@@ -27,10 +27,22 @@ public class Message{
     private Integer id;
     
     /**
-    * (0 评论/其他 回复评论id)
+    * (0 留言/其他 回复评论id)
     */
-    @NotNull(message="[(0 评论/其他 回复评论id)]不能为空")
+    @NotNull(message="[(0 留言/其他 回复评论id)]不能为空")
     private Integer parentId;
+    
+    /**
+    * 根评论id
+    */
+    @NotNull(message="[根评论id]不能为空")
+    private Integer rootId;
+    
+    /**
+    * 回复评论用户id
+    */
+    @NotNull(message="[回复评论用户id]不能为空")
+    private Integer fromUserId;
     
     /**
     * 用户id
@@ -43,8 +55,7 @@ public class Message{
     */
     @NotBlank(message="[留言内容]不能为空")
     @Size(max= 255,message="编码长度不能超过255")
-    @Length(max= 255,message="编码长度不能超过255")
-    private String message;
+    @Length(max= 255,message="编码长度不能超过255")private String message;
     
     /**
     * 是否通过 (0否 1是)
@@ -63,8 +74,10 @@ public class Message{
     */
     private Date updateTime;
 
-    public Message(Integer parentId, Integer userId, String message) {
+    public Message(Integer parentId, Integer rootId, Integer fromUserId, Integer userId, String message) {
         this.parentId = parentId;
+        this.rootId = rootId;
+        this.fromUserId = fromUserId;
         this.userId = userId;
         this.message = message;
     }

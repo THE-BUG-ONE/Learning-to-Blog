@@ -11,6 +11,6 @@ public class UserOptionResp {
 
     //用户ID
     private Integer id;
-    //用户名
-    private String username;
+    //昵称
+    private String nickname;
 }
