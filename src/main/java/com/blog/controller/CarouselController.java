@@ -18,7 +18,7 @@ public class CarouselController {
     @Resource
     private CarouselService carouselService;
 
-    @SystemLog(businessName = "查看轮播图列表")
+    @SystemLog(businessName = "获取轮播图列表")
     @GetMapping("/list")
     public Result<List<CarouselResp>> getCarouselList() {
         List<CarouselResp> res = carouselService.getCarouselList();

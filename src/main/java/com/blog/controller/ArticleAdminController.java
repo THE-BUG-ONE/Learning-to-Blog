@@ -37,14 +37,14 @@ public class ArticleAdminController {
         return Result.success();
     }
 
-    @SystemLog(businessName = "编辑文章")
+    @SystemLog(businessName = "获取文章编辑详情")
     @GetMapping("/edit/{articleId}")
     public Result<ArticleInfoResp> editArticle(@PathVariable("articleId") @NotNull Integer articleId) {
         ArticleInfoResp res = articleService.editArticle(articleId);
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看后台文章列表")
+    @SystemLog(businessName = "获取详细文章列表")
     @GetMapping("/list")
     public Result<PageResult<ArticleBackResp>> getBackArticle(@Valid ArticleBackReq articleBackReq) {
         PageResult<ArticleBackResp> res = articleService.getBackArticle(articleBackReq);
@@ -86,7 +86,7 @@ public class ArticleAdminController {
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看文章详情")
+    @SystemLog(businessName = "获取文章详情")
     @GetMapping("/detail")
     public Result<ArticleDetailResp> getArticleDetail(@NotNull Integer id) {
         ArticleDetailResp res = articleService.getArticleDetail(id);

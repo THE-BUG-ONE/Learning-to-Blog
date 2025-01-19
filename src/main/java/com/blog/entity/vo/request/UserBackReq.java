@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class UserBackReq extends PageReq{
     //搜索内容
     private String keyword;
-    //登录方式 (1邮箱 2QQ 3Gitee 4Github)
+    //登录方式
     private Integer loginType;
 }

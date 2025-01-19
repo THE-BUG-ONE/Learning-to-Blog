@@ -69,14 +69,14 @@ public class UserAdminController {
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看后台用户列表")
+    @SystemLog(businessName = "获取后台用户列表")
     @GetMapping("/list")
     public Result<PageResult<UserBackResp>> getBackUserList(@Valid PageReq pageReq) {
         PageResult<UserBackResp> res = userService.getBackUserList(pageReq);
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看用户角色选项")
+    @SystemLog(businessName = "获取用户角色列表")
     @GetMapping("/role")
     public Result<List<UserRoleResp>> getUserRoleList() {
         List<UserRoleResp> res = userService.getUserRoleList();

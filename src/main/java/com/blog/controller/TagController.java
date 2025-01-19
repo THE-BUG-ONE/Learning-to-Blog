@@ -18,14 +18,14 @@ public class TagController {
     @Resource
     private TagService tagService;
 
-    @SystemLog(businessName = "查看标签列表")
+    @SystemLog(businessName = "获取标签列表")
     @GetMapping("list")
     public Result<List<TagResp>> getTagList() {
         List<TagResp> res = tagService.getTagList();
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看标签选项")
+    @SystemLog(businessName = "获取标签选项")
     @GetMapping("/option")
     public Result<List<TagOptionResp>> getTagOptionList() {
         List<TagOptionResp> res = tagService.getTagOptionList(null);

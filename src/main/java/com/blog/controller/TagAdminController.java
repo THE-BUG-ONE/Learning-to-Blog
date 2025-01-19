@@ -35,7 +35,7 @@ public class TagAdminController {
         return Result.success();
     }
 
-    @SystemLog(businessName = "查看后台标签列表")
+    @SystemLog(businessName = "获取后台标签列表")
     @GetMapping("/list")
     public Result<PageResult<TagBackResp>> getBackTagList(
             @RequestBody @Valid TagBackReq tagBackReq) {

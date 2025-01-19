@@ -29,7 +29,7 @@ public class MessageController {
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "获取留言评论列表")
+    @SystemLog(businessName = "获取留言回复列表")
     @GetMapping("/reply-list")
     public Result<List<MessageResp>> getMessageReplyList(@NotNull Integer rootId) {
         List<MessageResp> res = messageService.getMessageReplyList(rootId);

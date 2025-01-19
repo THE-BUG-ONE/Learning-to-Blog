@@ -19,7 +19,7 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    @SystemLog(businessName = "查询关联用户列表")
+    @SystemLog(businessName = "获取关联用户列表")
     @GetMapping("/search")
     public Result<List<UserOptionResp>> getUserOptionList(@NotNull String username) {
         List<UserOptionResp> res = userService.getUserOptionList(username);

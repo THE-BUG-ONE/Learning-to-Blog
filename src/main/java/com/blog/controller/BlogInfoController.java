@@ -16,14 +16,14 @@ public class BlogInfoController {
     @Resource
     private BlogInfoService blogInfoService;
 
-    @SystemLog(businessName = "查看博客信息")
+    @SystemLog(businessName = "获取博客信息")
     @GetMapping("/blog-info")
     public Result<BlogInfoResp> getBlogInfo() {
         BlogInfoResp res = blogInfoService.getBlogInfo();
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "查看关于我信息")
+    @SystemLog(businessName = "获取关于我信息")
     @GetMapping("/about")
     public Result<String> about() {
         String res = blogInfoService.about();
@@ -37,7 +37,7 @@ public class BlogInfoController {
         return Result.success();
     }
 
-    @SystemLog(businessName = "查看后台信息")
+    @SystemLog(businessName = "获取后台信息")
     @GetMapping("/blog-info-admin")
     public Result<BlogBackInfoResp> getAdminBlogInfo() {
         BlogBackInfoResp res = blogInfoService.getBlogBackInfo();

@@ -2,7 +2,6 @@ package com.blog.controller;
 
 import com.blog.annotation.SystemLog;
 import com.blog.entity.vo.Result;
-import com.blog.entity.vo.request.CheckReq;
 import com.blog.entity.vo.request.MessageAddReq;
 import com.blog.entity.vo.request.MessageBackReq;
 import com.blog.entity.vo.response.MessageBackResp;
@@ -30,19 +29,12 @@ public class MessageAdminController {
         return Result.success();
     }
 
-    @SystemLog(businessName = "查看后台留言列表")
+    @SystemLog(businessName = "获取后台留言列表")
     @GetMapping("/list")
     public Result<PageResult<MessageBackResp>> getBackMessageList(@Valid MessageBackReq messageBackReq) {
 //        PageResult<MessageBackResp> res = messageService.getBackMessageList(messageBackReq);
 //        return Result.result(res);
         return null;
-    }
-
-    @SystemLog(businessName = "审核留言")
-    @PutMapping("/pass")
-    public Result<?> checkMessage(@RequestBody @Valid CheckReq checkReq) {
-//        messageService.checkMessage(checkReq);
-        return Result.success();
     }
 
     @SystemLog(businessName = "添加留言")

@@ -2,11 +2,7 @@ package com.blog.controller;
 
 import com.blog.annotation.SystemLog;
 import com.blog.entity.vo.Result;
-import com.blog.entity.vo.request.CarouselBackReq;
 import com.blog.entity.vo.request.CarouselReq;
-import com.blog.entity.vo.request.StatusReq;
-import com.blog.entity.vo.response.CarouselBackResp;
-import com.blog.entity.vo.response.PageResult;
 import com.blog.service.CarouselService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -33,21 +29,6 @@ public class CarouselAdminController {
     @DeleteMapping("/delete")
     public Result<?> deleteCarousel(@RequestBody @Valid List<Integer> carouselIdList) {
 //        carouselService.deleteCarousel(carouselIdList);
-        return Result.success();
-    }
-
-    @SystemLog(businessName = "查看轮播图列表")
-    @GetMapping("/list")
-    public Result<PageResult<CarouselBackResp>> getBackCarouselList(
-            @Valid CarouselBackReq carouselBackReq) {
-//        PageResult<CarouselBackResp> res = carouselService.getBackCarouselList(carouselBackReq);
-        return Result.result(null);
-    }
-
-    @SystemLog(businessName = "修改轮播图状态")
-    @PutMapping("/status")
-    public Result<?> updateCarouselStatus(@RequestBody @Valid StatusReq statusReq) {
-//        carouselService.updateCarouselStatus(statusReq);
         return Result.success();
     }
 
