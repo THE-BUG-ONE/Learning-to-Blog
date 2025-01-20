@@ -3,6 +3,7 @@ package com.blog.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.entity.dao.Message;
 import com.blog.entity.vo.request.PageReq;
+import com.blog.entity.vo.response.MessageBackResp;
 import com.blog.entity.vo.response.MessageResp;
 import org.apache.ibatis.annotations.*;
 
@@ -47,6 +48,15 @@ public interface MessageMapper extends BaseMapper<Message> {
                     one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById"))
     })
     List<MessageResp> getMessageReplyList(Integer rootId);
+
+    @Select("select * from message limit #{param.page},#{param.limit} ")
+    @Results(id = "getMessageBackListMap", value = {
+            @Result(column = "user_id", property = "user",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById")),
+            @Result(column = "from_user_id", property = "fromNickname",
+                    one = @One(select = "com.blog.mapper.UserMapper.getNicknameById"))
+    })
+    List<MessageBackResp> getMessageBackList(@Param("param") PageReq req);
 }
 
 

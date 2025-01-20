@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.blog.entity.dao.Message;
 import com.blog.entity.vo.request.MessageAddReq;
 import com.blog.entity.vo.request.PageReq;
+import com.blog.entity.vo.response.MessageBackResp;
 import com.blog.entity.vo.response.MessageResp;
 import com.blog.entity.vo.response.PageResult;
 
@@ -21,4 +22,8 @@ public interface MessageService extends IService<Message> {
     MessageResp addMessage(MessageAddReq req);
 
     List<MessageResp> getMessageReplyList(Integer rootId);
+
+    PageResult<MessageBackResp> getBackMessageList(PageReq req);
+
+    void deleteMessage(List<Integer> messageIdList);
 }

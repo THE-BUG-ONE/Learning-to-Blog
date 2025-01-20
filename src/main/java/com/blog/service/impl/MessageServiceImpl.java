@@ -1,9 +1,11 @@
 package com.blog.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.blog.constants.SystemConstants;
 import com.blog.entity.dao.Message;
 import com.blog.entity.vo.request.MessageAddReq;
 import com.blog.entity.vo.request.PageReq;
+import com.blog.entity.vo.response.MessageBackResp;
 import com.blog.entity.vo.response.MessageResp;
 import com.blog.entity.vo.response.PageResult;
 import com.blog.mapper.MessageMapper;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
 * @author Felz
@@ -56,6 +60,44 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public List<MessageResp> getMessageReplyList(Integer rootId) {
         if (rootId == 0) return null;
         return baseMapper.getMessageReplyList(rootId);
+    }
+
+    @Override
+    public PageResult<MessageBackResp> getBackMessageList(PageReq req) {
+        pageUtils.setPage(req);
+        List<MessageBackResp> respList = baseMapper.getMessageBackList(req);
+        return new PageResult<>(respList.size(), respList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMessage(List<Integer> messageIdList) {
+        //获取删除列表内的根留言 id 列表
+        List<Integer> rootIdList = lambdaQuery()
+                .select(Message::getId)
+                .eq(Message::getRootId, SystemConstants.MESSAGE_ROOT)
+                .list().stream().map(Message::getId).filter(messageIdList::contains).toList();
+        //获取删除列表内的父留言 id 列表
+        List<Integer> parentIdList = lambdaQuery()
+                .select(Message::getId)
+                .eq(Message::getParentId, SystemConstants.MESSAGE_PARENT)
+                .list().stream().map(Message::getId).filter(messageIdList::contains).toList();
+
+        //根据以上id列表获取关联留言id
+        Set<Integer> validIdList = lambdaQuery()
+                .select(Message::getId)
+                .in(Message::getRootId, rootIdList).or()
+                .in(Message::getParentId, parentIdList)
+                .list().stream().map(Message::getId).collect(Collectors.toSet());
+        //根据关联列表与总列表获取并集
+        validIdList.addAll(messageIdList);
+
+        try {
+            if (!removeBatchByIds(validIdList))
+                throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("留言删除异常:" + e.getMessage());
+        }
     }
 }
 

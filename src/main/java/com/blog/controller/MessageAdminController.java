@@ -3,7 +3,7 @@ package com.blog.controller;
 import com.blog.annotation.SystemLog;
 import com.blog.entity.vo.Result;
 import com.blog.entity.vo.request.MessageAddReq;
-import com.blog.entity.vo.request.MessageBackReq;
+import com.blog.entity.vo.request.PageReq;
 import com.blog.entity.vo.response.MessageBackResp;
 import com.blog.entity.vo.response.MessageResp;
 import com.blog.entity.vo.response.PageResult;
@@ -25,16 +25,15 @@ public class MessageAdminController {
     @SystemLog(businessName = "删除留言")
     @DeleteMapping("/delete")
     public Result<?> deleteMessage(@RequestBody @NotNull List<Integer> messageIdList) {
-//        messageService.deleteMessage(messageIdList);
+        messageService.deleteMessage(messageIdList);
         return Result.success();
     }
 
     @SystemLog(businessName = "获取后台留言列表")
     @GetMapping("/list")
-    public Result<PageResult<MessageBackResp>> getBackMessageList(@Valid MessageBackReq messageBackReq) {
-//        PageResult<MessageBackResp> res = messageService.getBackMessageList(messageBackReq);
-//        return Result.result(res);
-        return null;
+    public Result<PageResult<MessageBackResp>> getBackMessageList(@Valid PageReq req) {
+        PageResult<MessageBackResp> res = messageService.getBackMessageList(req);
+        return Result.result(res);
     }
 
     @SystemLog(businessName = "添加留言")

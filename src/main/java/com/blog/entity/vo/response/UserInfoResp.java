@@ -14,6 +14,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class UserInfoResp {
 
+    //用户id
+    private Integer id;
     //用户头像
     private String avatar;
     //用户名

@@ -22,16 +22,16 @@ public class SystemConstants {
     //留言未通过
     public static final int MESSAGE_NOT_CHECKED = 0;
 
+    //根留言ID
+    public static final int MESSAGE_ROOT = 0;
+    //父留言ID
+    public static final int MESSAGE_PARENT = 0;
+
     //评论已通过
     public static final int COMMENT_IS_CHECKED = 1;
 
     //说说已公开
     public static final int TALK_IS_PUBLIC = 1;
-
-    //首页推荐文章个数
-    public static final String ARTICLE_RECOMMEND_NUM = "limit 0,10";
-    //最新评论个数
-    public static final String COMMENT_NEW_NUM = "limit 0,10";
 
     //用户点赞文章列表
     public static final String USER_ARTICLE_LIKE = "user:article:like:";
@@ -50,10 +50,6 @@ public class SystemConstants {
     public static final String ARTICLE_VIEW_COUNT = "article:view:count:";
     //评论点赞量
     public static final String COMMENT_LIKE_COUNT = "comment:like:count:";
-    //查询一条
-    public static final String LAST_LIMIT_1 = "limit 1";
-    //查询十条
-    public static final String LAST_LIMIT_10 = "limit 10";
 
     //JWTRedisKey
     public static final String JWT_REDIS_KEY = "blogLogin:";

@@ -10,20 +10,48 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageBackResp {
-    //留言id
+    /**
+     * 留言id
+     */
     private Integer id;
-    //昵称
-    private String nickname;
-    //头像
-    private String avatar;
-    //留言内容
-    private String messageContent;
-    //用户ip
-    private String ipAddress;
-    //用户地址
-    private String ipSource;
-    //是否通过 (0否 1是)
+
+    /**
+     * (0 留言/其他 回复评论id)
+     */
+    private Integer parentId;
+
+    /**
+     * 根评论id
+     */
+    private Integer rootId;
+
+    /**
+     * 回复评论用户昵称
+     */
+    private String fromNickname;
+
+    /**
+     * 用户昵称
+     */
+    private UserOptionResp user;
+
+    /**
+     * 留言内容
+     */
+    private String message;
+
+    /**
+     * 是否通过 (0否 1是)
+     */
     private Integer isCheck;
-    //留言时间
+
+    /**
+     * 留言时间
+     */
     private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 }

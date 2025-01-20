@@ -51,6 +51,6 @@ public interface UserMapper extends BaseMapper<User> {
     UserResp getUserRespById(Integer id);
 
     @Select("select id,nickname from user where id = #{id}")
-    UserOptionResp getUserOptionRespById();
+    UserOptionResp getUserOptionRespById(Integer id);
 }
 
