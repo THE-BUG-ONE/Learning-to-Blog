@@ -57,12 +57,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
-    public List<MessageResp> getMessageReplyList(Integer rootId) {
-        if (rootId == 0) return null;
-        return baseMapper.getMessageReplyList(rootId);
-    }
-
-    @Override
     public PageResult<MessageBackResp> getBackMessageList(PageReq req) {
         pageUtils.setPage(req);
         List<MessageBackResp> respList = baseMapper.getMessageBackList(req);
@@ -82,12 +76,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 .select(Message::getId)
                 .eq(Message::getParentId, SystemConstants.MESSAGE_PARENT)
                 .list().stream().map(Message::getId).filter(messageIdList::contains).toList();
-
         //根据以上id列表获取关联留言id
         Set<Integer> validIdList = lambdaQuery()
                 .select(Message::getId)
-                .in(Message::getRootId, rootIdList).or()
-                .in(Message::getParentId, parentIdList)
+                .in(!rootIdList.isEmpty(), Message::getRootId, rootIdList).or()
+                .in(!parentIdList.isEmpty(), Message::getParentId, parentIdList)
                 .list().stream().map(Message::getId).collect(Collectors.toSet());
         //根据关联列表与总列表获取并集
         validIdList.addAll(messageIdList);

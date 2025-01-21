@@ -40,15 +40,6 @@ public interface MessageMapper extends BaseMapper<Message> {
     })
     MessageResp getMessage(int id);
 
-    @Select("select * from message where root_id = #{rootId}")
-    @Results(id = "getMessageReplyListMap", value = {
-            @Result(column = "user_id", property = "user",
-                    one = @One(select = "com.blog.mapper.UserMapper.getUserRespById")),
-            @Result(column = "from_user_id", property = "fromUser",
-                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById"))
-    })
-    List<MessageResp> getMessageReplyList(Integer rootId);
-
     @Select("select * from message limit #{param.page},#{param.limit} ")
     @Results(id = "getMessageBackListMap", value = {
             @Result(column = "user_id", property = "user",

@@ -21,8 +21,6 @@ public interface MessageService extends IService<Message> {
 
     MessageResp addMessage(MessageAddReq req);
 
-    List<MessageResp> getMessageReplyList(Integer rootId);
-
     PageResult<MessageBackResp> getBackMessageList(PageReq req);
 
     void deleteMessage(List<Integer> messageIdList);

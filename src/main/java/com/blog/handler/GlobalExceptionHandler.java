@@ -28,8 +28,8 @@ public class GlobalExceptionHandler extends BasicErrorController {
     public void runtimeExceptionHandler(HttpServletResponse response, RuntimeException e) throws IOException {
         log.error("出现异常:", e);
         String msg = e.getMessage();
-        webUtils.renderString(response, Result.failure(response.getStatus(), msg));
-        log.error(response.getStatus() + msg);
+        webUtils.renderString(response, Result.failure(500, msg));
+        log.error(msg);
     }
 
 }

@@ -10,10 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MessageAddReq {
 
+    @NotNull
     //根评论id
     private Integer rootId;
+    @NotNull
     //父评论id
     private Integer parentId;
+    @NotNull
     //父评论用户id
     private Integer fromUserId;
     @NotNull
