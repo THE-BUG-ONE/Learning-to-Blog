@@ -18,4 +18,10 @@ public class RegisterReq {
     //用户名
     @NotNull
     private String username;
+    //昵称
+    @NotNull
+    private String nickname;
+    //邮箱
+    @NotNull
+    private String email;
 }

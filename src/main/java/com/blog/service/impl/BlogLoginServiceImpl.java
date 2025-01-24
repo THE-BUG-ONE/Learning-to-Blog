@@ -121,26 +121,30 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     @Override
     @Transactional
     public void register(RegisterReq req) {
-        String username = req.getUsername();
-        if (userService.lambdaQuery().eq(User::getUsername, username).exists())
-            throw new RuntimeException("注册用户异常:[用户名已存在]");
-        String code = req.getCode();
-        //校验验证码
-        String msg = userService.emailCodeCheck(username, code, SystemConstants.REGISTER_CODE);
-        if (msg != null)
-            throw new RuntimeException(msg);
-        String password = encoder.encode(req.getPassword());
-        // 添加 用户表|用户权限表|权限表 信息
-        if (userService.save(new User(
-                "None", username, password, siteConfigService.getSiteConfig().getUserAvatar(),
-                username, 0, DateTime.now())) &&
-                userRoleService.save(new UserRole(
-                        userService.lambdaQuery()
-                                .eq(User::getUsername, username)
-                                .one()
-                                .getId(), SystemConstants.USER_ROLE_TEST)))
-            stringRedisTemplate.delete(SystemConstants.VERIFY_EMAIL_DATA + username);
-        else throw new RuntimeException("注册用户异常:[未知异常]");
+        try {
+            String username = req.getUsername();
+            if (userService.lambdaQuery().eq(User::getUsername, username).exists())
+                throw new RuntimeException("注册用户异常:[用户名已存在]");
+            String code = req.getCode();
+            //校验验证码
+            String msg = userService.emailCodeCheck(username, code, SystemConstants.REGISTER_CODE);
+            if (msg != null)
+                throw new RuntimeException(msg);
+            String password = encoder.encode(req.getPassword());
+            // 添加 用户表|用户权限表|权限表 信息
+            if (
+                    userService.save(new User(
+                            "None", username, password, siteConfigService.getSiteConfig().getUserAvatar(),
+                            username, 0, DateTime.now())) &&
+                            userRoleService.save(new UserRole(userService.lambdaQuery()
+                                    .eq(User::getUsername, username)
+                                    .one()
+                                    .getId(), SystemConstants.USER_ROLE_TEST)))
+                stringRedisTemplate.delete(SystemConstants.VERIFY_EMAIL_DATA + username);
+            else throw new RuntimeException("注册用户异常:[未知异常]");
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
