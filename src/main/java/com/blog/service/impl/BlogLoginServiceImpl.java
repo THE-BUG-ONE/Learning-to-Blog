@@ -148,15 +148,15 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     }
 
     @Override
-    public void code(String username, String type) {
+    public void code(String email, String type) {
         String ip = webUtils.getRequest().getRemoteAddr();
         synchronized (ip.intern()) {
             if (flowUtils.limitOnceCheck(SystemConstants.VERIFY_EMAIL_LIMIT + ip, 60))
                 throw new RuntimeException("验证码异常:[请求频繁，请稍后再试]");
             Random random = new Random();
             String code = String.valueOf(random.nextInt(899999) + 100000);
-            sendEmailMessage(username, code, type);
-            stringRedisTemplate.opsForValue().set(SystemConstants.VERIFY_EMAIL_DATA + username, code, 3, TimeUnit.MINUTES);
+            sendEmailMessage(email, code, type);
+            stringRedisTemplate.opsForValue().set(SystemConstants.VERIFY_EMAIL_DATA + email, code, 3, TimeUnit.MINUTES);
         }
     }
 

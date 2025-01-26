@@ -16,7 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 @Aspect
 @Slf4j
-public class LogAspect {
+public class SystemLogAspect {
 
     @Pointcut("@annotation(com.blog.annotation.SystemLog)")
     public void pt() {

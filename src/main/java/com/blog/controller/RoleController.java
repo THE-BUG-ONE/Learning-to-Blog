@@ -45,7 +45,7 @@ public class RoleController {
 
     @SystemLog(businessName = "查看后台角色列表")
     @GetMapping("/list")
-    public Result<PageResult<RoleResp>> getBackRoleList(@RequestBody @Valid RoleBackReq roleBackReq) {
+    public Result<PageResult<RoleResp>> getBackRoleList(@Valid RoleBackReq roleBackReq) {
         PageResult<RoleResp> res = roleService.getBackRoleList(roleBackReq);
         return Result.result(res);
     }

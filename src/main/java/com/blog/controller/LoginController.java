@@ -43,8 +43,8 @@ public class LoginController {
 
     @SystemLog(businessName = "发送邮箱验证码")
     @GetMapping("/code")
-    public Result<?> code(@RequestBody @NotNull String username) {
-        blogLoginService.code(username, SystemConstants.REGISTER_CODE);
+    public Result<?> code(@NotNull String email) {
+        blogLoginService.code(email, SystemConstants.REGISTER_CODE);
         return Result.success();
     }
 }
