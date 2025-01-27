@@ -22,6 +22,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -80,32 +81,37 @@ public class BlogLoginServiceImpl implements BlogLoginService {
     public String login(LoginReq loginReq) {
         String username = loginReq.getUsername();
         String password = loginReq.getPassword();
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        if (Objects.isNull(authentication))
-            throw new RuntimeException("登录异常:[用户名或密码错误]");
-        //生成token
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        int userId = loginUser.getUser().getId();
-        //更新登录时间
-        if (!userService.lambdaUpdate()
-                .eq(User::getId, userId)
-                .set(User::getLoginTime, DateTime.now())
-                .update())
-            throw new RuntimeException("登录异常:[更新登录时间错误]");
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            if (Objects.isNull(authentication))
+                return null;
+            //生成token
+            LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+            int userId = loginUser.getUser().getId();
+            //更新登录时间
+            if (!userService.lambdaUpdate()
+                    .eq(User::getId, userId)
+                    .set(User::getLoginTime, DateTime.now())
+                    .update())
+                throw new RuntimeException("登录异常:[更新登录时间错误]");
 
-        //前端已添加前缀
-        String token = SystemConstants.JWT_HEAD + jwtUtils.createJwt(loginUser, userId);
-//        String token = jwtUtils.createJwt(loginUser, userId);
-        //将loginUser按id存入redis
-        redisTemplate.opsForValue().set(
-                SystemConstants.JWT_REDIS_KEY + userId,
-                loginUser,
-                SystemConstants.JWT_EXPIRE,
-                TimeUnit.DAYS);
-        // 已登录用户ID存入redis
-        stringRedisTemplate.opsForSet().add(SystemConstants.LOGGED_USER_ID, String.valueOf(userId));
-        return token;
+            //前端已添加前缀
+            String token = SystemConstants.JWT_HEAD + jwtUtils.createJwt(loginUser, userId);
+            //将loginUser按id存入redis
+            redisTemplate.opsForValue().set(
+                    SystemConstants.JWT_REDIS_KEY + userId,
+                    loginUser,
+                    SystemConstants.JWT_EXPIRE,
+                    TimeUnit.DAYS);
+            // 已登录用户ID存入redis
+            stringRedisTemplate.opsForSet().add(SystemConstants.LOGGED_USER_ID, String.valueOf(userId));
+            return token;
+        } catch (BadCredentialsException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -127,17 +133,17 @@ public class BlogLoginServiceImpl implements BlogLoginService {
                 throw new RuntimeException("注册用户异常:[用户名已存在]");
             String code = req.getCode();
             //校验验证码
-            String msg = userService.emailCodeCheck(username, code, SystemConstants.REGISTER_CODE);
+            String msg = userService.emailCodeCheck(req.getEmail(), code, SystemConstants.REGISTER_CODE);
             if (msg != null)
                 throw new RuntimeException(msg);
             String password = encoder.encode(req.getPassword());
             // 添加 用户表|用户权限表|权限表 信息
             if (
                     userService.save(new User(
-                            "None", username, password, siteConfigService.getSiteConfig().getUserAvatar(),
-                            username, 0, DateTime.now())) &&
+                            req.getNickname(), username, password, siteConfigService.getSiteConfig().getUserAvatar(),
+                            req.getEmail(), 0)) &&
                             userRoleService.save(new UserRole(userService.lambdaQuery()
-                                    .eq(User::getUsername, username)
+                                    .eq(User::getEmail, req.getEmail())
                                     .one()
                                     .getId(), SystemConstants.USER_ROLE_TEST)))
                 stringRedisTemplate.delete(SystemConstants.VERIFY_EMAIL_DATA + username);

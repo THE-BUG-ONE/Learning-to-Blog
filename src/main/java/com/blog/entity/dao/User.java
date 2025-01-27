@@ -113,14 +113,13 @@ public class User implements Serializable {
     @ApiModelProperty("更新时间")
     private Date updateTime;
 
-    public User(String nickname, String username, String password, String avatar,
-                String email, Integer isDisable, Date createTime) {
+    public User(String nickname, String username, String password,
+                String avatar, String email, Integer isDisable) {
         this.nickname = nickname;
         this.username = username;
         this.password = password;
         this.avatar = avatar;
         this.email = email;
         this.isDisable = isDisable;
-        this.createTime = createTime;
     }
 }

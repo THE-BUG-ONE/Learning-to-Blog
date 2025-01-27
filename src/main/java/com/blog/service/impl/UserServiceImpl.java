@@ -7,9 +7,9 @@ import com.blog.entity.dao.User;
 import com.blog.entity.dao.UserRole;
 import com.blog.entity.vo.request.*;
 import com.blog.entity.vo.response.*;
+import com.blog.mapper.ArticleMapper;
 import com.blog.mapper.RoleMapper;
 import com.blog.mapper.UserMapper;
-import com.blog.service.ArticleService;
 import com.blog.service.BlogLoginService;
 import com.blog.service.UserRoleService;
 import com.blog.service.UserService;
@@ -49,7 +49,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Lazy
     @Resource
-    private ArticleService articleService;
+    private ArticleMapper articleMapper;
 
     @Lazy
     @Resource
@@ -117,7 +117,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public UserInfoResp getUserInfo() {
         User user = webUtils.getRequestUser();
         return BeanCopyUtils.copyBean(user, UserInfoResp.class)
-                .setRoles(roleMapper.getUserRoleNameList(user.getId()));
+                .setRoles(roleMapper.getUserRoleNameList(user.getId()))
+                .setArticleCount(articleMapper.countArticleByUserId(user.getId()));
     }
 
     @Override

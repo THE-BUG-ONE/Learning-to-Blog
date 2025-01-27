@@ -91,8 +91,11 @@ public interface ArticleMapper extends BaseMapper<Article> {
     })
     ArticleResp getArticle(Integer id);
 
-    @Select("select count(*) from article where category_id = #{categoryId}")
+    @Select("select count(id) from article where category_id = #{categoryId}")
     Integer countArticleByCategoryId(Integer categoryId);
+
+    @Select("select count(id) from article where user_id = #{userId}")
+    Integer countArticleByUserId(Integer userId);
 
     /*{
         "articleConditionVOList": [{

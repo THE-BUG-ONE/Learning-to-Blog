@@ -10,11 +10,14 @@ import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorContro
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+
+import java.util.regex.Pattern;
 
 @RestControllerAdvice
 @Slf4j
@@ -41,11 +44,20 @@ public class GlobalExceptionHandler extends BasicErrorController {
         return Result.failure(AppHttpCodeEnum.BAD_REQUEST);
     }
 
+    @ExceptionLog(businessName = "用户名或密码错误")
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(BadCredentialsException.class)
+    public Result<String> badCredentialsExceptionHandler(BadCredentialsException e) {
+        assert e != null;
+        return Result.failure(AppHttpCodeEnum.ERROR_LOGIN);
+    }
+
     @ExceptionLog(businessName = "未知异常")
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException.class)
     public Result<String> runtimeExceptionHandler(RuntimeException e) {
-        log.error("出现异常:", e);
+        if (!Pattern.compile("[\\u4e00-\\u9fa5]").matcher(e.getMessage()).find())
+            log.error("未知异常: ", e);
         return Result.failure(AppHttpCodeEnum.INTERNAL_ERROR);
     }
 

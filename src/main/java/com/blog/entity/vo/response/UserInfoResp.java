@@ -28,4 +28,6 @@ public class UserInfoResp {
     private String introduction;
     //上次登录时间
     private Date loginTime;
+    //文章数
+    private Integer articleCount;
 }

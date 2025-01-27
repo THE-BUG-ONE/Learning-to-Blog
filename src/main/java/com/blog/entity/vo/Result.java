@@ -49,6 +49,6 @@ public record Result<T>(boolean flag, int code, String msg, T data) {
     public static <T> Result<T> result(T res) {
         return res != null ?
                 Result.success(res) :
-                Result.failure(AppHttpCodeEnum.BAD_REQUEST);
+                Result.failure(AppHttpCodeEnum.INTERNAL_ERROR);
     }
 }
