@@ -180,6 +180,10 @@
   - 原因：一条请求不能多次获取 response 或 request
   - 解决：
   > 不要在切面注解下的方法使用 response 或 request
+- java: 找不到符号
+  - 原因：项目目录移动后出现编译错误
+  - 解决：
+  > 若是 `maven` 项目则先使用 `clean` 再 `package`
 - 400 Bad Request
   - 原因：请求参数个数或类型错误
 - 403 Forbidden
