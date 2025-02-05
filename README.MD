@@ -1,7 +1,7 @@
 # 青松拾光(博客平台)
 [博客后端系统(Spring Boot3)]：[https://github.com/THE-BUG-ONE/Learning-to-Blog](https://github.com/THE-BUG-ONE/Learning-to-Blog)  
 [博客前台主体(Vue2)]：[https://github.com/THE-BUG-ONE/blog-frontend-admin](https://github.com/THE-BUG-ONE/blog-frontend-admin)  
-[博客后台管理(Vue3)]：[https://github.com/THE-BUG-ONE/blog-frontend-home](https://github.com/THE-BUG-ONE/blog-front-home)  
+[博客后台管理(Vue3)]：[https://github.com/THE-BUG-ONE/blog-frontend-home](https://github.com/THE-BUG-ONE/blog-frontend-home)  
 ---
 ## 项目介绍
 技术栈：  
