@@ -7,17 +7,19 @@ import com.blog.service.SiteConfigService;
 import org.springframework.stereotype.Service;
 
 /**
- * (SiteConfig)表服务实现类
- *
- * @author makejava
- * @since 2024-04-02 15:00:55
- */
-@Service("siteConfigService")
-public class SiteConfigServiceImpl extends ServiceImpl<SiteConfigMapper, SiteConfig> implements SiteConfigService {
+* @author Felz
+* @description 针对表【site_config】的数据库操作Service实现
+* @createDate 2025-04-11 21:31:39
+*/
+@Service
+public class SiteConfigServiceImpl extends ServiceImpl<SiteConfigMapper, SiteConfig> implements SiteConfigService{
 
     @Override
     public SiteConfig getSiteConfig() {
-        return this.query().one();
+        return getOne(null);
     }
 }
+
+
+
 

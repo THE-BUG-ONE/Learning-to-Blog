@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-import java.util.regex.Pattern;
-
 @RestControllerAdvice
 @Slf4j
 @ResponseBody
@@ -52,13 +50,13 @@ public class GlobalExceptionHandler extends BasicErrorController {
         return Result.failure(AppHttpCodeEnum.ERROR_LOGIN);
     }
 
-    @ExceptionLog(businessName = "未知异常")
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(RuntimeException.class)
-    public Result<String> runtimeExceptionHandler(RuntimeException e) {
-        if (!Pattern.compile("[\\u4e00-\\u9fa5]").matcher(e.getMessage()).find())
-            log.error("未知异常: ", e);
-        return Result.failure(AppHttpCodeEnum.INTERNAL_ERROR);
-    }
+//    @ExceptionLog(businessName = "未知异常")
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(RuntimeException.class)
+//    public Result<String> runtimeExceptionHandler(RuntimeException e) {
+//        if (!Pattern.compile("[\\u4e00-\\u9fa5]").matcher(e.getMessage()).find())
+//            log.error("未知异常: ", e);
+//        return Result.failure(AppHttpCodeEnum.INTERNAL_ERROR.getCode(), e.getMessage());
+//    }
 
 }

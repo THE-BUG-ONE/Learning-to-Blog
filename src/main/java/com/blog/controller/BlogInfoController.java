@@ -23,13 +23,6 @@ public class BlogInfoController {
         return Result.result(res);
     }
 
-    @SystemLog(businessName = "获取关于我信息")
-    @GetMapping("/about")
-    public Result<String> about() {
-        String res = blogInfoService.about();
-        return Result.result(res);
-    }
-
     @SystemLog(businessName = "上传访客信息")
     @PostMapping("/report")
     public Result<?> report() {

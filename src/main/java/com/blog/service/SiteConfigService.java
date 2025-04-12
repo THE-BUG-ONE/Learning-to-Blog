@@ -4,12 +4,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.blog.entity.dao.SiteConfig;
 
 /**
- * (SiteConfig)表服务接口
- *
- * @author makejava
- * @since 2024-04-02 15:00:55
- */
+* @author Felz
+* @description 针对表【site_config】的数据库操作Service
+* @createDate 2025-04-11 21:31:39
+*/
 public interface SiteConfigService extends IService<SiteConfig> {
     SiteConfig getSiteConfig();
 }
-

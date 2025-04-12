@@ -43,6 +43,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
             @Result(column = "id", property = "id"),
             @Result(column = "category_id", property = "categoryName",
                     one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryNameById")),
+            @Result(column = "user_id", property = "author",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById")),
             @Result(column = "id", property = "tagNameList",
                     many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList"))
     })
@@ -151,6 +153,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
             @Result(column = "id", property = "id"),
             @Result(column = "category_id", property = "categoryName",
                     one = @One(select = "com.blog.mapper.CategoryMapper.getCategoryNameById")),
+            @Result(column = "user_id", property = "author",
+                    one = @One(select = "com.blog.mapper.UserMapper.getUserOptionRespById")),
             @Result(column = "id", property = "tagNameList",
                     many = @Many(select = "com.blog.mapper.TagMapper.getTagOptionList"))
     })

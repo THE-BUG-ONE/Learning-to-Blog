@@ -19,6 +19,8 @@ public class ArticleHomeResp {
     private Integer id;
     //缩略图
     private String articleCover;
+    //作者
+    private UserOptionResp author;
     //文章标题
     private String articleTitle;
     //文章简介

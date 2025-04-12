@@ -107,4 +107,7 @@ public class SystemConstants {
     public static final int USER_DISABLE_T = 1;
     //用户未禁用
     public static final int USER_DISABLE_F = 0;
+
+    //用户默认头像
+    public static final String USER_DISABLE_P = "https://tse4-mm.cn.bing.net/th/id/OIP-C.u8sQ4TZBtQP0_xabZPONLQHaEb?rs=1&pid=ImgDetMain";
 }

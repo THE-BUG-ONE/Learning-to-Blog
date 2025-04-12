@@ -118,7 +118,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = webUtils.getRequestUser();
         return BeanCopyUtils.copyBean(user, UserInfoResp.class)
                 .setRoles(roleMapper.getUserRoleNameList(user.getId()))
-                .setArticleCount(articleMapper.countArticleByUserId(user.getId()));
+                .setArticleCount(articleMapper.countArticleByUserId(user.getId()))
+                .setAvatar(user.getAvatar() == null ? SystemConstants.USER_DISABLE_P : user.getAvatar());
     }
 
     @Override

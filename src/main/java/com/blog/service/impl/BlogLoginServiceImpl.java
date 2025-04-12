@@ -105,7 +105,8 @@ public class BlogLoginServiceImpl implements BlogLoginService {
                     SystemConstants.JWT_EXPIRE,
                     TimeUnit.DAYS);
             // 已登录用户ID存入redis
-            stringRedisTemplate.opsForSet().add(SystemConstants.LOGGED_USER_ID, String.valueOf(userId));
+            stringRedisTemplate.opsForSet()
+                    .add(SystemConstants.LOGGED_USER_ID, String.valueOf(userId));
             return token;
         } catch (BadCredentialsException e) {
             throw e;
@@ -140,7 +141,8 @@ public class BlogLoginServiceImpl implements BlogLoginService {
             // 添加 用户表|用户权限表|权限表 信息
             if (
                     userService.save(new User(
-                            req.getNickname(), username, password, siteConfigService.getSiteConfig().getUserAvatar(),
+                            req.getNickname(), username, password,
+                            siteConfigService.getSiteConfig().getUserAvatar(),
                             req.getEmail(), 0)) &&
                             userRoleService.save(new UserRole(userService.lambdaQuery()
                                     .eq(User::getEmail, req.getEmail())

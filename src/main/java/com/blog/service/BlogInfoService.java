@@ -61,10 +61,6 @@ public class BlogInfoService {
         }
     }
 
-    public String about() {
-        return siteConfigService.query().one().getAboutMe();
-    }
-
     public void report() {
 
     }

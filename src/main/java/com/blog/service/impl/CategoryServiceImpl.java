@@ -123,9 +123,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     @Transactional
     public void updateCategory(CategoryReq categoryReq) {
-        String categoryName = categoryReq.getCategoryName();
-        Integer id = categoryReq.getId();
         try {
+            String categoryName = categoryReq.getCategoryName();
+            Integer id = categoryReq.getId();
+            //判断分类是否已存在
             if (id == null || lambdaQuery()
                     .eq(Category::getCategoryName, categoryName)
                     .exists() || !lambdaUpdate()
